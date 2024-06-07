@@ -1,0 +1,52 @@
+{
+  "name": "@sundaeswap/turbo",
+  "version": "0.0.1",
+  "main": "dist/esm/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js"
+    },
+    "./react-components": {
+      "import": "./dist/esm/react-components.js"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --watchAll=false",
+    "clean": "rm -rf ./dist",
+    "build": "bun build ./src/exports/index.ts ./src/exports/react-components.ts --outdir ./dist --target browser",
+    "types": "tsc --declaration --emitDeclarationOnly",
+    "watch": "yarn clean && yarn compile --watch"
+  },
+  "dependencies": {
+    "@cardano-sdk/core": "^0.32.0",
+    "@cardano-sdk/dapp-connector": "^0.12.18",
+    "@cardano-sdk/util": "^0.15.1",
+    "@fabianbormann/cardano-peer-connect": "^1.2.17",
+    "@koralabs/adahandle-sdk": "^1.4.0",
+    "@sundaeswap/asset": "^0.7.1",
+    "@sundaeswap/fraction": "0.5.9",
+    "lodash": "^4.17.21",
+    "rxjs": "^7.8.1"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-error-boundary": "^4.0.13"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.3",
+    "@types/lodash": "^4.17.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.4.5"
+  }
+}

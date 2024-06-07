@@ -1,0 +1,77 @@
+import { IAssetAmountMetadata } from "@sundaeswap/asset";
+import {
+  FC,
+  MutableRefObject,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { ErrorBoundary } from "react-error-boundary";
+
+import { TGetPeerConnectInstance } from "../@types/observer";
+import { useWalletObserver } from "../hooks/useWalletObserver";
+
+export type TRenderWalletPeerConnectFunctionState<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata
+> = ReturnType<typeof useWalletObserver<T>> & {
+  peerConnect?: ReturnType<TGetPeerConnectInstance>;
+  QRCodeElement: ReactNode;
+};
+
+export type TRenderWalletPeerConnectFunction = (
+  state: TRenderWalletPeerConnectFunctionState
+) => ReactNode;
+
+export interface IRenderWalletPeerConnectProps {
+  render: TRenderWalletPeerConnectFunction;
+}
+
+export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
+  render,
+}) => {
+  const state = useWalletObserver();
+  const [peerConnect, setPeerConnect] =
+    useState<ReturnType<TGetPeerConnectInstance>>();
+  const [error, setError] = useState<string>();
+  const qrCode = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!state.ready) {
+      return;
+    }
+
+    state.observer
+      .getCip45Instance()
+      .then((res) => setPeerConnect(res))
+      .catch((e) => setError((e as Error).message));
+  }, [state.observer, state.ready, setPeerConnect, setError]);
+
+  const QRCodeElement = useMemo<ReactNode>(() => {
+    if (peerConnect && qrCode.current) {
+      peerConnect.instance.generateQRCode(qrCode.current);
+    }
+
+    return <div ref={qrCode as MutableRefObject<HTMLDivElement>} />;
+  }, [peerConnect]);
+
+  const memoizedState = useMemo(
+    () => ({
+      ...state,
+      peerConnect,
+      QRCodeElement,
+    }),
+    [state, peerConnect, QRCodeElement]
+  );
+
+  if (!memoizedState.peerConnect) {
+    return null;
+  }
+
+  return (
+    <ErrorBoundary fallback={<p>{error}</p>}>
+      {render(memoizedState)}
+    </ErrorBoundary>
+  );
+};

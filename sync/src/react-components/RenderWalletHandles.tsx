@@ -28,6 +28,11 @@ export interface IRenderWalletHandlesProps {
   render: TRenderWalletHandlesFunction;
 }
 
+/**
+ * This component is the same as RenderWallet, but supports
+ * fetching and updating wallet Handles with their extra
+ * metadata.
+ */
 export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
   render,
 }) => {

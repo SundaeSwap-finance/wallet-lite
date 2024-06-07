@@ -1,5 +1,12 @@
 import { WalletBalanceMap } from "../classes/WalletBalanceMap.class";
 
+/**
+ * Compares two maps or wallet balance maps to determine if they are equal.
+ *
+ * @param {Map<string, any> | WalletBalanceMap} [map1] - The first map to compare.
+ * @param {Map<string, any> | WalletBalanceMap} [map2] - The second map to compare.
+ * @returns {boolean} - Returns true if the maps are equal, false otherwise.
+ */
 export const areAssetMapsEqual = (
   map1?: Map<string, any> | WalletBalanceMap,
   map2?: Map<string, any> | WalletBalanceMap
@@ -19,6 +26,13 @@ export const areAssetMapsEqual = (
   return true;
 };
 
+/**
+ * Compares two functions to determine if they are equal.
+ *
+ * @param {Function} func1 - The first function to compare.
+ * @param {Function} func2 - The second function to compare.
+ * @returns {boolean} - Returns true if the functions are considered equal, false otherwise.
+ */
 export const areFunctionsEqual = (func1: Function, func2: Function) => {
   // Check if both functions are the same reference
   if (func1 === func2) {

@@ -6,6 +6,11 @@ import {
   useWalletObserverContext,
 } from "../contexts/observer";
 
+/**
+ * Exposes the WalletObserver state.
+ *
+ * @returns {TUseWalletObserverState<AssetMetadata>}
+ */
 export const useWalletObserver = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 >(): TUseWalletObserverState<AssetMetadata> => {

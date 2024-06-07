@@ -3,6 +3,7 @@ import { FC, PropsWithChildren, useMemo } from "react";
 
 import {
   IWalletObserverProviderProps,
+  IWalletObserverProviderState,
   IWalletObserverState,
   WalletObserverContext,
   defaultObserverContextValue,
@@ -12,15 +13,18 @@ import { useProviderRefreshInterval } from "./hooks/effects/useProviderRefreshIn
 import { useProviderWalletObserverRef } from "./hooks/useProviderWalletObserverRef";
 import { useWalletObserverState } from "./hooks/useSyncWalletFunction";
 
+/**
+ * The main context provider component. This handles setting up all the initial
+ * state, handlers, and side effects with a new WalletObserver class.
+ *
+ * @param {IWalletObserverProviderProps} [options]
+ * @returns {FC<PropsWithChildren<IWalletObserverProviderProps>>}
+ */
 const WalletObserverProvider: FC<
   PropsWithChildren<IWalletObserverProviderProps>
 > = ({ children, ...rest }) => {
-  const mergedProps = useMemo(() => {
-    return merge(
-      {},
-      defaultObserverContextValue,
-      rest
-    ) as IWalletObserverProviderProps;
+  const mergedProps: IWalletObserverProviderState = useMemo(() => {
+    return merge({}, defaultObserverContextValue, rest);
   }, [rest]);
 
   const observerRef = useProviderWalletObserverRef(mergedProps.observerOptions);
@@ -30,9 +34,9 @@ const WalletObserverProvider: FC<
 
   useProviderEventListeners(observerRef.current, syncWallet);
   useProviderRefreshInterval(
+    observerRef.current,
     mergedProps.refreshInterval,
-    syncWallet,
-    observerRef.current
+    syncWallet
   );
 
   // Memoize the context value

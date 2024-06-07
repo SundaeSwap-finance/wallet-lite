@@ -8,11 +8,12 @@
     "emitDeclarationOnly": true,
     "declarationMap": true,
     "allowSyntheticDefaultImports": true,
+    "strict": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "outDir": "./dist/types",
     "baseUrl": "."
   },
-  "include": ["./src/exports/index.ts", "./src/exports/react-components.ts"],
+  "include": ["./src"],
   "exclude": ["../node_modules"]
 }

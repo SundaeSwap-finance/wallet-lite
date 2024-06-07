@@ -40,7 +40,7 @@
     "@cardano-sdk/dapp-connector": "^0.12.18",
     "@cardano-sdk/util": "^0.15.1",
     "@fabianbormann/cardano-peer-connect": "^1.2.17",
-    "@koralabs/adahandle-sdk": "^1.4.0",
+    "@koralabs/adahandle-sdk": "1.4.0",
     "@sundaeswap/asset": "^0.7.1",
     "@sundaeswap/fraction": "0.5.9",
     "lodash": "^4.17.21",

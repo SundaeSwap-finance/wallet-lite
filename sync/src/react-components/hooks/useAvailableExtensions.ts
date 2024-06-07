@@ -1,9 +1,24 @@
 import capitalize from "lodash/capitalize";
 import { useCallback, useEffect, useState } from "react";
 
-import { IWalletExtension } from "../../@types/observer";
+import { TSupportWalletExtensions } from "../../exports";
 import { useWalletObserverContext } from "../contexts/observer";
 
+/**
+ * Defines the interface for a returned wallet
+ */
+export interface IWalletExtension {
+  property: TSupportWalletExtensions;
+  name: string;
+}
+
+/**
+ * A helper hook to get a live list of wallet extensions, populated
+ * during the first 20 seconds of a window's load. This is because some
+ * wallet extensions are slow to inject their APIs into the global scope.
+ *
+ * @returns {IWalletExtension[]} A list of available wallet extensions.
+ */
 export const useAvailableExtensions = () => {
   const { observerRef } = useWalletObserverContext();
   const [list, setList] = useState<IWalletExtension[]>([]);

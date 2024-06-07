@@ -10,6 +10,12 @@ import { WalletObserver } from "../../../classes/WalletObserver.class";
 import { areAssetMapsEqual } from "../../../utils/comparisons";
 import { THandleMetadata } from "../../contexts/observer";
 
+/**
+ * Internal use only. The main action that sync WalletObserver api responses with
+ * the React context of the WalletObserverProvider.
+ *
+ * @param {WalletObserver} observer
+ */
 export const useWalletObserverState = (observer: WalletObserver) => {
   const prevActiveWallet = useRef<TSupportWalletExtensions>();
   const [activeWallet, setActiveWallet] = useState<TSupportWalletExtensions>();

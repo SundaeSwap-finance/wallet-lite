@@ -5,9 +5,16 @@ import { IWalletObserverOptions } from "../../../@types/observer";
 import { WalletObserver } from "../../../classes/WalletObserver.class";
 import { onConnectHandler, onDisconnectHandler } from "../../../utils/handlers";
 
+/**
+ * Internal use only. This hook is responsible for initiating the
+ * WalletObserver instance once, and assigning it to a ref.
+ *
+ * @param {IWalletObserverOptions} [options]
+ * @returns {MutableRefObject<WalletObserver>}
+ */
 export const useProviderWalletObserverRef = (
   options?: IWalletObserverOptions
-) => {
+): MutableRefObject<WalletObserver> => {
   // Use ref to store the observer instance, ensuring it's created only once
   const observerRef = useRef<WalletObserver | null>(null);
 

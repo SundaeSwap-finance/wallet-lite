@@ -28,6 +28,11 @@ export interface IRenderWalletPeerConnectProps {
   render: TRenderWalletPeerConnectFunction;
 }
 
+/**
+ * This component is responsible for generating CIP-45 utilities
+ * and exposing them to the render function, including a QR Code
+ * element that can be placed in the consuming app.
+ */
 export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
   render,
 }) => {

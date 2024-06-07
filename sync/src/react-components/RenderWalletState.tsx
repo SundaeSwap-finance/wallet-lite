@@ -19,6 +19,12 @@ export interface IRenderWalletStateProps {
   render: TRenderWalletStateFunction;
 }
 
+/**
+ * This component is the same as RenderWallet, but will
+ * trigger a re-render every time the WalletObserver performs
+ * a sync or connection operation. Useful for displaying
+ * internal operation states of the wallet.
+ */
 export const RenderWalletState: FC<IRenderWalletStateProps> = ({ render }) => {
   const state = useWalletObserver();
   const [connecting, setConnecting] = useState(false);

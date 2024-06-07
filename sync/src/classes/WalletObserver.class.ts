@@ -9,6 +9,7 @@ import { EWalletObserverEvents } from "../@types/events";
 import type {
   IWalletObserverOptions,
   IWalletObserverSeed,
+  IWalletObserverSync,
   TMetadataResolverFunc,
   TSupportWalletExtensions,
 } from "../@types/observer";
@@ -16,6 +17,20 @@ import { onDisconnectHandler } from "../utils/handlers";
 import { WalletBalanceMap } from "./WalletBalanceMap.class";
 import { WalletObserverEvent } from "./WalletObserverEvent";
 
+/**
+ * Class representing the Wallet Observer. This is the main interface
+ * for interacting with a wallet extension that is available in the
+ * browser window. It handles all the deserialization required when
+ * querying raw data from a CIP-30 API, and converts it to readable and
+ * usable interfaces.
+ *
+ * Notably, it extends the WalletObserverEvent class which
+ * acts as an internal event handler to hook into actions, such as connecting,
+ * syncing, and disconnecting.
+ *
+ * @template AssetMetadata - Type extending IAssetAmountMetadata.
+ * @extends {WalletObserverEvent}
+ */
 export class WalletObserver<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 > extends WalletObserverEvent {
@@ -40,6 +55,11 @@ export class WalletObserver<
   // Caching
   private _cachedMetadata: Map<string, AssetMetadata> = new Map();
 
+  /**
+   * Creates an instance of WalletObserver.
+   *
+   * @param {Partial<IWalletObserverOptions<AssetMetadata>>} [options] - Options for the wallet observer.
+   */
   constructor(options?: Partial<IWalletObserverOptions<AssetMetadata>>) {
     super();
 
@@ -56,19 +76,18 @@ export class WalletObserver<
       options,
       {
         peerConnectArgs: {
-          qrCodeTarget: "",
           dAppInfo: {
             name: "Placeholder dApp Connecter Name",
             url: window.location.hostname,
           },
           onApiEject: (name, address) => {
             console.log(name);
-            options?.peerConnectArgs?.onApiEject(name, address);
+            options?.peerConnectArgs?.onApiEject?.(name, address);
             onDisconnectHandler();
             this.disconnect();
           },
           onApiInject: (name, address) => {
-            options?.peerConnectArgs?.onApiInject(name, address);
+            options?.peerConnectArgs?.onApiInject?.(name, address);
             this.connectWallet(name as TSupportWalletExtensions).then(() =>
               console.log(this)
             );
@@ -102,7 +121,16 @@ export class WalletObserver<
     this.connectWallet(seed.activeWallet);
   }
 
-  sync = async () => {
+  /**
+   * Synchronizes the wallet. This method handles syncing the class
+   * against the currently selected active wallet. If the wallet has
+   * changed networks, or if the account within the wallet has changed,
+   * this method will automatically attempt to reconcile this error before
+   * eventually throwing.
+   *
+   * @returns {Promise<IWalletObserverSync>} - A promise that resolves to the wallet sync data.
+   */
+  sync = async (): Promise<IWalletObserverSync> => {
     this._performingSync = true;
     this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
 
@@ -141,10 +169,24 @@ export class WalletObserver<
     };
   };
 
-  isSyncing() {
+  /**
+   * Helper method to check if the class is currently performing a sync
+   * operation. This is useful to avoid duplicate calls, but does not
+   * prevent it within the class.
+   *
+   * @returns {boolean}
+   */
+  isSyncing(): boolean {
     return this._performingSync;
   }
 
+  /**
+   * Synchronizes the API with the wallet. This is useful if the account has changed,
+   * but the underlying intent has not.
+   *
+   * @param {TSupportWalletExtensions} [activeWallet] - The wallet to sync with.
+   * @returns {Promise<Cip30WalletApi>} - A promise that resolves to the API instance.
+   */
   syncApi = async (
     activeWallet?: TSupportWalletExtensions
   ): Promise<Cip30WalletApi> => {
@@ -184,6 +226,11 @@ export class WalletObserver<
     return this.api;
   };
 
+  /**
+   * Gets the options for the wallet observer.
+   *
+   * @returns {IWalletObserverOptions} - The wallet observer options.
+   */
   getOptions = (): IWalletObserverOptions => {
     return this._options;
   };

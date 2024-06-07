@@ -9,6 +9,9 @@ import type {
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class";
 import type { WalletObserver } from "../../../classes/WalletObserver.class";
 
+/**
+ * Available hooks to apply at various events.
+ */
 export type TWalletProviderHooks = {
   onSyncWalletStart?: () => void;
   onSyncWalletEnd?: () => void;
@@ -16,12 +19,26 @@ export type TWalletProviderHooks = {
   onConnectWalletEnd?: () => void;
 };
 
+/**
+ * The main WalletObserverProvider props.
+ */
 export interface IWalletObserverProviderProps {
   observerOptions?: IWalletObserverOptions;
   hooks?: TWalletProviderHooks;
+  refreshInterval?: number;
+}
+
+/**
+ * The resolved internal props of the WalletObserverProvider.
+ */
+export interface IWalletObserverProviderState
+  extends Omit<IWalletObserverProviderProps, "refreshInterval"> {
   refreshInterval: number;
 }
 
+/**
+ * The WalletObserverProvider's internal state.
+ */
 export interface IWalletObserverState<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 > {
@@ -51,10 +68,18 @@ export interface IWalletObserverState<
   };
 }
 
+/**
+ * A generic to extend the default IHandle type that comes
+ * back from the Kora Lab's API, and merged with the metadata
+ * returned from the metadataResolver.
+ */
 export type THandleMetadata<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 > = AssetMetadata & IHandle;
 
+/**
+ * The exposed state of the WalletObserverProvider.
+ */
 export type TUseWalletObserverState<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 > = Omit<

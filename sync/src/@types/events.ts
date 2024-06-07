@@ -2,6 +2,9 @@ import { IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { TSupportWalletExtensions, TWalletBalanceMap } from "./observer";
 
+/**
+ * A list of observer events that a client can hook into.
+ */
 export enum EWalletObserverEvents {
   CONNECT_WALLET_START = "connectWalletStart",
   CONNECT_WALLET_END = "connectWalletEnd",
@@ -11,6 +14,10 @@ export enum EWalletObserverEvents {
   GET_BALANCE_MAP_END = "getBalanceMapEnd",
   DISCONNECT = "disconnect",
 }
+
+/**
+ * A map of what each event passes to the event listener function.
+ */
 export interface EWalletObserverEventValues<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
 > {
@@ -27,6 +34,10 @@ export interface EWalletObserverEventValues<
   [EWalletObserverEvents.DISCONNECT]: undefined;
 }
 
+/**
+ * The function declaration so that an even handler can get
+ * type definitions for the arguments.
+ */
 export type TWalletObserverEventFunction<
   E extends keyof EWalletObserverEventValues
 > = (data?: EWalletObserverEventValues[E]) => void;

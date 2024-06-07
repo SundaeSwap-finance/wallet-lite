@@ -4,6 +4,15 @@ import { EWalletObserverEvents } from "../../../../@types/events";
 import { WalletObserver } from "../../../../classes/WalletObserver.class";
 import { TWalletProviderHooks } from "../../../contexts/observer";
 
+/**
+ * Internal use only. This is run in every WalletObserverProvider
+ * component on initial mount. It adds all relevant event listeners
+ * to the WalletObserver class.
+ *
+ * @param observer
+ * @param syncWallet
+ * @param hooks
+ */
 export const useProviderEventListeners = (
   observer: WalletObserver,
   syncWallet: () => Promise<void>,

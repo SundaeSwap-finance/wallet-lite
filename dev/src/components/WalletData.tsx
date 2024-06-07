@@ -1,4 +1,4 @@
-import { RenderWallet, TRenderWalletFunctionState } from "@sundaeswap/turbo";
+import { RenderWallet, TRenderWalletFunctionState } from "@sundaeswap/sync";
 
 import { IWalletMetadata } from "../App";
 import { WalletHandles } from "./WalletHandles";

@@ -1,9 +1,11 @@
 import {
-  RenderWallet,
-  RenderWalletState,
   TSupportWalletExtensions,
   useAvailableExtensions,
-} from "@sundaeswap/turbo";
+} from "@sundaeswap/sync";
+import {
+  RenderWallet,
+  RenderWalletState,
+} from "@sundaeswap/sync/react-components";
 import classNames from "classnames";
 import { FC, useEffect } from "react";
 

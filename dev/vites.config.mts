@@ -3,7 +3,7 @@ import inject from "@rollup/plugin-inject";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-import config from "../../config/local.json";
+import config from "../config/local.json";
 
 export default defineConfig({
   define: {

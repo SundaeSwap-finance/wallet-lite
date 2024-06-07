@@ -1,8 +1,8 @@
-import type { THandleMetadata } from "@sundaeswap/turbo";
+import type { THandleMetadata } from "@sundaeswap/sync";
 import {
   RenderWalletHandles,
   TRenderWalletHandlesFunction,
-} from "@sundaeswap/turbo";
+} from "@sundaeswap/sync/react-components";
 import { FC, useCallback, useState } from "react";
 
 export const WalletHandles: FC = () => {

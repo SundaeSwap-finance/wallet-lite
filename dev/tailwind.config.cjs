@@ -1,5 +1,3 @@
-const { theme } = require("@sundae/tailwind-config");
-
 module.exports = {
   content: ["./**/*.{js,ts,jsx,tsx}"],
   theme,

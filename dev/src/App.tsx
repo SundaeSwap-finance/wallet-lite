@@ -1,11 +1,11 @@
-import type { IWalletObserverOptions } from "@sundaeswap/turbo";
-import {
-  RenderWalletPeerConnect,
-  WalletObserverProvider,
-} from "@sundaeswap/turbo";
+import type { IWalletObserverOptions } from "@sundaeswap/sync";
 import { FC, StrictMode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+import {
+  RenderWalletPeerConnect,
+  WalletObserverProvider,
+} from "@sundaeswap/sync/react-components";
 import { ConnectWallet } from "./components/ConnectWallet";
 import { WalletData } from "./components/WalletData";
 

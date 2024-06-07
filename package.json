@@ -2,7 +2,6 @@
   "name": "my-monorepo",
   "private": true,
   "workspaces": [
-    "dev",
-    "sync"
+    "packages/*"
   ]
 }

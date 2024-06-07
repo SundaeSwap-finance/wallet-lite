@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
-import config from "../config/local.json";
+import config from "./config/local.json";
 
 export default defineConfig({
   define: {

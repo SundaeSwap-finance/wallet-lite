@@ -5,9 +5,9 @@ import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import type {
   IWalletObserverOptions,
   TSupportWalletExtensions,
-} from "../../@types/observer";
-import { WalletBalanceMap } from "../../classes/WalletBalanceMap.class";
-import type { WalletObserver } from "../../classes/WalletObserver.class";
+} from "../../../@types/observer";
+import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class";
+import type { WalletObserver } from "../../../classes/WalletObserver.class";
 
 export type TWalletProviderHooks = {
   onSyncWalletStart?: () => void;
@@ -29,6 +29,8 @@ export interface IWalletObserverState<
   refreshInterval: number | false;
   state: {
     ready: boolean;
+    isCip45: boolean;
+    setIsCip45: Dispatch<SetStateAction<boolean>>;
     setReady: Dispatch<SetStateAction<boolean>>;
     activeWallet?: TSupportWalletExtensions;
     setActiveWallet: Dispatch<
@@ -63,4 +65,5 @@ export type TUseWalletObserverState<
   | "setUnusedAddresses"
   | "setUsedAddresses"
   | "setReady"
+  | "setIsCip45"
 >;

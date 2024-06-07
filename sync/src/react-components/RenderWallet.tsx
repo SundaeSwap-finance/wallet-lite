@@ -1,14 +1,14 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode } from "react";
 
-import { useWalletObserver } from "../hooks/useWalletObserver";
+import { useWalletObserver } from "./hooks/useWalletObserver";
 
 export type TRenderWalletFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
 > = ReturnType<typeof useWalletObserver<T>>;
 
 export type TRenderWalletFunction = (
-  state: TRenderWalletFunctionState
+  state: TRenderWalletFunctionState<any>
 ) => JSX.Element | ReactNode;
 
 export interface IRenderWalletProps {

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { EWalletObserverEvents } from "../../../../@types/events";
 import { WalletObserver } from "../../../../classes/WalletObserver.class";
-import { TWalletProviderHooks } from "../../../../contexts/observer";
+import { TWalletProviderHooks } from "../../../contexts/observer";
 
 export const useProviderEventListeners = (
   observer: WalletObserver,
@@ -71,7 +71,9 @@ export const useProviderEventListeners = (
    * Ensure the wallet syncs on connect and disconnect.
    */
   useEffect(() => {
-    window.addEventListener("focus", syncWallet);
+    window.addEventListener("focus", () => {
+      syncWallet;
+    });
 
     observer.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,

@@ -1,4 +1,7 @@
-import { RenderWallet, TRenderWalletFunctionState } from "@sundaeswap/sync";
+import {
+  RenderWallet,
+  TRenderWalletFunctionState,
+} from "@sundaeswap/sync/react-components";
 
 import { IWalletMetadata } from "../App";
 import { WalletHandles } from "./WalletHandles";

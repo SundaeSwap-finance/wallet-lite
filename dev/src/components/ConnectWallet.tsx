@@ -4,42 +4,49 @@ import {
 } from "@sundaeswap/sync";
 import {
   RenderWallet,
+  RenderWalletPeerConnect,
   RenderWalletState,
 } from "@sundaeswap/sync/react-components";
 import classNames from "classnames";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 
 export const ConnectWallet: FC = () => {
   const availableExtensions = useAvailableExtensions();
 
-  useEffect(() => {
-    console.log("rendering connect wallet");
-  });
-
   return (
-    <div className="flex items-center gap-4">
+    <div className="m-4 w-1/4 border border-gray-400 p-4 flex flex-col">
+      <h4>CIP-45</h4>
+      <RenderWalletPeerConnect
+        render={({ peerConnect, QRCodeElement, activeWallet }) =>
+          !activeWallet &&
+          peerConnect && (
+            <>
+              <p>Address: {peerConnect.instance.getAddress()}</p>
+              {QRCodeElement}
+            </>
+          )
+        }
+      />
       <RenderWallet
-        render={({ activeWallet, observer }) => (
-          <select
-            value={activeWallet || "default"}
-            onChange={async ({ target }) => {
-              await observer.connectWallet(
-                target.value as TSupportWalletExtensions
-              );
-            }}
-          >
-            {!activeWallet && (
-              <option disabled value={"default"}>
-                Select A Wallet
-              </option>
-            )}
-            {availableExtensions.map(({ name, property }) => (
-              <option key={property} value={property}>
-                Connect {name}
-              </option>
-            ))}
-          </select>
-        )}
+        render={({ activeWallet, observer }) => {
+          return (
+            <select
+              value={activeWallet || "default"}
+              onChange={async ({ target }) => {
+                await observer.connectWallet(
+                  target.value as TSupportWalletExtensions
+                );
+              }}
+            >
+              <option value={"default"}>Select A Wallet</option>
+              {availableExtensions.map(({ name, property }) => (
+                <option key={property} value={property}>
+                  Connect {name}
+                </option>
+              ))}
+            </select>
+          );
+        }}
       />
       <div className="flex items-center">
         <p>
@@ -66,8 +73,9 @@ export const ConnectWallet: FC = () => {
         </p>
       </div>
       <RenderWallet
-        render={({ activeWallet, observer }) =>
-          activeWallet && (
+        render={({ observer, isCip45, ready }) =>
+          ready &&
+          !isCip45 && (
             <input
               className={classNames(
                 "ml-auto cursor-pointer bg-gray-400 px-4 py-2"

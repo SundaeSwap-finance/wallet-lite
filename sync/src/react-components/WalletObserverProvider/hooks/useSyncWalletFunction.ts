@@ -7,8 +7,8 @@ import {
 } from "../../../@types/observer";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class";
 import { WalletObserver } from "../../../classes/WalletObserver.class";
-import { THandleMetadata } from "../../../contexts/observer";
 import { areAssetMapsEqual } from "../../../utils/comparisons";
+import { THandleMetadata } from "../../contexts/observer";
 
 export const useWalletObserverState = (observer: WalletObserver) => {
   const prevActiveWallet = useRef<TSupportWalletExtensions>();
@@ -26,6 +26,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
   const [unusedAddresses, setUnusedAddresses] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
+  const [isCip45, setIsCip45] = useState(false);
 
   const syncWallet = useCallback(async () => {
     if (observer.isSyncing()) {
@@ -82,6 +83,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     );
 
     setReady(true);
+    setIsCip45(newWallet.includes("p2p"));
   }, [observer]);
 
   return {
@@ -93,6 +95,8 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     setBalance,
     handles: handleMetadata,
     setHandles: setHandleMetadata,
+    isCip45,
+    setIsCip45,
     network,
     setNetwork,
     unusedAddresses,

@@ -6,7 +6,7 @@ import {
   IWalletObserverState,
   WalletObserverContext,
   defaultObserverContextValue,
-} from "../../contexts/observer";
+} from "../contexts/observer";
 import { useProviderEventListeners } from "./hooks/effects/useProviderEventListeners";
 import { useProviderRefreshInterval } from "./hooks/effects/useProviderRefreshInterval";
 import { useProviderWalletObserverRef } from "./hooks/useProviderWalletObserverRef";

@@ -1,34 +1,53 @@
 {
-    "plugins": ["@babel/plugin-proposal-class-properties"],
-    "env": {
-      "esmUnbundled": {
-        "ignore": ["src/**/*.spec.ts"],
-        "presets": ["@babel/preset-typescript"]
-      },
-      "esmBundled": {
-        "ignore": ["src/**/*.spec.ts"],
-        "presets": [
-          [
-            "@babel/env",
-            {
-              "targets": "> 0.25%, not dead"
-            }
-          ],
-          "@babel/preset-typescript"
-        ]
-      },
-      "cjs": {
-        "ignore": ["src/**/*.spec.ts"],
-        "presets": [
-          [
-            "@babel/env",
-            {
-              "modules": "commonjs"
-            }
-          ],
-          "@babel/preset-typescript"
-        ]
-      }
+  "plugins": ["@babel/plugin-proposal-class-properties"],
+  "env": {
+    "esmUnbundled": {
+      "ignore": ["src/**/*.spec.ts"],
+      "presets": [
+        [
+          "@babel/preset-react",
+          {
+            "runtime": "automatic"
+          }
+        ],
+        "@babel/preset-typescript"
+      ]
+    },
+    "esmBundled": {
+      "ignore": ["src/**/*.spec.ts"],
+      "presets": [
+        [
+          "@babel/env",
+          {
+            "targets": "> 0.25%, not dead"
+          }
+        ],
+        [
+          "@babel/preset-react",
+          {
+            "runtime": "automatic"
+          }
+        ],
+        "@babel/preset-typescript"
+      ]
+    },
+    "cjs": {
+      "ignore": ["src/**/*.spec.ts"],
+      "presets": [
+        [
+          "@babel/env",
+          {
+            "modules": "commonjs"
+          }
+        ],
+        [
+          "@babel/preset-react",
+          {
+            "runtime": "automatic"
+          }
+        ],
+        "@babel/preset-typescript"
+      ]
     }
   }
-  
+}

@@ -1,6 +1,5 @@
 export * from "../@types/events";
 export * from "../@types/observer";
-export * from "../contexts/observer/types";
 
-export { useAvailableExtensions } from "../hooks/useAvailableExtensions";
-export { useWalletObserver } from "../hooks/useWalletObserver";
+export { useAvailableExtensions } from "../react-components/hooks/useAvailableExtensions";
+export { useWalletObserver } from "../react-components/hooks/useWalletObserver";

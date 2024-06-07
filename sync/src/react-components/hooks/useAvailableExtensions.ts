@@ -1,7 +1,7 @@
 import capitalize from "lodash/capitalize";
 import { useCallback, useEffect, useState } from "react";
 
-import { IWalletExtension } from "../@types/observer";
+import { IWalletExtension } from "../../@types/observer";
 import { useWalletObserverContext } from "../contexts/observer";
 
 export const useAvailableExtensions = () => {

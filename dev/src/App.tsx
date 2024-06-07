@@ -2,10 +2,7 @@ import type { IWalletObserverOptions } from "@sundaeswap/sync";
 import { FC, StrictMode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import {
-  RenderWalletPeerConnect,
-  WalletObserverProvider,
-} from "@sundaeswap/sync/react-components";
+import { WalletObserverProvider } from "@sundaeswap/sync/react-components";
 import { ConnectWallet } from "./components/ConnectWallet";
 import { WalletData } from "./components/WalletData";
 
@@ -35,20 +32,8 @@ const options: IWalletObserverOptions<IWalletMetadata> = {
 export const App: FC = () => {
   return (
     <div className="flex gap-10">
-      <RenderWalletPeerConnect
-        render={({ peerConnect, QRCodeElement }) =>
-          peerConnect && (
-            <div className="m-4 w-1/4 border border-gray-400 p-4">
-              <h4>CIP-45</h4>
-
-              <p>Address: {peerConnect.instance.getAddress()}</p>
-              {QRCodeElement}
-            </div>
-          )
-        }
-      />
+      <ConnectWallet />
       <div className="w-3/4 p-4">
-        <ConnectWallet />
         <div className="mt-8 flex items-start gap-8">
           <WalletData />
         </div>

@@ -6,8 +6,8 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
 import { TWalletBalanceMap } from "../@types/observer";
-import { THandleMetadata } from "../contexts/observer";
-import { useWalletObserver } from "../hooks/useWalletObserver";
+import { THandleMetadata } from "./contexts/observer";
+import { useWalletObserver } from "./hooks/useWalletObserver";
 
 export type IWalletHandles<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata

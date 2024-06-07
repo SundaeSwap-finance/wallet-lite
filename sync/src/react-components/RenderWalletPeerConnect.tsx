@@ -11,7 +11,7 @@ import {
 import { ErrorBoundary } from "react-error-boundary";
 
 import { TGetPeerConnectInstance } from "../@types/observer";
-import { useWalletObserver } from "../hooks/useWalletObserver";
+import { useWalletObserver } from "./hooks/useWalletObserver";
 
 export type TRenderWalletPeerConnectFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
@@ -38,7 +38,7 @@ export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
   const qrCode = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!state.ready) {
+    if (!state.observer) {
       return;
     }
 
@@ -48,21 +48,19 @@ export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
       .catch((e) => setError((e as Error).message));
   }, [state.observer, state.ready, setPeerConnect, setError]);
 
-  const QRCodeElement = useMemo<ReactNode>(() => {
+  useEffect(() => {
     if (peerConnect && qrCode.current) {
       peerConnect.instance.generateQRCode(qrCode.current);
     }
-
-    return <div ref={qrCode as MutableRefObject<HTMLDivElement>} />;
-  }, [peerConnect]);
+  }, [peerConnect, qrCode]);
 
   const memoizedState = useMemo(
     () => ({
       ...state,
       peerConnect,
-      QRCodeElement,
+      QRCodeElement: <div ref={qrCode as MutableRefObject<HTMLDivElement>} />,
     }),
-    [state, peerConnect, QRCodeElement]
+    [state, peerConnect]
   );
 
   if (!memoizedState.peerConnect) {

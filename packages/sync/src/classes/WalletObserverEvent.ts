@@ -3,6 +3,7 @@ import {
   TWalletObserverEventFunction,
 } from "../@types/events";
 import { areFunctionsEqual } from "../utils/comparisons";
+import { getEventKey } from "../utils/hashing";
 
 /**
  * The base class for the WalletObserver class. This handles
@@ -27,7 +28,9 @@ export class WalletObserverEvent {
     event: E,
     data?: EWalletObserverEventValues[E]
   ) => {
-    this._eventTarget.dispatchEvent(new CustomEvent(event, { detail: data }));
+    this._eventTarget.dispatchEvent(
+      new CustomEvent(event as string, { detail: data })
+    );
   };
 
   /**
@@ -42,11 +45,12 @@ export class WalletObserverEvent {
     event: E,
     callback: TWalletObserverEventFunction<E>
   ): void => {
-    const key = this.__getEventKey(event, callback);
+    const key = getEventKey(event, callback);
+
     // Ensure no duplicate handlers.
     if (this._handlers.has(key)) {
       const func = this._handlers.get(key);
-      if (!func || areFunctionsEqual(func, callback)) {
+      if (func && areFunctionsEqual(func, callback)) {
         return;
       }
     }
@@ -72,17 +76,21 @@ export class WalletObserverEvent {
     callback: TWalletObserverEventFunction<E>,
     options?: boolean | EventListenerOptions
   ) => {
-    const key = this.__getEventKey(event, callback);
+    const key = getEventKey(event, callback);
     const func = this._handlers.get(key);
-    if (func && this._handlers.has(key) && areFunctionsEqual(callback, func)) {
-      this._handlers.delete(key);
-    }
 
-    this._eventTarget.removeEventListener(
-      event as string,
-      callback as unknown as EventListenerOrEventListenerObject,
-      options
-    );
+    const handler = (e: Event) => {
+      callback((e as CustomEvent)?.detail);
+    };
+
+    if (func && areFunctionsEqual(func, handler)) {
+      this._handlers.delete(key);
+      this._eventTarget.removeEventListener(
+        event as string,
+        func as unknown as EventListenerOrEventListenerObject,
+        options
+      );
+    }
   };
 
   /**
@@ -91,43 +99,7 @@ export class WalletObserverEvent {
    *
    * @returns {Map<string, Function>} - A map of registered event handlers.
    */
-  queryEvents(): Map<string, Function> {
+  eventList(): Map<string, Function> {
     return this._handlers;
-  }
-
-  /**
-   * Generates a unique key for the event and callback function.
-   *
-   * @private
-   * @template E - The event type.
-   * @param {E} event - The event type.
-   * @param {TWalletObserverEventFunction<E>} callback - The callback function.
-   * @returns {string} - The unique key for the event and callback.
-   */
-  private __getEventKey<E extends keyof EWalletObserverEventValues>(
-    event: E,
-    callback: TWalletObserverEventFunction<E>
-  ): string {
-    return `${event}-${this.__getFunctionHash(callback)}`;
-  }
-
-  /**
-   * Generates a hash for the callback function.
-   *
-   * @private
-   * @template E - The event type.
-   * @param {TWalletObserverEventFunction<E>} callback - The callback function.
-   * @returns {number} - The hash of the callback function.
-   */
-  private __getFunctionHash<E extends keyof EWalletObserverEventValues>(
-    callback: TWalletObserverEventFunction<E>
-  ): number {
-    const str = callback.toString();
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash * 33) ^ str.charCodeAt(i);
-    }
-
-    return hash >>> 0; // Convert to unsigned 32-bit integer
   }
 }

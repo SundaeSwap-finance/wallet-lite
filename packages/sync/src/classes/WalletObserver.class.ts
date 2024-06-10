@@ -128,6 +128,9 @@ export class WalletObserver<
    * this method will automatically attempt to reconcile this error before
    * eventually throwing.
    *
+   * In the event that a promise will not resolve due to external issues,
+   * after 7 seconds, a timeout function will fire that resets the API and tries again.
+   *
    * @returns {Promise<IWalletObserverSync>} - A promise that resolves to the wallet sync data.
    */
   sync = async (): Promise<IWalletObserverSync> => {
@@ -247,6 +250,7 @@ export class WalletObserver<
     extension: TSupportWalletExtensions
   ): Promise<void> => {
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
+
     let attempts = 0;
     let extensionObject = window.cardano?.[extension];
 

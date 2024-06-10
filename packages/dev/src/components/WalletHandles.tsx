@@ -1,4 +1,4 @@
-import type { THandleMetadata } from "@sundaeswap/sync";
+import type { THandleMetadata } from "@sundaeswap/sync/react-components";
 import {
   RenderWalletHandles,
   TRenderWalletHandlesFunction,

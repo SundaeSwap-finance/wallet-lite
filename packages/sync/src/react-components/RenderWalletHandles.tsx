@@ -63,39 +63,26 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
       return handles;
     }
 
+    // Restore once SDK updated
     const assetNames = [...handles.keys()];
     const data = await sdk
       .provider()
-      .getAllData({ value: assetNames[0].slice(56) });
+      .getAllDataBatch(assetNames.map((n) => ({ value: n.slice(56) })));
 
-    const asset = state.balance.get(assetNames[0]);
-    asset &&
+    assetNames.forEach((n) => {
+      const matchingAsset = state.balance.get(n);
+      if (!matchingAsset) {
+        return;
+      }
       handles.set(
-        asset.metadata.assetId,
+        matchingAsset.metadata.assetId,
         new AssetAmount(1n, {
           ...data,
-          ...asset.metadata,
+          ...matchingAsset.metadata,
           decimals: 0,
         })
       );
-
-    // Restore once SDK updated
-    // const assetNames = [...handles.keys()];
-    // const data = await sdk
-    //   .provider()
-    //   .getAllDataBatch(assetNames.map((n) => ({ value: n.slice(56) })));
-
-    // assetNames.forEach((n) => {
-    //   const assetMetadata = state.balance.get(n).metadata;
-    //   handles.set(
-    //     assetMetadata.assetId,
-    //     new AssetAmount(1n, {
-    //       ...data,
-    //       ...assetMetadata,
-    //       decimals: 0,
-    //     })
-    //   );
-    // });
+    });
 
     return handles;
   }, [state.balance]);

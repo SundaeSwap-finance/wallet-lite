@@ -1,6 +1,6 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { TWalletBalanceMap } from "../@types/observer";
+import { TAssetAmountMap } from "../@types/observer";
 import { WalletObserver } from "./WalletObserver.class";
 
 /**
@@ -36,15 +36,15 @@ export class WalletBalanceMap<
 
   /**
    * Get only fungible assets from the wallet balance map
-   * and return them as a subset.
+   * and return them as a subset Map.
    *
-   * @returns {TWalletBalanceMap<AssetMetadata>} A map of fungible tokens.
+   * @returns {TAssetAmountMap<AssetMetadata>} A map of fungible tokens.
    */
-  getFungibleTokens = (): TWalletBalanceMap<AssetMetadata> => {
-    const map: TWalletBalanceMap<AssetMetadata> = new Map();
-    [...this.values()].forEach((asset) => {
-      if (asset.decimals > 0) {
-        map.set(asset.metadata.assetId, asset);
+  getFungibleTokens = (): TAssetAmountMap<AssetMetadata> => {
+    const map: TAssetAmountMap<AssetMetadata> = new Map();
+    [...this.entries()].forEach(([key, asset]) => {
+      if (asset.metadata.decimals > 0) {
+        map.set(key, asset);
       }
     });
 
@@ -53,19 +53,19 @@ export class WalletBalanceMap<
 
   /**
    * Get only Handle NFTs from the wallet balance map
-   * and return them as a subset.
+   * and return them as a subset Map.
    *
-   * @returns {TWalletBalanceMap<AssetMetadata>} A map of handles.
+   * @returns {TAssetAmountMap<AssetMetadata>} A map of handle assets.
    */
-  getHandles = (): TWalletBalanceMap<AssetMetadata> => {
-    const map: TWalletBalanceMap<AssetMetadata> = new Map();
-    [...this.values()].forEach((asset) => {
+  getHandles = (): TAssetAmountMap<AssetMetadata> => {
+    const map: TAssetAmountMap<AssetMetadata> = new Map();
+    [...this.entries()].forEach(([key, asset]) => {
       const isHandle = this._handlePolicyIds[this._observer.network].some(
         (policyId) => asset.metadata.assetId.includes(policyId)
       );
 
       if (isHandle) {
-        map.set(asset.metadata.assetId, asset);
+        map.set(key, asset);
       }
     });
 
@@ -76,13 +76,25 @@ export class WalletBalanceMap<
    * Get only non-fungible tokens (NFTs) from the wallet balance map
    * and return them as a subset.
    *
-   * @returns {TWalletBalanceMap<AssetMetadata>} A map of non-fungible tokens.
+   * @param {boolean} [withHandles] - Optional parameter to include Handles. Defaults to false.
+   * @returns {TAssetAmountMap<AssetMetadata>} A map of non-fungible tokens.
    */
-  getNonFungibleTokens = (): TWalletBalanceMap<AssetMetadata> => {
-    const map: TWalletBalanceMap<AssetMetadata> = new Map();
-    [...this.values()].forEach((asset) => {
+  getNonFungibleTokens = (
+    withHandles?: boolean
+  ): TAssetAmountMap<AssetMetadata> => {
+    const map: TAssetAmountMap<AssetMetadata> = new Map();
+    [...this.entries()].forEach(([key, asset]) => {
+      if (
+        !withHandles &&
+        this._handlePolicyIds[this._observer.network].some((policyId) =>
+          asset.metadata.assetId.includes(policyId)
+        )
+      ) {
+        return;
+      }
+
       if (asset.metadata.decimals === 0 && asset.amount === 1n) {
-        map.set(asset.metadata.assetId, asset);
+        map.set(key, asset);
       }
     });
 
@@ -92,7 +104,9 @@ export class WalletBalanceMap<
   /**
    * Alias for getNonFungibleTokens.
    *
-   * @returns {TWalletBalanceMap<AssetMetadata>} A map of non-fungible tokens.
+   * @param {boolean} [withHandles] - Optional parameter to include Handles. Defaults to false.
+   * @returns {TAssetAmountMap<AssetMetadata>} A map of non-fungible tokens.
    */
-  getNFTs = this.getNonFungibleTokens;
+  getNFTs = (withHandles?: boolean): TAssetAmountMap<AssetMetadata> =>
+    this.getNonFungibleTokens(withHandles);
 }

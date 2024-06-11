@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import { EWalletObserverEvents } from "../../exports";
-import { getEventKey, getFunctionHash } from "../hashing";
+import { EWalletObserverEvents } from "../packages/sync/src/exports";
+import {
+  getEventKey,
+  getFunctionHash,
+} from "../packages/sync/src/utils/hashing";
 
 describe("hashing functions", () => {
   test("getFunctionHash", () => {

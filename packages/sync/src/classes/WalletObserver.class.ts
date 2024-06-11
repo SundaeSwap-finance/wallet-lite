@@ -66,42 +66,45 @@ export class WalletObserver<
     // Set options.
     this._options = merge<
       IWalletObserverOptions<AssetMetadata>,
-      typeof options,
-      Pick<IWalletObserverOptions<AssetMetadata>, "peerConnectArgs">
+      Pick<IWalletObserverOptions<AssetMetadata>, "peerConnectArgs">,
+      typeof options
     >(
       {
-        metadataResolver: this.__fallbackMetadataResolver,
+        metadataResolver: this.fallbackMetadataResolver,
         persistence: false,
+        connectTimeout: 10000,
       },
-      options,
       {
-        peerConnectArgs: {
-          dAppInfo: {
-            name: "Placeholder dApp Connecter Name",
-            url: window.location.hostname,
-          },
-          onApiEject: (name, address) => {
-            console.log(name);
-            options?.peerConnectArgs?.onApiEject?.(name, address);
-            onDisconnectHandler();
-            this.disconnect();
-          },
-          onApiInject: (name, address) => {
-            options?.peerConnectArgs?.onApiInject?.(name, address);
-            this.connectWallet(name as TSupportWalletExtensions).then(() =>
-              console.log(this)
-            );
-          },
-          verifyConnection(walletInfo, callback) {
-            return callback(true, walletInfo.requestAutoconnect ?? true);
-          },
-          useWalletDiscovery: true,
-          announce: [
-            "wss://tracker.de-0.eternl.art",
-            "wss://tracker.us-0.eternl.art",
-          ],
-        },
-      }
+        peerConnectArgs: options?.peerConnectArgs
+          ? {
+              dAppInfo: {
+                name: "Placeholder dApp Connecter Name",
+                url: window.location.hostname,
+              },
+              onApiEject: (name, address) => {
+                console.log(name);
+                options?.peerConnectArgs?.onApiEject?.(name, address);
+                onDisconnectHandler();
+                this.disconnect();
+              },
+              onApiInject: (name, address) => {
+                options?.peerConnectArgs?.onApiInject?.(name, address);
+                this.connectWallet(name as TSupportWalletExtensions).then(() =>
+                  console.log(this)
+                );
+              },
+              verifyConnection(walletInfo, callback) {
+                return callback(true, walletInfo.requestAutoconnect ?? true);
+              },
+              useWalletDiscovery: true,
+              announce: [
+                "wss://tracker.de-0.eternl.art",
+                "wss://tracker.us-0.eternl.art",
+              ],
+            }
+          : undefined,
+      },
+      options
     );
 
     if (!this._options.persistence) {
@@ -134,6 +137,12 @@ export class WalletObserver<
    * @returns {Promise<IWalletObserverSync>} - A promise that resolves to the wallet sync data.
    */
   sync = async (): Promise<IWalletObserverSync> => {
+    if (!this.api) {
+      throw new Error(
+        "Attempted to perform a sync operation without a connected wallet."
+      );
+    }
+
     this._performingSync = true;
     this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
 
@@ -264,7 +273,9 @@ export class WalletObserver<
         break;
       }
 
-      await new Promise((res) => setTimeout(res, 500));
+      await new Promise((res) =>
+        setTimeout(res, (this._options.connectTimeout as number) / 40)
+      );
       extensionObject = window.cardano?.[extension];
       attempts++;
     }
@@ -485,7 +496,7 @@ export class WalletObserver<
    *
    * @type {TMetadataResolverFunc<AssetMetadata>}
    */
-  private __fallbackMetadataResolver: TMetadataResolverFunc<AssetMetadata> =
+  public fallbackMetadataResolver: TMetadataResolverFunc<AssetMetadata> =
     async (assetIds) => {
       const map = new Map<string, AssetMetadata>();
       assetIds.forEach((id) =>

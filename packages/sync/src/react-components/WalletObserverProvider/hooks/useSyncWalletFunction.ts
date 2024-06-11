@@ -2,8 +2,8 @@ import { AssetAmount } from "@sundaeswap/asset";
 import { useCallback, useRef, useState } from "react";
 
 import {
+  TAssetAmountMap,
   TSupportWalletExtensions,
-  TWalletBalanceMap,
 } from "../../../@types/observer";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class";
 import { WalletObserver } from "../../../classes/WalletObserver.class";
@@ -23,7 +23,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     new AssetAmount(0n)
   );
   const [handleMetadata, setHandleMetadata] = useState<
-    TWalletBalanceMap<THandleMetadata>
+    TAssetAmountMap<THandleMetadata>
   >(new Map());
   const [balance, setBalance] = useState<WalletBalanceMap>(
     new WalletBalanceMap(observer)

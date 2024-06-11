@@ -1,6 +1,6 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { TSupportWalletExtensions, TWalletBalanceMap } from "./observer";
+import { TAssetAmountMap, TSupportWalletExtensions } from "./observer";
 
 /**
  * A list of observer events that a client can hook into.
@@ -29,7 +29,7 @@ export interface EWalletObserverEventValues<
   };
   [EWalletObserverEvents.GET_BALANCE_MAP_START]: undefined;
   [EWalletObserverEvents.GET_BALANCE_MAP_END]: {
-    balanceMap: TWalletBalanceMap<T>;
+    balanceMap: TAssetAmountMap<T>;
   };
   [EWalletObserverEvents.DISCONNECT]: undefined;
 }

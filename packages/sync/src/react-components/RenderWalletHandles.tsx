@@ -5,14 +5,14 @@ import HandleClient, {
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
-import { TWalletBalanceMap } from "../@types/observer";
+import { TAssetAmountMap } from "../@types/observer";
 import { THandleMetadata } from "./contexts/observer";
 import { useWalletObserver } from "./hooks/useWalletObserver";
 
 export type IWalletHandles<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 > = {
-  handles: TWalletBalanceMap<THandleMetadata<AssetMetadata>>;
+  handles: TAssetAmountMap<THandleMetadata<AssetMetadata>>;
   loadingHandles: boolean;
 };
 
@@ -38,12 +38,12 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
 }) => {
   const state = useWalletObserver<THandleMetadata>();
   const [loadingHandles, setLoadingHandles] = useState(true);
-  const [handles, setHandles] = useState<TWalletBalanceMap<THandleMetadata>>(
+  const [handles, setHandles] = useState<TAssetAmountMap<THandleMetadata>>(
     new Map()
   );
 
   const syncHandles = useCallback<
-    () => Promise<TWalletBalanceMap<THandleMetadata>>
+    () => Promise<TAssetAmountMap<THandleMetadata>>
   >(async () => {
     const context =
       state.network === 1
@@ -56,7 +56,7 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
       provider: new KoraLabsProvider(context),
     });
 
-    const handles: TWalletBalanceMap<THandleMetadata> =
+    const handles: TAssetAmountMap<THandleMetadata> =
       state.balance.getHandles();
 
     if (handles.size === 0) {

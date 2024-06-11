@@ -25,6 +25,7 @@ export const WalletData = () => {
               render={({
                 balance,
               }: TRenderWalletFunctionState<IWalletMetadata>) => {
+                console.log(balance);
                 return Array.from(balance).map(([key, aa]) => (
                   <li key={key}>
                     {aa.metadata.assetName || aa.metadata.assetId}:{" "}

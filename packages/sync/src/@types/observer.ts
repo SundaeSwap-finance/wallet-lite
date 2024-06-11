@@ -2,7 +2,9 @@ import type { Cip30Wallet } from "@cardano-sdk/dapp-connector";
 import type { DAppPeerConnect } from "@fabianbormann/cardano-peer-connect";
 import type { DAppPeerConnectParameters } from "@fabianbormann/cardano-peer-connect/dist/src/types";
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
 import { WalletBalanceMap } from "../classes/WalletBalanceMap.class";
+
 declare global {
   interface Window {
     cardano?: {
@@ -28,6 +30,7 @@ export interface IWalletObserverOptions<
   metadataResolver: TMetadataResolverFunc<AssetMetadata>;
   persistence: boolean;
   peerConnectArgs?: DAppPeerConnectParameters;
+  connectTimeout?: number;
 }
 
 /**
@@ -42,9 +45,9 @@ export type TSupportWalletExtensions =
   | "nami";
 
 /**
- * Interface describing all assets within a wallet.
+ * Interface describing the Map type of an asset.
  */
-export type TWalletBalanceMap<
+export type TAssetAmountMap<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
 > = Map<string, AssetAmount<T>>;
 

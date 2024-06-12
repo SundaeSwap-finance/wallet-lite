@@ -1,13 +1,10 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { afterEach, describe, expect, it, spyOn, test } from "bun:test";
 
-import { WalletObserver } from "../packages/sync/src/classes/WalletObserver.class";
-import {
-  EWalletObserverEvents,
-  IWalletObserverOptions,
-} from "../packages/sync/src/exports";
-import { assetIds } from "./data/assets";
-import { network, unusedAddresses, usedAddresses } from "./data/eternl";
+import { WalletObserver } from "../../classes/WalletObserver.class";
+import { EWalletObserverEvents, TWalletObserverOptions } from "../../exports";
+import { assetIds } from "../__data__/assets";
+import { network, unusedAddresses, usedAddresses } from "../__data__/eternl";
 
 afterEach(() => {
   window.localStorage.clear();
@@ -28,9 +25,6 @@ describe("WalletObserver", async () => {
       );
       expect(() => observer.sync()).toThrowError(
         "Attempted to perform a sync operation without a connected wallet."
-      );
-      expect(() => observer.getCip45Instance()).toThrowError(
-        "No CIP-45 peer connect arguments were provided when instantiating this WalletObserver instance!"
       );
     });
 
@@ -65,8 +59,22 @@ describe("WalletObserver", async () => {
         metadataResolver: expect.anything(),
         persistence: false,
         connectTimeout: 10000,
-        peerConnectArgs: undefined,
-      } as IWalletObserverOptions);
+        peerConnectArgs: {
+          announce: [
+            "wss://tracker.de-5.eternl.art",
+            "wss://tracker.de-6.eternl.art",
+            "wss://tracker.us-5.eternl.art",
+          ],
+          dAppInfo: {
+            name: "Placeholder dApp Connecter Name",
+            url: "localhost.com",
+          },
+          onApiEject: expect.anything(),
+          onApiInject: expect.anything(),
+          useWalletDiscovery: true,
+          verifyConnection: expect.anything(),
+        },
+      } as TWalletObserverOptions);
     });
 
     test("with parameters", () => {
@@ -111,7 +119,7 @@ describe("WalletObserver", async () => {
             url: "http://example.com",
           },
         }),
-      } as IWalletObserverOptions);
+      } as TWalletObserverOptions);
     });
   });
 
@@ -237,19 +245,40 @@ describe("WalletObserver", async () => {
     });
   });
 
-  describe("getCip45Instance()", async () => {
-    const observer = new WalletObserver({
-      peerConnectArgs: {
-        dAppInfo: {
-          name: "My Test dApp",
-          url: "http://example.com",
+  describe("getCip45Instance()", () => {
+    it("should properly get the instance", async () => {
+      const observer = new WalletObserver({
+        // For quick testing.
+        connectTimeout: 10,
+        peerConnectArgs: {
+          dAppInfo: {
+            name: "My Test dApp",
+            url: "http://example.com",
+          },
         },
-      },
+      });
+      const spiedOnConnect = spyOn(observer, "connectWallet");
+      const spiedOnDisconnect = spyOn(observer, "disconnect");
+
+      expect(observer.peerConnectInstance).toBeUndefined();
+
+      const data = await observer.getCip45Instance();
+      expect(observer.peerConnectInstance).not.toBeUndefined();
+      expect(data).toMatchObject(
+        expect.objectContaining({
+          icon: undefined,
+          name: "My Test dApp",
+          instance: data.instance,
+        })
+      );
+
+      // Simulate injection.
+      // @ts-ignore
+      data.instance.__testStartServer();
+      expect(spiedOnConnect).toHaveBeenCalledWith("eternl-p2p");
+
+      data.instance.shutdownServer();
+      expect(spiedOnConnect).toHaveBeenCalled();
     });
-
-    expect(observer.peerConnectInstance).toBeUndefined();
-
-    const instance = await observer.getCip45Instance();
-    expect(observer.peerConnectInstance).not.toBeUndefined();
   });
 });

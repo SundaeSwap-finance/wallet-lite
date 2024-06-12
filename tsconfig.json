@@ -12,10 +12,8 @@
     "strict": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "outDir": "./dist/types",
-    "baseUrl": ".",
     "typeRoots": ["./packages/sync/@types", "./node_modules/@types"]
   },
-  "include": ["./**/*.ts", "setup-tests.mts"],
-  "exclude": ["node_modules"]
+  "include": ["./**/*.ts", "./**/*.tsx", "setup-tests.ts"],
+  "exclude": ["node_modules", "dist"]
 }

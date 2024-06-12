@@ -17,54 +17,25 @@ export const areAssetMapsEqual = (
 
   if (map1 && map2) {
     for (const [key, val] of map1) {
-      if (!map2.has(key) || map2.get(key)?.amount !== val?.amount) {
+      if (!map2.has(key)) {
+        return false;
+      }
+
+      if (typeof map2.get(key) === "object") {
+        if (map2.get(key)?.amount !== val?.amount) {
+          return false;
+        }
+      }
+
+      if (typeof map2.get(key) !== typeof val) {
+        return false;
+      }
+
+      if (map2.get(key).toString() !== val.toString()) {
         return false;
       }
     }
   }
 
   return true;
-};
-
-/**
- * Compares two functions to determine if they are equal.
- *
- * @param {Function} func1 - The first function to compare.
- * @param {Function} func2 - The second function to compare.
- * @returns {boolean} - Returns true if the functions are considered equal, false otherwise.
- */
-export const areFunctionsEqual = (func1: Function, func2: Function) => {
-  // Check if both functions are the same reference
-  if (func1 === func2) {
-    return true;
-  }
-
-  // Check if their string representations are the same
-  if (func1.toString() === func2.toString()) {
-    return true;
-  }
-
-  // Check if both functions have the same number of arguments and the same argument names
-  const funcArgs = func1.length;
-  const callbackArgs = func2.length;
-
-  if (funcArgs === callbackArgs) {
-    const func1ArgNames = func1
-      .toString()
-      .match(/\(([^)]*)\)/)?.[1]
-      .split(",")
-      .map((arg) => arg.trim());
-    const func2ArgNames = func2
-      .toString()
-      .match(/\(([^)]*)\)/)?.[1]
-      .split(",")
-      .map((arg) => arg.trim());
-
-    if (func1ArgNames?.every((arg, index) => arg === func2ArgNames?.[index])) {
-      return true;
-    }
-  }
-
-  // If none of the checks passed, the functions are not considered equivalent
-  return false;
 };

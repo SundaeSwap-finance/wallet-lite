@@ -1,17 +1,15 @@
-// import { Cardano, Serialization } from "@cardano-sdk/core";
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
-// import { typedHex } from "@cardano-sdk/util";
-import { DAppPeerConnect } from "@fabianbormann/cardano-peer-connect";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import merge from "lodash/merge";
 
 import { EWalletObserverEvents } from "../@types/events";
 import type {
-  IWalletObserverOptions,
+  IResolvedWalletObserverOptions,
   IWalletObserverSeed,
   IWalletObserverSync,
   TMetadataResolverFunc,
   TSupportWalletExtensions,
+  TWalletObserverOptions,
 } from "../@types/observer";
 import { WalletBalanceMap } from "./WalletBalanceMap.class";
 import { WalletObserverEvent } from "./WalletObserverEvent";
@@ -37,11 +35,11 @@ export class WalletObserver<
   static ADA_ASSET_ID = "ada.lovelace";
   public network: 0 | 1 = 0;
   public api?: Cip30WalletApi;
-  public peerConnectInstance?: DAppPeerConnect;
+  public peerConnectInstance?: import("@fabianbormann/cardano-peer-connect").DAppPeerConnect;
 
   private _performingSync: boolean = false;
   private _activeWallet?: TSupportWalletExtensions;
-  private _options: IWalletObserverOptions<AssetMetadata>;
+  private _options: IResolvedWalletObserverOptions<AssetMetadata>;
   private _supportedExtensions: TSupportWalletExtensions[] = [
     "eternl",
     "lace",
@@ -57,49 +55,40 @@ export class WalletObserver<
   /**
    * Creates an instance of WalletObserver.
    *
-   * @param {Partial<IWalletObserverOptions<AssetMetadata>>} [options] - Options for the wallet observer.
+   * @param {Partial<TWalletObserverOptions<AssetMetadata>>} [options] - Options for the wallet observer.
    */
-  constructor(options?: Partial<IWalletObserverOptions<AssetMetadata>>) {
+  constructor(options?: Partial<TWalletObserverOptions<AssetMetadata>>) {
     super();
 
     // Set options.
-    this._options = merge<
-      IWalletObserverOptions<AssetMetadata>,
-      Pick<IWalletObserverOptions<AssetMetadata>, "peerConnectArgs">,
-      typeof options
-    >(
+    this._options = merge<IResolvedWalletObserverOptions, typeof options>(
       {
         metadataResolver: this.fallbackMetadataResolver,
         persistence: false,
         connectTimeout: 10000,
-      },
-      {
-        peerConnectArgs: options?.peerConnectArgs
-          ? {
-              dAppInfo: {
-                name: "Placeholder dApp Connecter Name",
-                url: window.location.hostname,
-              },
-              onApiEject: (name, address) => {
-                options?.peerConnectArgs?.onApiEject?.(name, address);
-                this.disconnect();
-              },
-              onApiInject: (name, address) => {
-                options?.peerConnectArgs?.onApiInject?.(name, address);
-                this.connectWallet(name as TSupportWalletExtensions).then(() =>
-                  console.log(this)
-                );
-              },
-              verifyConnection(walletInfo, callback) {
-                return callback(true, walletInfo.requestAutoconnect ?? true);
-              },
-              useWalletDiscovery: true,
-              announce: [
-                "wss://tracker.de-0.eternl.art",
-                "wss://tracker.us-0.eternl.art",
-              ],
-            }
-          : undefined,
+        peerConnectArgs: {
+          dAppInfo: {
+            name: "Placeholder dApp Connecter Name",
+            url: window.location.hostname,
+          },
+          onApiEject: (name, address) => {
+            options?.peerConnectArgs?.onApiEject?.(name, address);
+            this.disconnect();
+          },
+          onApiInject: (name, address) => {
+            options?.peerConnectArgs?.onApiInject?.(name, address);
+            this.connectWallet(name as TSupportWalletExtensions);
+          },
+          verifyConnection(walletInfo, callback) {
+            return callback(true, walletInfo.requestAutoconnect ?? true);
+          },
+          useWalletDiscovery: true,
+          announce: [
+            "wss://tracker.de-5.eternl.art",
+            "wss://tracker.de-6.eternl.art",
+            "wss://tracker.us-5.eternl.art",
+          ],
+        },
       },
       options
     );
@@ -237,9 +226,9 @@ export class WalletObserver<
   /**
    * Gets the options for the wallet observer.
    *
-   * @returns {IWalletObserverOptions} - The wallet observer options.
+   * @returns {TWalletObserverOptions} - The wallet observer options.
    */
-  getOptions = (): IWalletObserverOptions => {
+  getOptions = (): TWalletObserverOptions => {
     return this._options;
   };
 
@@ -260,7 +249,7 @@ export class WalletObserver<
     let extensionObject = window.cardano?.[extension];
 
     // Disconnect any CIP45 connections.
-    if (!extension.includes("p2p")) {
+    if (!extension?.includes("p2p")) {
       this.peerConnectInstance?.shutdownServer();
     }
 
@@ -300,13 +289,10 @@ export class WalletObserver<
   };
 
   getCip45Instance = async () => {
-    if (!this._options.peerConnectArgs) {
-      throw new Error(
-        "No CIP-45 peer connect arguments were provided when instantiating this WalletObserver instance!"
-      );
-    }
-
     if (!this.peerConnectInstance) {
+      const DAppPeerConnect = await import(
+        "@fabianbormann/cardano-peer-connect"
+      ).then(({ DAppPeerConnect }) => DAppPeerConnect);
       this.peerConnectInstance = new DAppPeerConnect(
         this._options.peerConnectArgs
       );

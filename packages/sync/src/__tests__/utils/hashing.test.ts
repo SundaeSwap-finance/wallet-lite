@@ -1,10 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { EWalletObserverEvents } from "../packages/sync/src/exports";
-import {
-  getEventKey,
-  getFunctionHash,
-} from "../packages/sync/src/utils/hashing";
+import { EWalletObserverEvents } from "../../exports";
+import { getEventKey, getFunctionHash } from "../../utils/hashing";
 
 describe("hashing functions", () => {
   test("getFunctionHash", () => {
@@ -16,7 +13,7 @@ describe("hashing functions", () => {
       }
     });
 
-    expect(result).toEqual(240412116);
+    expect(result).toEqual(879701364);
 
     const result2 = getFunctionHash(() => {
       for (let i = 0; i < 20; i++) {
@@ -26,7 +23,7 @@ describe("hashing functions", () => {
       }
     });
 
-    expect(result2).toEqual(1481802071);
+    expect(result2).toEqual(2676966711);
 
     const result3 = getFunctionHash((param) => {
       for (let i = 0; i < 20; i++) {
@@ -37,7 +34,7 @@ describe("hashing functions", () => {
       }
     });
 
-    expect(result3).toEqual(2915598005);
+    expect(result3).toEqual(1148379925);
 
     const result4 = getFunctionHash((params) => {
       for (let i = 0; i < 20; i++) {
@@ -48,7 +45,7 @@ describe("hashing functions", () => {
       }
     });
 
-    expect(result4).toEqual(249212949);
+    expect(result4).toEqual(1677458229);
   });
 
   test("getEventKey", () => {

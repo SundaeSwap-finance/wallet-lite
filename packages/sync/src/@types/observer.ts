@@ -24,14 +24,21 @@ export type TMetadataResolverFunc<
 /**
  * Options that are passed to the WalletObserver instance.
  */
-export interface IWalletObserverOptions<
+export interface IResolvedWalletObserverOptions<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 > {
   metadataResolver: TMetadataResolverFunc<AssetMetadata>;
   persistence: boolean;
-  peerConnectArgs?: DAppPeerConnectParameters;
-  connectTimeout?: number;
+  peerConnectArgs: DAppPeerConnectParameters;
+  connectTimeout: number;
 }
+
+/**
+ * Options that are passed to the WalletObserver instance.
+ */
+export type TWalletObserverOptions<
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+> = Partial<IResolvedWalletObserverOptions<AssetMetadata>>;
 
 /**
  * A list of support CIP-30 wallet extensions in the browser.

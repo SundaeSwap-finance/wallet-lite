@@ -3,8 +3,8 @@ import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 
 import type {
-  IWalletObserverOptions,
   TSupportWalletExtensions,
+  TWalletObserverOptions,
 } from "../../../@types/observer";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class";
 import type { WalletObserver } from "../../../classes/WalletObserver.class";
@@ -23,7 +23,7 @@ export type TWalletProviderHooks = {
  * The main WalletObserverProvider props.
  */
 export interface IWalletObserverProviderProps {
-  observerOptions?: IWalletObserverOptions;
+  observerOptions?: TWalletObserverOptions;
   hooks?: TWalletProviderHooks;
   refreshInterval?: number;
 }

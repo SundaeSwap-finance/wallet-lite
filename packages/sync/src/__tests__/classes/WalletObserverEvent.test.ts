@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
-import { WalletObserverEvent } from "../packages/sync/src/classes/WalletObserverEvent";
-import { EWalletObserverEvents } from "../packages/sync/src/exports";
+import { WalletObserverEvent } from "../../classes/WalletObserverEvent";
+import { EWalletObserverEvents } from "../../exports";
 
 let instance: WalletObserverEvent;
 

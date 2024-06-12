@@ -19,7 +19,7 @@ export interface IWalletExtension {
  *
  * @returns {IWalletExtension[]} A list of available wallet extensions.
  */
-export const useAvailableExtensions = () => {
+export const useAvailableExtensions = (refreshInterval?: number) => {
   const { observerRef } = useWalletObserverContext();
   const [list, setList] = useState<IWalletExtension[]>([]);
 
@@ -56,7 +56,7 @@ export const useAvailableExtensions = () => {
     (async () => {
       for (let i = 0; i < 20; i++) {
         updateExtensions();
-        await new Promise((res) => setTimeout(res, 2000));
+        await new Promise((res) => setTimeout(res, refreshInterval || 2000));
       }
     })();
   }, []);

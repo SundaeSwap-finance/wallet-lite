@@ -28,7 +28,7 @@ export const getEventKey = <E extends keyof EWalletObserverEventValues>(
 export const getFunctionHash = <E extends keyof EWalletObserverEventValues>(
   callback: TWalletObserverEventFunction<E>
 ): number => {
-  const str = `${callback.name}${callback.toString()}`;
+  const str = `${callback.name}${callback.toString()}`.replace(/\s+/g, "");
   let hash = 5381;
   for (let i = 0; i < str.length; i++) {
     hash = (hash * 33) ^ str.charCodeAt(i);

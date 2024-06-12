@@ -3,16 +3,19 @@ import type {
   Cip30WalletApiWithPossibleExtensions,
 } from "@cardano-sdk/dapp-connector";
 import { jest, mock } from "bun:test";
-
 // @ts-ignore commonjs import
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import { assetIds, assetMap } from "./tests/data/assets";
+
+import {
+  assetIds,
+  assetMap,
+} from "./packages/sync/src/__tests__/__data__/assets";
 import {
   balance,
   network,
   unusedAddresses,
   usedAddresses,
-} from "./tests/data/eternl";
+} from "./packages/sync/src/__tests__/__data__/eternl";
 
 GlobalRegistrator.register({
   url: "http://localhost.com",
@@ -81,4 +84,22 @@ mock.module("@cardano-sdk/core", () => ({
       })),
     },
   },
+}));
+
+/**
+ * Mock the peer connect library for cip-45 support.
+ */
+mock.module("@fabianbormann/cardano-peer-connect", () => ({
+  DAppPeerConnect: mock((args) => ({
+    getIdenticon: mock(),
+    shutdownServer: mock(() => {
+      args.onApiEject();
+    }),
+    __testStartServer: mock(() => {
+      // @ts-ignore This is injected by eternl.
+      window.cardano["eternl-p2p"] =
+        mockedEternlWallet as unknown as Cip30Wallet;
+      args.onApiInject("eternl-p2p");
+    }),
+  })),
 }));

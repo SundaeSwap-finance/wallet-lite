@@ -40,6 +40,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     }
 
     const newWallet = observer.getActiveWallet();
+
     if (!newWallet) {
       setAdaBalance(new AssetAmount(0n));
       setBalance(new WalletBalanceMap(observer));

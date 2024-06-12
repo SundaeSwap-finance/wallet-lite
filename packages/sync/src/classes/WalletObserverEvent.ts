@@ -2,7 +2,6 @@ import {
   EWalletObserverEventValues,
   TWalletObserverEventFunction,
 } from "../@types/events";
-import { areFunctionsEqual } from "../utils/comparisons";
 import { getEventKey } from "../utils/hashing";
 
 /**
@@ -50,7 +49,7 @@ export class WalletObserverEvent {
     // Ensure no duplicate handlers.
     if (this._handlers.has(key)) {
       const func = this._handlers.get(key);
-      if (func && areFunctionsEqual(func, callback)) {
+      if (func) {
         return;
       }
     }
@@ -79,11 +78,7 @@ export class WalletObserverEvent {
     const key = getEventKey(event, callback);
     const func = this._handlers.get(key);
 
-    const handler = (e: Event) => {
-      callback((e as CustomEvent)?.detail);
-    };
-
-    if (func && areFunctionsEqual(func, handler)) {
+    if (func) {
       this._handlers.delete(key);
       this._eventTarget.removeEventListener(
         event as string,

@@ -13,7 +13,6 @@ import type {
   TMetadataResolverFunc,
   TSupportWalletExtensions,
 } from "../@types/observer";
-import { onDisconnectHandler } from "../utils/handlers";
 import { WalletBalanceMap } from "./WalletBalanceMap.class";
 import { WalletObserverEvent } from "./WalletObserverEvent";
 
@@ -82,9 +81,7 @@ export class WalletObserver<
                 url: window.location.hostname,
               },
               onApiEject: (name, address) => {
-                console.log(name);
                 options?.peerConnectArgs?.onApiEject?.(name, address);
-                onDisconnectHandler();
                 this.disconnect();
               },
               onApiInject: (name, address) => {
@@ -165,20 +162,19 @@ export class WalletObserver<
         this.getBalanceMap(),
         this.getUsedAddresses(),
         this.getUnusedAddresses(),
-      ]).finally(() => {
-        this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
-        this._performingSync = false;
-      });
+      ]);
 
-    this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
-    this._performingSync = false;
-
-    return {
+    const result = {
       balanceMap: newBalanceMap,
       usedAddresses: newUsedAddresses,
       unusedAddresses: newUnusedAddresses,
       network: newNetwork,
     };
+
+    this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
+    this._performingSync = false;
+
+    return result;
   };
 
   /**
@@ -333,6 +329,14 @@ export class WalletObserver<
   };
 
   /**
+   * Helper function to retrieve the currently cached metadata.
+   *
+   * @returns {Map<string, AssetMetadata>}
+   */
+  getCachedAssetMetadata = (): Map<string, AssetMetadata> =>
+    this._cachedMetadata;
+
+  /**
    * Helper function to retrieve a list of supported wallet extensions.
    *
    * @returns {keyof TSupportWalletExtensions[] | undefined}
@@ -350,6 +354,7 @@ export class WalletObserver<
     this._activeWallet = undefined;
     this.api = undefined;
     this._cachedMetadata = new Map();
+    window.localStorage.removeItem(WalletObserver.PERSISTENCE_CACHE_KEY);
     this.dispatch(EWalletObserverEvents.DISCONNECT);
   };
 

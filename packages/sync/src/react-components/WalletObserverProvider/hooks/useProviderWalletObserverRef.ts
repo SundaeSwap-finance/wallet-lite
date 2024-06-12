@@ -1,9 +1,7 @@
 import { MutableRefObject, useRef } from "react";
 
-import { EWalletObserverEvents } from "../../../@types/events";
 import { IWalletObserverOptions } from "../../../@types/observer";
 import { WalletObserver } from "../../../classes/WalletObserver.class";
-import { onConnectHandler, onDisconnectHandler } from "../../../utils/handlers";
 
 /**
  * Internal use only. This hook is responsible for initiating the
@@ -21,16 +19,6 @@ export const useProviderWalletObserverRef = (
   // Initialize observer only once
   if (observerRef.current === null) {
     const observer = new WalletObserver(options);
-    observer.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
-      onConnectHandler
-    );
-
-    observer.addEventListener(
-      EWalletObserverEvents.DISCONNECT,
-      onDisconnectHandler
-    );
-
     observerRef.current = observer;
   }
 

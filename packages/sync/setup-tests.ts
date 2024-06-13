@@ -6,16 +6,13 @@ import { jest, mock } from "bun:test";
 // @ts-ignore commonjs import
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
-import {
-  assetIds,
-  assetMap,
-} from "./packages/sync/src/__tests__/__data__/assets";
+import { assetIds, assetMap } from "./src/__tests__/__data__/assets";
 import {
   balance,
   network,
   unusedAddresses,
   usedAddresses,
-} from "./packages/sync/src/__tests__/__data__/eternl";
+} from "./src/__tests__/__data__/eternl";
 
 GlobalRegistrator.register({
   url: "http://localhost.com",

@@ -80,7 +80,6 @@ describe("RenderWalletHandles", () => {
     );
 
     rerender(<RenderWalletHandles render={TestComponent} />);
-    rerender(<RenderWalletHandles render={TestComponent} />);
 
     expect(container.innerHTML).toMatchSnapshot();
     // expect(queryByTestId("calvin")).toBeNull();

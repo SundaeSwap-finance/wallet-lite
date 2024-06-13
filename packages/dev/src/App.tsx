@@ -1,8 +1,8 @@
-import type { IWalletObserverOptions } from "@sundaeswap/sync";
+import type { TWalletObserverOptions } from "@sundaeswap/sync";
+import { WalletObserverProvider } from "@sundaeswap/sync/react-components";
 import { FC, StrictMode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { WalletObserverProvider } from "@sundaeswap/sync/react-components";
 import { ConnectWallet } from "./components/ConnectWallet";
 import { WalletData } from "./components/WalletData";
 
@@ -12,7 +12,7 @@ export interface IWalletMetadata {
   assetName: string;
 }
 
-const options: IWalletObserverOptions<IWalletMetadata> = {
+const options: TWalletObserverOptions<IWalletMetadata> = {
   metadataResolver: async (assetIds) => {
     const metadataMap = new Map<string, IWalletMetadata>();
     assetIds.forEach((id) => {

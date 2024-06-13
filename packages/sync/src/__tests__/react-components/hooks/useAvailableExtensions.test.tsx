@@ -1,9 +1,9 @@
+import { Cip30Wallet } from "@cardano-sdk/dapp-connector";
 import { act } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
 
-import { Cip30Wallet } from "@cardano-sdk/dapp-connector";
-import { mockedEternlWallet } from "../../../../../../setup-tests";
+import { mockedEternlWallet } from "../../../../setup-tests";
 import { useAvailableExtensions } from "../../../exports";
 import {
   IWalletObserverProviderProps,

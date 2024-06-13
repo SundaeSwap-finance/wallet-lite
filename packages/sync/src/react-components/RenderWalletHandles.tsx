@@ -1,7 +1,7 @@
+import type { IHandle } from "@koralabs/adahandle-sdk";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
-import { IHandle } from "@koralabs/adahandle-sdk";
 import { TAssetAmountMap } from "../@types/observer";
 import { THandleMetadata } from "./contexts/observer";
 import { useWalletObserver } from "./hooks/useWalletObserver";

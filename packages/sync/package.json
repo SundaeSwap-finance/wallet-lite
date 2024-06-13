@@ -24,13 +24,13 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "bun test --preload=./setup-tests.ts --coverageThreshold=0.8 --root=./src/__tests__",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --watchAll=false",
     "clean": "rm -rf ./dist",
     "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
-    "types": "tsc",
+    "types": "tsc --project ./tsconfig.build.json",
     "build": "bun run clean && bun run types && bun run build:esm && bun run build:cjs",
     "watch": "bun run clean && bun run build && bun run build:esm --watch"
   },
@@ -57,7 +57,18 @@
     "@babel/preset-react": "^7.24.7",
     "@babel/preset-typescript": "^7.24.7",
     "@types/lodash": "^4.17.4",
+    "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@happy-dom/global-registrator": "^14.12.0",
+    "@testing-library/dom": "^10.1.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/react-hooks": "^8.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/libsodium-wrappers-sumo": "^0.7.8",
+    "@types/node": "^20.14.2",
+    "@types/node-fetch": "^2.6.11",
+    "fetch-mock": "^9.11.0",
+    "happy-dom": "^14.12.0",
     "cross-env": "^7.0.3",
     "typescript": "^5.4.5"
   }

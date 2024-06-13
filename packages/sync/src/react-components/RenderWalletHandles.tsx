@@ -1,10 +1,7 @@
-import HandleClient, {
-  HandleClientContext,
-  KoraLabsProvider,
-} from "@koralabs/adahandle-sdk";
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
+import { IHandle } from "@koralabs/adahandle-sdk";
 import { TAssetAmountMap } from "../@types/observer";
 import { THandleMetadata } from "./contexts/observer";
 import { useWalletObserver } from "./hooks/useWalletObserver";
@@ -45,6 +42,18 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
   const syncHandles = useCallback<
     () => Promise<TAssetAmountMap<THandleMetadata>>
   >(async () => {
+    const handles: TAssetAmountMap<THandleMetadata> =
+      state.balance.getHandles();
+
+    if (handles.size === 0) {
+      return handles;
+    }
+
+    const {
+      default: HandleClient,
+      HandleClientContext,
+      KoraLabsProvider,
+    } = await import("@koralabs/adahandle-sdk");
     const context =
       state.network === 1
         ? HandleClientContext.MAINNET
@@ -56,31 +65,28 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
       provider: new KoraLabsProvider(context),
     });
 
-    const handles: TAssetAmountMap<THandleMetadata> =
-      state.balance.getHandles();
-
-    if (handles.size === 0) {
-      return handles;
-    }
-
     // Restore once SDK updated
-    const assetNames = [...handles.keys()];
-    const data = await sdk
+    const walletHandles = [...handles.entries()];
+    const walletHandleDataArray: IHandle[] = await sdk
       .provider()
-      .getAllDataBatch(assetNames.map((n) => ({ value: n.slice(56) })));
+      .getAllDataBatch(
+        walletHandles.map(([key]) => ({ value: key.slice(56) }))
+      );
 
-    assetNames.forEach((n) => {
-      const matchingAsset = state.balance.get(n);
-      if (!matchingAsset) {
-        return;
-      }
+    walletHandles.forEach(([key, asset]) => {
+      const matchingData = walletHandleDataArray.find(
+        ({ hex }) => hex === key.slice(56)
+      ) as IHandle;
+
       handles.set(
-        matchingAsset.metadata.assetId,
-        new AssetAmount(1n, {
-          ...data,
-          ...matchingAsset.metadata,
-          decimals: 0,
-        })
+        key,
+        asset
+          .withMetadata({
+            ...matchingData,
+            ...asset.metadata,
+            decimals: 0,
+          })
+          .withAmount(1n)
       );
     });
 
@@ -88,13 +94,17 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
   }, [state.balance]);
 
   useEffect(() => {
-    if (!state.balance.size) {
-      return;
-    }
-
     setLoadingHandles(true);
     syncHandles().then((newHandles) => {
       setHandles((prevHandles) => {
+        console.log(
+          prevHandles.get(
+            "8d18d786e92776c824607fd8e193ec535c79dc61ea2405ddf3b09fe36d696e696d616c"
+          ),
+          newHandles.get(
+            "8d18d786e92776c824607fd8e193ec535c79dc61ea2405ddf3b09fe36d696e696d616c"
+          )
+        );
         let handleMetadataChanged = false;
 
         if (newHandles.size !== prevHandles?.size) {
@@ -119,7 +129,7 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
 
       setLoadingHandles(false);
     });
-  }, [state.balance, syncHandles, setLoadingHandles, setHandles]);
+  }, [syncHandles, setLoadingHandles, setHandles]);
 
   return (
     <>

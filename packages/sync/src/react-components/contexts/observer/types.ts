@@ -23,16 +23,18 @@ export type TWalletProviderHooks = {
  * The main WalletObserverProvider props.
  */
 export interface IWalletObserverProviderProps {
-  observerOptions?: TWalletObserverOptions;
-  hooks?: TWalletProviderHooks;
-  refreshInterval?: number;
+  options: {
+    observerOptions?: TWalletObserverOptions;
+    hooks?: TWalletProviderHooks;
+    refreshInterval?: number;
+  };
 }
 
 /**
  * The resolved internal props of the WalletObserverProvider.
  */
 export interface IWalletObserverProviderState
-  extends Omit<IWalletObserverProviderProps, "refreshInterval"> {
+  extends Omit<IWalletObserverProviderProps["options"], "refreshInterval"> {
   refreshInterval: number;
 }
 

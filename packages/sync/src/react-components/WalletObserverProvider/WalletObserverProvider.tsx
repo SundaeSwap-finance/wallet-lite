@@ -22,10 +22,10 @@ import { useWalletObserverState } from "./hooks/useSyncWalletFunction";
  */
 const WalletObserverProvider: FC<
   PropsWithChildren<IWalletObserverProviderProps>
-> = ({ children, ...rest }) => {
+> = ({ children, options }) => {
   const mergedProps: IWalletObserverProviderState = useMemo(() => {
-    return merge({}, defaultObserverContextValue, rest);
-  }, [rest]);
+    return merge({}, defaultObserverContextValue, options);
+  }, [options]);
 
   const observerRef = useProviderWalletObserverRef(mergedProps.observerOptions);
   const { syncWallet, ...reactiveState } = useWalletObserverState(

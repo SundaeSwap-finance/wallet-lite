@@ -1,7 +1,4 @@
-import {
-  EWalletObserverEventValues,
-  TWalletObserverEventFunction,
-} from "../exports";
+import { EventTypes } from "../exports";
 
 /**
  * Generates a unique key for the event and callback function.
@@ -11,9 +8,11 @@ import {
  * @param {TWalletObserverEventFunction<E>} callback - The callback function.
  * @returns {string} - The unique key for the event and callback.
  */
-export const getEventKey = <E extends keyof EWalletObserverEventValues>(
+export const getEventKey = <
+  E extends keyof EventTypes.EWalletObserverEventValues
+>(
   event: E,
-  callback: TWalletObserverEventFunction<E>
+  callback: EventTypes.TWalletObserverEventFunction<E>
 ): string => {
   return `${event}-${getFunctionHash(callback)}`;
 };
@@ -25,8 +24,10 @@ export const getEventKey = <E extends keyof EWalletObserverEventValues>(
  * @param {TWalletObserverEventFunction<E>} callback - The callback function.
  * @returns {number} - The hash of the callback function.
  */
-export const getFunctionHash = <E extends keyof EWalletObserverEventValues>(
-  callback: TWalletObserverEventFunction<E>
+export const getFunctionHash = <
+  E extends keyof EventTypes.EWalletObserverEventValues
+>(
+  callback: EventTypes.TWalletObserverEventFunction<E>
 ): number => {
   const str = `${callback.name}${callback.toString()}`.replace(/\s+/g, "");
   let hash = 5381;

@@ -28,13 +28,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
       - name: Build
         run: |
           cd lib
           bun run build
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
 
       # Bump Versions (reinstate after release)
       - name: Bump versions

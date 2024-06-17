@@ -20,7 +20,7 @@ jobs:
           node-version: 18
 
       # Install Dependencies
-      - run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile && cd lib
 
       # Git Identity
       - name: Git Identity

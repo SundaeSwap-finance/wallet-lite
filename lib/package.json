@@ -30,8 +30,7 @@
     "types": "tsc --project ./tsconfig.build.json",
     "build": "bun run clean && bun run types && bun run build:esm && bun run build:cjs",
     "watch": "bun run clean && bun run build && bun run build:esm --watch",
-    "version": "standard-version",
-    "publish": "npm publish"
+    "version": "standard-version"
   },
   "dependencies": {
     "@babel/cli": "^7.24.7",

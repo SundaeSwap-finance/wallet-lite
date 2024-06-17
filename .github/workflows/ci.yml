@@ -7,7 +7,7 @@ on:
 
 permissions:
   id-token: write # required to use OIDC authentication
-  contents: read # required to checkout the code from the repo
+  contents: write # required to checkout and push to the repo
 
 jobs:
   Publish:
@@ -19,29 +19,34 @@ jobs:
         with:
           node-version: 18
 
-      # Install Dependencies
-      - run: bun install --frozen-lockfile
-
       # Git Identity
       - name: Git Identity
         run: |
-          git config --global user.name 'CI-CD'
-          git config --global user.email 'CI-CD@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        run: cd lib && bun run build
+        run: |
+          cd lib
+          bun run build
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
       # Bump Versions (reinstate after release)
       - name: Bump versions
-        run: cd lib && bun version && git push --follow-tags origin main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd lib
+          bun version
+          git push --follow-tags origin main
 
       # Create Release
       - name: Publish
-        run: cd lib && npm publish
+        run: |
+          cd lib
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -20,7 +20,7 @@ jobs:
           node-version: 18
 
       # Install Dependencies
-      - run: bun install --frozen-lockfile && cd lib
+      - run: bun install --frozen-lockfile
 
       # Git Identity
       - name: Git Identity
@@ -33,12 +33,12 @@ jobs:
 
       # Bump Versions (reinstate after release)
       - name: Bump versions
-        run: bun version
+        run: cd lib && bun version
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Create Release
       - name: Publish
-        run: npm publish
+        run: cd lib && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

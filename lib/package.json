@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/wallet-lite",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -29,7 +29,8 @@
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
     "types": "tsc --project ./tsconfig.build.json",
     "build": "bun run clean && bun run types && bun run build:esm && bun run build:cjs",
-    "watch": "bun run clean && bun run build && bun run build:esm --watch"
+    "watch": "bun run clean && bun run build && bun run build:esm --watch",
+    "version": "standard-version"
   },
   "dependencies": {
     "@babel/cli": "^7.24.7",
@@ -68,6 +69,7 @@
     "cross-env": "^7.0.3",
     "fetch-mock": "^9.11.0",
     "happy-dom": "^14.12.0",
+    "standard-version": "^9.5.0",
     "typescript": "^5.4.5"
   }
 }

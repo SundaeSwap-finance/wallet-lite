@@ -1,25 +1,23 @@
-import type {
-  Cip30Wallet,
-  Cip30WalletApiWithPossibleExtensions,
-} from "@cardano-sdk/dapp-connector";
+import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import { jest, mock } from "bun:test";
 // @ts-ignore commonjs import
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
-import { assetIds, assetMap } from "./src/__tests__/__data__/assets";
+import { IWindowCip30Extension } from "./src/@types/observer.js";
+import { assetIds, assetMap } from "./src/__tests__/__data__/assets.js";
 import {
   balance,
   network,
   unusedAddresses,
   usedAddresses,
-} from "./src/__tests__/__data__/eternl";
+} from "./src/__tests__/__data__/eternl.js";
 
 GlobalRegistrator.register({
   url: "http://localhost.com",
 });
 
 type TMockedCip30Wallet = Pick<
-  Cip30WalletApiWithPossibleExtensions,
+  Cip30WalletApi,
   "getBalance" | "getNetworkId" | "getUnusedAddresses" | "getUsedAddresses"
 >;
 
@@ -32,18 +30,16 @@ export const mockedEternlApi = jest
     getUsedAddresses: mock(async () => usedAddresses),
   });
 
-export const mockedEternlWallet: Omit<Cip30Wallet, "#private"> = {
+export const mockedEternlWallet: IWindowCip30Extension = {
   apiVersion: "1.0",
-  enable:
-    mockedEternlApi as unknown as () => Promise<Cip30WalletApiWithPossibleExtensions>,
+  enable: mockedEternlApi as unknown as () => Promise<Cip30WalletApi>,
   icon: "",
   isEnabled: async () => true,
   name: "eternl",
-  supportedExtensions: [],
 };
 
 window.cardano = {
-  eternl: mockedEternlWallet as unknown as Cip30Wallet,
+  eternl: mockedEternlWallet,
 };
 
 /**
@@ -57,7 +53,7 @@ mock.module("@cardano-sdk/core", () => ({
     Address: {
       fromBytes: mock((val) => ({
         // Just keep as hex for testing.
-        toBech32: mock(() => val),
+        toBech32: mock(() => Buffer.from(val).toString("hex")),
       })),
     },
   },
@@ -94,8 +90,7 @@ mock.module("@fabianbormann/cardano-peer-connect", () => ({
     }),
     __testStartServer: mock(() => {
       // @ts-ignore This is injected by eternl.
-      window.cardano["eternl-p2p"] =
-        mockedEternlWallet as unknown as Cip30Wallet;
+      window.cardano["eternl-p2p"] = mockedEternlWallet;
       args.onApiInject("eternl-p2p");
     }),
   })),

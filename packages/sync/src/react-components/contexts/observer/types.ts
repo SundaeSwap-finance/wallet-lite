@@ -3,11 +3,11 @@ import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 
 import type {
-  TSupportWalletExtensions,
+  TSupportedWalletExtensions,
   TWalletObserverOptions,
-} from "../../../@types/observer";
-import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class";
-import type { WalletObserver } from "../../../classes/WalletObserver.class";
+} from "../../../@types/observer.js";
+import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
+import type { WalletObserver } from "../../../classes/WalletObserver.class.js";
 
 /**
  * Available hooks to apply at various events.
@@ -20,22 +20,23 @@ export type TWalletProviderHooks = {
 };
 
 /**
- * The main WalletObserverProvider props.
+ * The resolved internal props of the WalletObserverProvider.
  */
-export interface IWalletObserverProviderProps {
-  options: {
-    observerOptions?: TWalletObserverOptions;
-    hooks?: TWalletProviderHooks;
-    refreshInterval?: number;
-  };
+export interface IWalletObserverProviderState<
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+> {
+  observerOptions: TWalletObserverOptions<AssetMetadata>;
+  hooks: TWalletProviderHooks;
+  refreshInterval: number;
 }
 
 /**
- * The resolved internal props of the WalletObserverProvider.
+ * The main WalletObserverProvider props.
  */
-export interface IWalletObserverProviderState
-  extends Omit<IWalletObserverProviderProps["options"], "refreshInterval"> {
-  refreshInterval: number;
+export interface IWalletObserverProviderProps<
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+> {
+  options?: Partial<IWalletObserverProviderState<AssetMetadata>>;
 }
 
 /**
@@ -51,17 +52,17 @@ export interface IWalletObserverState<
     isCip45: boolean;
     setIsCip45: Dispatch<SetStateAction<boolean>>;
     setReady: Dispatch<SetStateAction<boolean>>;
-    activeWallet?: TSupportWalletExtensions;
+    activeWallet?: TSupportedWalletExtensions;
     setActiveWallet: Dispatch<
-      SetStateAction<TSupportWalletExtensions | undefined>
+      SetStateAction<TSupportedWalletExtensions | undefined>
     >;
     adaBalance: AssetAmount<AssetMetadata>;
     balance: WalletBalanceMap<AssetMetadata>;
     setBalance: Dispatch<SetStateAction<WalletBalanceMap<AssetMetadata>>>;
     observer: WalletObserver;
     mainAddress?: string;
-    network?: 0 | 1;
-    setNetwork: Dispatch<SetStateAction<0 | 1 | undefined>>;
+    network?: number;
+    setNetwork: Dispatch<SetStateAction<number | undefined>>;
     unusedAddresses: string[];
     setUnusedAddresses: Dispatch<SetStateAction<string[]>>;
     usedAddresses: string[];

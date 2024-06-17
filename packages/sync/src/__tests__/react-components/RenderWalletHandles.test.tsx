@@ -1,14 +1,14 @@
 import { KoraLabsProvider } from "@koralabs/adahandle-sdk";
 import { render } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { describe, expect, it, spyOn } from "bun:test";
 
 import {
   RenderWalletHandles,
   TRenderWalletHandlesFunctionState,
   WalletObserverProvider,
-} from "../../exports/react-components";
-import { mockHandleMetadata } from "../__data__/handles";
+} from "../../index.js";
+import { mockHandleMetadata } from "../__data__/handles.js";
 
 const TestComponent = (state: TRenderWalletHandlesFunctionState) => {
   return (

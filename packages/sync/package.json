@@ -1,30 +1,26 @@
 {
   "name": "@sundaeswap/sync",
   "version": "0.0.1",
-  "main": "./dist/cjs/exports/index.js",
-  "module": "./dist/esm/exports/index.js",
-  "types": "./dist/types/exports/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/exports/index.js",
-      "require": "./dist/cjs/exports/index.js",
-      "types": "./dist/types/exports/index.d.ts"
-    },
-    "./react-components": {
-      "import": "./dist/esm/exports/react-components.js",
-      "require": "./dist/cjs/exports/react-components.js",
-      "types": "./dist/types/exports/react-components.d.ts"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "engines": {
     "node": ">=16.0.0"
   },
   "scripts": {
-    "test": "bun test --preload=./setup-tests.ts --coverageThreshold=0.8 --root=./src/__tests__",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --watchAll=false",
     "clean": "rm -rf ./dist",
@@ -37,7 +33,7 @@
   "dependencies": {
     "@babel/cli": "^7.24.7",
     "@cardano-sdk/core": "^0.33.0",
-    "@cardano-sdk/dapp-connector": "^0.12.18",
+    "@cardano-sdk/dapp-connector": "^0.12.19",
     "@cardano-sdk/util": "^0.15.1",
     "@fabianbormann/cardano-peer-connect": "^1.2.17",
     "@koralabs/adahandle-sdk": "^1.5.4",

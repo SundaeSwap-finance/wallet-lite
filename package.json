@@ -1,5 +1,5 @@
 {
-  "name": "my-monorepo",
+  "name": "sync-dev",
   "private": true,
   "workspaces": [
     "packages/*"

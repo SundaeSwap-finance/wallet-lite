@@ -1,8 +1,8 @@
-import type { THandleMetadata } from "@sundaeswap/sync/react-components";
 import {
+  type THandleMetadata,
   RenderWalletHandles,
   TRenderWalletHandlesFunction,
-} from "@sundaeswap/sync/react-components";
+} from "@sundaeswap/sync";
 import { FC, useCallback, useState } from "react";
 
 export const WalletHandles: FC = () => {

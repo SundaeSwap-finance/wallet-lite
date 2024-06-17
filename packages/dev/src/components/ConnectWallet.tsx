@@ -1,12 +1,10 @@
 import {
-  TSupportWalletExtensions,
-  useAvailableExtensions,
-} from "@sundaeswap/sync";
-import {
+  ObserverTypes,
   RenderWallet,
   RenderWalletPeerConnect,
   RenderWalletState,
-} from "@sundaeswap/sync/react-components";
+  useAvailableExtensions,
+} from "@sundaeswap/sync";
 import classNames from "classnames";
 import { FC } from "react";
 
@@ -34,7 +32,7 @@ export const ConnectWallet: FC = () => {
               value={activeWallet || "default"}
               onChange={async ({ target }) => {
                 await observer.connectWallet(
-                  target.value as TSupportWalletExtensions
+                  target.value as ObserverTypes.TSupportedWalletExtensions
                 );
               }}
             >

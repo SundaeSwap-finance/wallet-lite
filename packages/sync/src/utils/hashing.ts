@@ -1,4 +1,4 @@
-import { EventTypes } from "../exports";
+import { EventTypes } from "../index.js";
 
 /**
  * Generates a unique key for the event and callback function.

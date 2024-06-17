@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import {
   TUseWalletObserverState,
   useWalletObserverContext,
-} from "../contexts/observer";
+} from "../contexts/observer/index.js";
 
 /**
  * Exposes the WalletObserver state.

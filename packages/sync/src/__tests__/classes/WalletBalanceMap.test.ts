@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, spyOn, test } from "bun:test";
-import { WalletBalanceMap } from "../../classes/WalletBalanceMap.class";
-import { WalletObserver } from "../../classes/WalletObserver.class";
-import { assetIds, assetMap } from "../__data__/assets";
+
+import { WalletBalanceMap } from "../../classes/WalletBalanceMap.class.js";
+import { WalletObserver } from "../../classes/WalletObserver.class.js";
+import { assetIds, assetMap } from "../__data__/assets.js";
 
 let instance: WalletBalanceMap;
 

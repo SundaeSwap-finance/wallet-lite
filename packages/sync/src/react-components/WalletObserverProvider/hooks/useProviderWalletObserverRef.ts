@@ -1,7 +1,7 @@
 import { MutableRefObject, useRef } from "react";
 
-import { TWalletObserverOptions } from "../../../@types/observer";
-import { WalletObserver } from "../../../classes/WalletObserver.class";
+import { TWalletObserverOptions } from "../../../@types/observer.js";
+import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 
 /**
  * Internal use only. This hook is responsible for initiating the

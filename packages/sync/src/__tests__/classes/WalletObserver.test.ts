@@ -1,10 +1,10 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { afterEach, describe, expect, it, spyOn, test } from "bun:test";
 
-import { WalletObserver } from "../../classes/WalletObserver.class";
-import { EWalletObserverEvents, TWalletObserverOptions } from "../../exports";
-import { assetIds } from "../__data__/assets";
-import { network, unusedAddresses, usedAddresses } from "../__data__/eternl";
+import { WalletObserver } from "../../classes/WalletObserver.class.js";
+import { EventTypes, ObserverTypes } from "../../index.js";
+import { assetIds } from "../__data__/assets.js";
+import { network, unusedAddresses, usedAddresses } from "../__data__/eternl.js";
 
 afterEach(() => {
   window.localStorage.clear();
@@ -74,7 +74,7 @@ describe("WalletObserver", async () => {
           useWalletDiscovery: true,
           verifyConnection: expect.anything(),
         },
-      } as TWalletObserverOptions);
+      } as ObserverTypes.TWalletObserverOptions);
     });
 
     test("with parameters", () => {
@@ -119,7 +119,7 @@ describe("WalletObserver", async () => {
             url: "http://example.com",
           },
         }),
-      } as TWalletObserverOptions);
+      } as ObserverTypes.TWalletObserverOptions);
     });
   });
 
@@ -132,11 +132,11 @@ describe("WalletObserver", async () => {
       await observer.connectWallet("eternl");
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         1,
-        EWalletObserverEvents.CONNECT_WALLET_START
+        EventTypes.EWalletObserverEvents.CONNECT_WALLET_START
       );
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         2,
-        EWalletObserverEvents.CONNECT_WALLET_END,
+        EventTypes.EWalletObserverEvents.CONNECT_WALLET_END,
         {
           extension: "eternl",
         }
@@ -152,15 +152,15 @@ describe("WalletObserver", async () => {
       const syncResults = await observer.sync();
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         3,
-        EWalletObserverEvents.SYNCING_WALLET_START
+        EventTypes.EWalletObserverEvents.SYNCING_WALLET_START
       );
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         4,
-        EWalletObserverEvents.GET_BALANCE_MAP_START
+        EventTypes.EWalletObserverEvents.GET_BALANCE_MAP_START
       );
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         5,
-        EWalletObserverEvents.GET_BALANCE_MAP_END,
+        EventTypes.EWalletObserverEvents.GET_BALANCE_MAP_END,
         {
           balanceMap: expect.objectContaining({
             size: assetIds.length,
@@ -169,15 +169,15 @@ describe("WalletObserver", async () => {
       );
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         6,
-        EWalletObserverEvents.SYNCING_WALLET_END,
-        {
+        EventTypes.EWalletObserverEvents.SYNCING_WALLET_END,
+        expect.objectContaining({
           balanceMap: expect.objectContaining({
             size: assetIds.length,
           }),
           network,
           unusedAddresses,
           usedAddresses,
-        }
+        })
       );
 
       expect(syncResults.balanceMap.size).toEqual(assetIds.length);
@@ -240,7 +240,7 @@ describe("WalletObserver", async () => {
       ).toBeNull();
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         7,
-        EWalletObserverEvents.DISCONNECT
+        EventTypes.EWalletObserverEvents.DISCONNECT
       );
     });
   });

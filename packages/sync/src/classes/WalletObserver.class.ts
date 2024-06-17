@@ -1,18 +1,19 @@
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
-import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
-import merge from "lodash/merge";
 
-import { EWalletObserverEvents } from "../@types/events";
+import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
+import merge from "lodash/merge.js";
+
+import { EWalletObserverEvents } from "../@types/events.js";
 import type {
   IResolvedWalletObserverOptions,
   IWalletObserverSeed,
   IWalletObserverSync,
   TMetadataResolverFunc,
-  TSupportWalletExtensions,
+  TSupportedWalletExtensions,
   TWalletObserverOptions,
-} from "../@types/observer";
-import { WalletBalanceMap } from "./WalletBalanceMap.class";
-import { WalletObserverEvent } from "./WalletObserverEvent";
+} from "../@types/observer.js";
+import { WalletBalanceMap } from "./WalletBalanceMap.class.js";
+import { WalletObserverEvent } from "./WalletObserverEvent.js";
 
 /**
  * Class representing the Wallet Observer. This is the main interface
@@ -33,14 +34,14 @@ export class WalletObserver<
 > extends WalletObserverEvent {
   static PERSISTENCE_CACHE_KEY = "walletObserver";
   static ADA_ASSET_ID = "ada.lovelace";
-  public network: 0 | 1 = 0;
+  public network: number = 0;
   public api?: Cip30WalletApi;
   public peerConnectInstance?: import("@fabianbormann/cardano-peer-connect").DAppPeerConnect;
 
   private _performingSync: boolean = false;
-  private _activeWallet?: TSupportWalletExtensions;
+  private _activeWallet?: TSupportedWalletExtensions;
   private _options: IResolvedWalletObserverOptions<AssetMetadata>;
-  private _supportedExtensions: TSupportWalletExtensions[] = [
+  private _supportedExtensions: TSupportedWalletExtensions[] = [
     "eternl",
     "lace",
     "typhon",
@@ -77,7 +78,7 @@ export class WalletObserver<
           },
           onApiInject: (name, address) => {
             options?.peerConnectArgs?.onApiInject?.(name, address);
-            this.connectWallet(name as TSupportWalletExtensions);
+            this.connectWallet(name as TSupportedWalletExtensions);
           },
           verifyConnection(walletInfo, callback) {
             return callback(true, walletInfo.requestAutoconnect ?? true);
@@ -132,7 +133,7 @@ export class WalletObserver<
     this._performingSync = true;
     this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
 
-    let newNetwork: 0 | 1;
+    let newNetwork: number;
     try {
       newNetwork = await this.getNetwork();
     } catch (e) {
@@ -181,12 +182,10 @@ export class WalletObserver<
    * Synchronizes the API with the wallet. This is useful if the account has changed,
    * but the underlying intent has not.
    *
-   * @param {TSupportWalletExtensions} [activeWallet] - The wallet to sync with.
+   * @param {TSupportedWalletExtensions} [activeWallet] - The wallet to sync with.
    * @returns {Promise<Cip30WalletApi>} - A promise that resolves to the API instance.
    */
-  syncApi = async (
-    activeWallet?: TSupportWalletExtensions
-  ): Promise<Cip30WalletApi> => {
+  syncApi = async (activeWallet?: TSupportedWalletExtensions): Promise<any> => {
     let attempts = 0;
     this.api = undefined;
     if (!activeWallet && !this._activeWallet) {
@@ -196,7 +195,7 @@ export class WalletObserver<
     }
 
     const selectedWallet =
-      activeWallet || (this._activeWallet as TSupportWalletExtensions);
+      activeWallet || (this._activeWallet as TSupportedWalletExtensions);
 
     while (!this.api) {
       if (attempts === 10) {
@@ -241,7 +240,7 @@ export class WalletObserver<
    * @return {Promise<void>}
    */
   connectWallet = async (
-    extension: TSupportWalletExtensions
+    extension: TSupportedWalletExtensions
   ): Promise<void> => {
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
 
@@ -308,9 +307,9 @@ export class WalletObserver<
   /**
    * Helper function to retrieve currently active wallet connection, if present.
    *
-   * @returns {TSupportWalletExtensions | undefined}
+   * @returns {TSupportedWalletExtensions | undefined}
    */
-  getActiveWallet = (): TSupportWalletExtensions | undefined => {
+  getActiveWallet = (): TSupportedWalletExtensions | undefined => {
     return this._activeWallet;
   };
 
@@ -325,9 +324,9 @@ export class WalletObserver<
   /**
    * Helper function to retrieve a list of supported wallet extensions.
    *
-   * @returns {keyof TSupportWalletExtensions[] | undefined}
+   * @returns {keyof TSupportedWalletExtensions[] | undefined}
    */
-  getSupportedExtensions = (): TSupportWalletExtensions[] => {
+  getSupportedExtensions = (): TSupportedWalletExtensions[] => {
     return this._supportedExtensions;
   };
 
@@ -393,9 +392,9 @@ export class WalletObserver<
   /**
    * Gets the current network connection.
    *
-   * @returns {Promise<0 | 1>} The network ID.
+   * @returns {Promise<number>} The network ID.
    */
-  getNetwork = async (): Promise<0 | 1> => {
+  getNetwork = async (): Promise<number> => {
     if (!this.api) {
       throw new Error("Attempted to query network without an API instance.");
     }
@@ -424,7 +423,7 @@ export class WalletObserver<
       await import("@cardano-sdk/util").then(({ typedHex }) => typedHex),
     ]);
     const data = cbor.map((val) =>
-      Cardano.Address.fromBytes(typedHex(val)).toBech32()
+      Cardano.Address.fromBytes(Buffer.from(val, "hex")).toBech32()
     );
 
     return data;
@@ -449,7 +448,7 @@ export class WalletObserver<
       await import("@cardano-sdk/util").then(({ typedHex }) => typedHex),
     ]);
     const data = cbor.map((val) =>
-      Cardano.Address.fromBytes(typedHex(val)).toBech32()
+      Cardano.Address.fromBytes(Buffer.from(val, "hex")).toBech32()
     );
 
     return data;

@@ -1,14 +1,14 @@
-import { Cip30Wallet } from "@cardano-sdk/dapp-connector";
+// import { Cip30Wallet } from "@cardano-sdk/dapp-connector";
 import { act } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
 
-import { mockedEternlWallet } from "../../../../setup-tests";
-import { useAvailableExtensions } from "../../../exports";
+import { mockedEternlWallet } from "../../../../setup-tests.js";
 import {
   IWalletObserverProviderProps,
+  useAvailableExtensions,
   WalletObserverProvider,
-} from "../../../exports/react-components";
+} from "../../../index.js";
 
 const REFRESH_INTERVAL = 10;
 
@@ -27,7 +27,7 @@ describe("useAvailableExtensions", () => {
       // Inject a duplicate api.
       window.cardano = {
         ...window.cardano,
-        flint: mockedEternlWallet as unknown as Cip30Wallet,
+        flint: mockedEternlWallet as unknown as any,
       };
 
       // Wait 10 milliseconds for interval to catch.

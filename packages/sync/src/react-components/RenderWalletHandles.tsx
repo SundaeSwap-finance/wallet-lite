@@ -2,9 +2,9 @@ import type { IHandle } from "@koralabs/adahandle-sdk";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
-import { TAssetAmountMap } from "../@types/observer";
-import { THandleMetadata } from "./contexts/observer";
-import { useWalletObserver } from "./hooks/useWalletObserver";
+import { TAssetAmountMap } from "../@types/observer.js";
+import { THandleMetadata } from "./contexts/observer/index.js";
+import { useWalletObserver } from "./hooks/useWalletObserver.js";
 
 export type IWalletHandles<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
@@ -97,14 +97,6 @@ export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
     setLoadingHandles(true);
     syncHandles().then((newHandles) => {
       setHandles((prevHandles) => {
-        console.log(
-          prevHandles.get(
-            "8d18d786e92776c824607fd8e193ec535c79dc61ea2405ddf3b09fe36d696e696d616c"
-          ),
-          newHandles.get(
-            "8d18d786e92776c824607fd8e193ec535c79dc61ea2405ddf3b09fe36d696e696d616c"
-          )
-        );
         let handleMetadataChanged = false;
 
         if (newHandles.size !== prevHandles?.size) {

@@ -1,12 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
 
-import { WalletObserver } from "../../../exports";
+import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import {
   IWalletObserverProviderProps,
   WalletObserverProvider,
-} from "../../../exports/react-components";
-import { useProviderWalletObserverRef } from "../../../react-components/WalletObserverProvider/hooks/useProviderWalletObserverRef";
+} from "../../../index.js";
+import { useProviderWalletObserverRef } from "../../../react-components/WalletObserverProvider/hooks/useProviderWalletObserverRef.js";
 
 describe("useWalletObserverRef", () => {
   it("should correctly retrieve the instance", async () => {
@@ -19,7 +19,7 @@ describe("useWalletObserverRef", () => {
           {...{
             ...props,
             observerOptions: {
-              ...props.observerOptions,
+              ...props.options?.observerOptions,
               // Quick resolve time for tests.
               connectTimeout: 10,
             },

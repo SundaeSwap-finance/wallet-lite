@@ -1,14 +1,7 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { createContext, useContext } from "react";
 
-import { IWalletObserverProviderState, IWalletObserverState } from "./types";
-
-/**
- * Default state applied to the context.
- */
-export const defaultObserverContextValue: IWalletObserverProviderState = {
-  refreshInterval: 30000,
-};
+import { IWalletObserverState } from "./types.js";
 
 /**
  * Context instance.

@@ -1,1 +1,1 @@
-export { default } from "./WalletObserverProvider";
+export { default } from "./WalletObserverProvider.js";

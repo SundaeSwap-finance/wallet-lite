@@ -3,12 +3,12 @@ import { useCallback, useRef, useState } from "react";
 
 import {
   TAssetAmountMap,
-  TSupportWalletExtensions,
-} from "../../../@types/observer";
-import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class";
-import { WalletObserver } from "../../../classes/WalletObserver.class";
-import { areAssetMapsEqual } from "../../../utils/comparisons";
-import { THandleMetadata } from "../../contexts/observer";
+  TSupportedWalletExtensions,
+} from "../../../@types/observer.js";
+import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
+import { WalletObserver } from "../../../classes/WalletObserver.class.js";
+import { areAssetMapsEqual } from "../../../utils/comparisons.js";
+import { THandleMetadata } from "../../contexts/observer/index.js";
 
 /**
  * Internal use only. The main action that sync WalletObserver api responses with
@@ -17,8 +17,9 @@ import { THandleMetadata } from "../../contexts/observer";
  * @param {WalletObserver} observer
  */
 export const useWalletObserverState = (observer: WalletObserver) => {
-  const prevActiveWallet = useRef<TSupportWalletExtensions>();
-  const [activeWallet, setActiveWallet] = useState<TSupportWalletExtensions>();
+  const prevActiveWallet = useRef<TSupportedWalletExtensions>();
+  const [activeWallet, setActiveWallet] =
+    useState<TSupportedWalletExtensions>();
   const [adaBalance, setAdaBalance] = useState<AssetAmount>(
     new AssetAmount(0n)
   );
@@ -28,7 +29,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   const [balance, setBalance] = useState<WalletBalanceMap>(
     new WalletBalanceMap(observer)
   );
-  const [network, setNetwork] = useState<0 | 1 | undefined>();
+  const [network, setNetwork] = useState<number | undefined>();
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
   const [unusedAddresses, setUnusedAddresses] = useState<string[]>([]);
   const [ready, setReady] = useState(false);

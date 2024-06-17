@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { WalletObserver } from "../../../../classes/WalletObserver.class";
+import { WalletObserver } from "../../../../classes/WalletObserver.class.js";
 
 /**
  * Internal use only. This hook is responsible for attaching
@@ -13,8 +13,8 @@ import { WalletObserver } from "../../../../classes/WalletObserver.class";
  */
 export const useProviderRefreshInterval = (
   observer: WalletObserver,
-  refreshInterval: number,
-  syncWallet: () => Promise<void>
+  syncWallet: () => Promise<void>,
+  refreshInterval?: number
 ) => {
   useEffect(() => {
     if (!refreshInterval) {

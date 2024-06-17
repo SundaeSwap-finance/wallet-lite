@@ -1,17 +1,14 @@
-import merge from "lodash/merge";
 import { FC, PropsWithChildren, useMemo } from "react";
 
 import {
   IWalletObserverProviderProps,
-  IWalletObserverProviderState,
   IWalletObserverState,
   WalletObserverContext,
-  defaultObserverContextValue,
-} from "../contexts/observer";
-import { useProviderEventListeners } from "./hooks/effects/useProviderEventListeners";
-import { useProviderRefreshInterval } from "./hooks/effects/useProviderRefreshInterval";
-import { useProviderWalletObserverRef } from "./hooks/useProviderWalletObserverRef";
-import { useWalletObserverState } from "./hooks/useSyncWalletFunction";
+} from "../contexts/observer/index.js";
+import { useProviderEventListeners } from "./hooks/effects/useProviderEventListeners.js";
+import { useProviderRefreshInterval } from "./hooks/effects/useProviderRefreshInterval.js";
+import { useProviderWalletObserverRef } from "./hooks/useProviderWalletObserverRef.js";
+import { useWalletObserverState } from "./hooks/useSyncWalletFunction.js";
 
 /**
  * The main context provider component. This handles setting up all the initial
@@ -23,11 +20,7 @@ import { useWalletObserverState } from "./hooks/useSyncWalletFunction";
 const WalletObserverProvider: FC<
   PropsWithChildren<IWalletObserverProviderProps>
 > = ({ children, options }) => {
-  const mergedProps: IWalletObserverProviderState = useMemo(() => {
-    return merge({}, defaultObserverContextValue, options);
-  }, [options]);
-
-  const observerRef = useProviderWalletObserverRef(mergedProps.observerOptions);
+  const observerRef = useProviderWalletObserverRef(options?.observerOptions);
   const { syncWallet, ...reactiveState } = useWalletObserverState(
     observerRef.current
   );
@@ -35,15 +28,15 @@ const WalletObserverProvider: FC<
   useProviderEventListeners(observerRef.current, syncWallet);
   useProviderRefreshInterval(
     observerRef.current,
-    mergedProps.refreshInterval,
-    syncWallet
+    syncWallet,
+    options?.refreshInterval
   );
 
   // Memoize the context value
   const contextValue: IWalletObserverState = useMemo(
     () => ({
-      ...mergedProps,
       observerRef: observerRef,
+      refreshInterval: options?.refreshInterval || 30000,
       state: {
         ...reactiveState,
         mainAddress: reactiveState.usedAddresses?.[0],
@@ -51,7 +44,7 @@ const WalletObserverProvider: FC<
         syncWallet,
       },
     }),
-    [mergedProps, syncWallet, reactiveState]
+    [options, syncWallet, reactiveState]
   );
 
   return (

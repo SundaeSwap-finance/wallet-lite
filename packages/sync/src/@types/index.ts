@@ -1,2 +1,2 @@
-export * from "./events";
-export * from "./observer";
+export * from "./events.js";
+export * from "./observer.js";

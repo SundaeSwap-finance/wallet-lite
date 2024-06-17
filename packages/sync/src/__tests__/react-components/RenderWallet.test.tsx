@@ -1,12 +1,12 @@
 import { render } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { describe, expect, it } from "bun:test";
 
 import {
   RenderWallet,
   TUseWalletObserverState,
   WalletObserverProvider,
-} from "../../exports/react-components";
+} from "../../index.js";
 
 const TestComponent = (state: TUseWalletObserverState) => {
   return (

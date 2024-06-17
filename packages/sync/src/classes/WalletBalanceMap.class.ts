@@ -1,7 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { TAssetAmountMap } from "../@types/observer";
-import { WalletObserver } from "./WalletObserver.class";
+import { TAssetAmountMap } from "../@types/observer.js";
+import { WalletObserver } from "./WalletObserver.class.js";
 
 /**
  * A custom Map instance that describes a list of assets and their metadata,

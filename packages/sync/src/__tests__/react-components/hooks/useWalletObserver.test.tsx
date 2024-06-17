@@ -1,14 +1,18 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
 
-import { WalletObserver } from "../../../exports";
+import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import {
   IWalletObserverProviderProps,
   WalletObserverProvider,
   useWalletObserver,
-} from "../../../exports/react-components";
-import { assetIds } from "../../__data__/assets";
-import { network, unusedAddresses, usedAddresses } from "../../__data__/eternl";
+} from "../../../index.js";
+import { assetIds } from "../../__data__/assets.js";
+import {
+  network,
+  unusedAddresses,
+  usedAddresses,
+} from "../../__data__/eternl.js";
 
 describe("useWalletObserver", () => {
   it("should correctly retrieve the context", async () => {
@@ -21,7 +25,7 @@ describe("useWalletObserver", () => {
           {...{
             ...props,
             observerOptions: {
-              ...props.observerOptions,
+              ...props.options?.observerOptions,
               // Quick resolve time for tests.
               connectTimeout: 10,
             },

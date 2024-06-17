@@ -1,14 +1,14 @@
-import capitalize from "lodash/capitalize";
+import capitalize from "lodash/capitalize.js";
 import { useCallback, useEffect, useState } from "react";
 
-import { ObserverTypes } from "../../exports";
-import { useWalletObserverContext } from "../contexts/observer";
+import { ObserverTypes } from "../../index.js";
+import { useWalletObserverContext } from "../contexts/observer/context.js";
 
 /**
  * Defines the interface for a returned wallet
  */
 export interface IWalletExtension {
-  property: ObserverTypes.TSupportWalletExtensions;
+  property: ObserverTypes.TSupportedWalletExtensions;
   name: string;
 }
 

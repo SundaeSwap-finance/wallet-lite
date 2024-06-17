@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 
-import { EWalletObserverEvents } from "../../../../@types/events";
-import { WalletObserver } from "../../../../classes/WalletObserver.class";
-import { TWalletProviderHooks } from "../../../contexts/observer";
+import { EWalletObserverEvents } from "../../../../@types/events.js";
+import { WalletObserver } from "../../../../classes/WalletObserver.class.js";
+import { TWalletProviderHooks } from "../../../contexts/observer/index.js";
 
 /**
  * Internal use only. This is run in every WalletObserverProvider

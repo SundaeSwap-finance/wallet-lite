@@ -1,8 +1,8 @@
 import {
   EWalletObserverEventValues,
   TWalletObserverEventFunction,
-} from "../@types/events";
-import { getEventKey } from "../utils/hashing";
+} from "../@types/events.js";
+import { getEventKey } from "../utils/hashing.js";
 
 /**
  * The base class for the WalletObserver class. This handles

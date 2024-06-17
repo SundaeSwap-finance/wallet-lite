@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
-import { WalletObserverEvent } from "../../classes/WalletObserverEvent";
-import { EWalletObserverEvents } from "../../exports";
+import { WalletObserverEvent } from "../../classes/WalletObserverEvent.js";
+import { EventTypes } from "../../index.js";
 
 let instance: WalletObserverEvent;
 
@@ -22,15 +22,15 @@ describe("WalletObserverEvent", () => {
     expect(instance.eventList().size).toEqual(0);
 
     instance.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_END,
       handler
     );
 
-    instance.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
+    instance.dispatch(EventTypes.EWalletObserverEvents.CONNECT_WALLET_END);
 
     expect(handler).toHaveBeenCalledTimes(1);
 
-    instance.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
+    instance.dispatch(EventTypes.EWalletObserverEvents.CONNECT_WALLET_END);
 
     expect(handler).toHaveBeenCalledTimes(2);
   });
@@ -42,14 +42,14 @@ describe("WalletObserverEvent", () => {
     expect(instance.eventList().size).toEqual(0);
 
     instance.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_END,
       handler
     );
 
     expect(instance.eventList().size).toEqual(1);
 
     instance.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_END,
       handler
     );
 
@@ -66,29 +66,29 @@ describe("WalletObserverEvent", () => {
     };
 
     instance.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_START,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_START,
       handler1
     );
     instance.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_END,
       handler1
     );
     instance.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_END,
       handler2
     );
 
     expect(instance.eventList().size).toEqual(3);
 
     instance.removeEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_START,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_START,
       handler1
     );
 
     expect(instance.eventList().size).toEqual(2);
 
     instance.removeEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
+      EventTypes.EWalletObserverEvents.CONNECT_WALLET_END,
       handler1
     );
 

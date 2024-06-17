@@ -1,4 +1,4 @@
-import { WalletBalanceMap } from "../classes/WalletBalanceMap.class";
+import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
 
 /**
  * Compares two maps or wallet balance maps to determine if they are equal.

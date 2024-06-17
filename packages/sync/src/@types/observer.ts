@@ -1,14 +1,25 @@
-import type { Cip30Wallet } from "@cardano-sdk/dapp-connector";
+import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import type { DAppPeerConnect } from "@fabianbormann/cardano-peer-connect";
-import type { DAppPeerConnectParameters } from "@fabianbormann/cardano-peer-connect/dist/src/types";
+import type { DAppPeerConnectParameters } from "@fabianbormann/cardano-peer-connect/dist/src/types.js";
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { WalletBalanceMap } from "../classes/WalletBalanceMap.class";
+import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
+
+/**
+ * Interface to describe window extension.
+ */
+export interface IWindowCip30Extension {
+  apiVersion: string;
+  enable: () => Promise<Cip30WalletApi>;
+  icon: string;
+  isEnabled: () => Promise<boolean>;
+  name: TSupportedWalletExtensions;
+}
 
 declare global {
   interface Window {
     cardano?: {
-      [k in TSupportWalletExtensions]?: Cip30Wallet;
+      [k in TSupportedWalletExtensions]?: IWindowCip30Extension;
     };
   }
 }
@@ -43,7 +54,7 @@ export type TWalletObserverOptions<
 /**
  * A list of support CIP-30 wallet extensions in the browser.
  */
-export type TSupportWalletExtensions =
+export type TSupportedWalletExtensions =
   | "eternl"
   | "lace"
   | "typhon"
@@ -63,7 +74,7 @@ export type TAssetAmountMap<
  * data located in local storage.
  */
 export interface IWalletObserverSeed {
-  activeWallet: TSupportWalletExtensions;
+  activeWallet: TSupportedWalletExtensions;
 }
 
 /**
@@ -82,5 +93,5 @@ export interface IWalletObserverSync<
   balanceMap: WalletBalanceMap<AssetMetadata>;
   usedAddresses: string[];
   unusedAddresses: string[];
-  network: 0 | 1;
+  network: number;
 }

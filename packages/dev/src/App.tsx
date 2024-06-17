@@ -1,5 +1,4 @@
-import type { TWalletObserverOptions } from "@sundaeswap/sync";
-import { WalletObserverProvider } from "@sundaeswap/sync/react-components";
+import { ObserverTypes, WalletObserverProvider } from "@sundaeswap/sync";
 import { FC, StrictMode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -12,7 +11,7 @@ export interface IWalletMetadata {
   assetName: string;
 }
 
-const options: TWalletObserverOptions<IWalletMetadata> = {
+const observerOptions: ObserverTypes.TWalletObserverOptions<IWalletMetadata> = {
   metadataResolver: async (assetIds) => {
     const metadataMap = new Map<string, IWalletMetadata>();
     assetIds.forEach((id) => {
@@ -50,8 +49,9 @@ export const Root = () => {
       >
         <Suspense fallback={<p>Loading...</p>}>
           <WalletObserverProvider
-            observerOptions={options}
-            refreshInterval={10000}
+            options={{
+              observerOptions: observerOptions,
+            }}
           >
             <App />
           </WalletObserverProvider>

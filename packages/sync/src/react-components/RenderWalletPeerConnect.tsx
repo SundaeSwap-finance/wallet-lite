@@ -10,8 +10,8 @@ import {
 } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { TGetPeerConnectInstance } from "../@types/observer";
-import { useWalletObserver } from "./hooks/useWalletObserver";
+import { TGetPeerConnectInstance } from "../@types/observer.js";
+import { useWalletObserver } from "./hooks/useWalletObserver.js";
 
 export type TRenderWalletPeerConnectFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata

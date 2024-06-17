@@ -1,8 +1,8 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode, useEffect, useState } from "react";
 
-import { EWalletObserverEvents } from "../@types/events";
-import { useWalletObserver } from "./hooks/useWalletObserver";
+import { EWalletObserverEvents } from "../@types/events.js";
+import { useWalletObserver } from "./hooks/useWalletObserver.js";
 
 export type TRenderWalletStateFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata

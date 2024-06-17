@@ -41,6 +41,11 @@ jobs:
         run: |
           cd lib
           bun version
+
+      # Pull latest changes and rebase before pushing
+      - name: Pull and Push changes
+        run: |
+          git pull --rebase origin main
           git push --follow-tags origin main
 
       # Create Release

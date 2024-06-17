@@ -31,9 +31,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build
+        run: cd lib && bun run build
+
       # Bump Versions (reinstate after release)
       - name: Bump versions
-        run: cd lib && bun version
+        run: cd lib && bun version && git push --follow-tags origin main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

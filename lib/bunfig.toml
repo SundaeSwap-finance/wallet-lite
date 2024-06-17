@@ -1,0 +1,4 @@
+[test]
+root = "./src"
+preload = "./setup-tests.ts"
+coverageThreshold = 0.8

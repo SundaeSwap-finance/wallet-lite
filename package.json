@@ -1,12 +1,16 @@
 {
-  "name": "sync-dev",
+  "name": "wallet-lite-dev",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "trustedDependencies": [
     "fs-native-extensions",
     "node-datachannel",
     "utp-native"
-  ]
+  ],
+  "workspaces": [
+    "./dev",
+    "./lib"
+  ],
+  "devDependencies": {
+    "@sundaeswap/babel-preset": "^2.0.3"
+  }
 }

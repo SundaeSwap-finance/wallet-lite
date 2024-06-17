@@ -1,0 +1,12 @@
+{
+  "presets": [
+    "@sundaeswap/babel-preset",
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic"
+      }
+    ]
+  ],
+  "ignore": ["**/__data__", "**/__tests__"]
+}

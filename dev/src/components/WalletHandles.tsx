@@ -1,6 +1,6 @@
 import {
-  type THandleMetadata,
   RenderWalletHandles,
+  THandleMetadata,
   TRenderWalletHandlesFunction,
 } from "@sundaeswap/wallet-lite";
 import { FC, useCallback, useState } from "react";

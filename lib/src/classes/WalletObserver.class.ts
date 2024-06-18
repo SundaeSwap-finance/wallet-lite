@@ -1,5 +1,4 @@
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
-import type { HexBlob } from "@cardano-sdk/util";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import merge from "lodash/merge.js";
 
@@ -12,6 +11,11 @@ import type {
   TSupportedWalletExtensions,
   TWalletObserverOptions,
 } from "../@types/observer.js";
+import {
+  getCardanoCore,
+  getCardanoUtil,
+  getPeerConnect,
+} from "../utils/getLibs.js";
 import { WalletBalanceMap } from "./WalletBalanceMap.class.js";
 import { WalletObserverEvent } from "./WalletObserverEvent.js";
 
@@ -289,9 +293,7 @@ export class WalletObserver<
 
   getCip45Instance = async () => {
     if (!this.peerConnectInstance) {
-      const DAppPeerConnect = await import(
-        "@fabianbormann/cardano-peer-connect"
-      ).then(({ DAppPeerConnect }) => DAppPeerConnect);
+      const { DAppPeerConnect } = await getPeerConnect();
       this.peerConnectInstance = new DAppPeerConnect(
         this._options.peerConnectArgs
       );
@@ -354,11 +356,10 @@ export class WalletObserver<
     }
 
     this.dispatch(EWalletObserverEvents.GET_BALANCE_MAP_START);
-    const cbor = await this.api.getBalance();
-    const [Serialization, typedHex] = await Promise.all([
-      import("@cardano-sdk/core").then(({ Serialization }) => Serialization),
-      // @ts-ignore type exports are lame
-      import("@cardano-sdk/util").then(({ typedHex }) => typedHex),
+    const [cbor, { Serialization }, { typedHex }] = await Promise.all([
+      this.api.getBalance(),
+      getCardanoCore(),
+      getCardanoUtil(),
     ]);
 
     const data = Serialization.Value.fromCbor(typedHex(cbor));
@@ -416,16 +417,14 @@ export class WalletObserver<
       );
     }
 
-    const cbor = await this.api.getUsedAddresses();
-    const [Cardano, typedHex] = await Promise.all([
-      await import("@cardano-sdk/core").then(({ Cardano }) => Cardano),
-      // @ts-ignore type exports are lame
-      await import("@cardano-sdk/util").then(({ typedHex }) => typedHex),
+    const [cbor, { Cardano }, { typedHex }] = await Promise.all([
+      this.api.getUsedAddresses(),
+      getCardanoCore(),
+      getCardanoUtil(),
     ]);
+
     const data = cbor.map((val) =>
-      Cardano.Address.fromBytes(
-        Buffer.from(val, "hex") as unknown as HexBlob
-      ).toBech32()
+      Cardano.Address.fromBytes(typedHex(val)).toBech32()
     );
 
     return data;
@@ -443,16 +442,14 @@ export class WalletObserver<
       );
     }
 
-    const cbor = await this.api.getUnusedAddresses();
-    const [Cardano, typedHex] = await Promise.all([
-      await import("@cardano-sdk/core").then(({ Cardano }) => Cardano),
-      // @ts-ignore type exports are lame
-      await import("@cardano-sdk/util").then(({ typedHex }) => typedHex),
+    const [cbor, { Cardano }, { typedHex }] = await Promise.all([
+      this.api.getUnusedAddresses(),
+      getCardanoCore(),
+      getCardanoUtil(),
     ]);
+
     const data = cbor.map((val) =>
-      Cardano.Address.fromBytes(
-        Buffer.from(val, "hex") as unknown as HexBlob
-      ).toBech32()
+      Cardano.Address.fromBytes(typedHex(val)).toBech32()
     );
 
     return data;

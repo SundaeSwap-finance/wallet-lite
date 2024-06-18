@@ -2,7 +2,6 @@
   "name": "wallet-react-demo",
   "private": true,
   "author": "SundaeSwap Labs Inc.",
-  "license": "UNLICENSED",
   "version": "2.0.11",
   "engines": {
     "node": ">=14.0.0 || >=16.0.0"

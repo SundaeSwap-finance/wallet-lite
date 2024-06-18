@@ -1,9 +1,12 @@
-import { ObserverTypes, WalletObserverProvider } from "@sundaeswap/wallet-lite";
+import {
+  TWalletObserverOptions,
+  WalletObserverProvider,
+} from "@sundaeswap/wallet-lite";
 import { FC, StrictMode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { ConnectWallet } from "./components/ConnectWallet";
-import { WalletData } from "./components/WalletData";
+import { ConnectWallet } from "./components/ConnectWallet.js";
+import { WalletData } from "./components/WalletData.js";
 
 export interface IWalletMetadata {
   decimals: number;
@@ -11,7 +14,7 @@ export interface IWalletMetadata {
   assetName: string;
 }
 
-const observerOptions: ObserverTypes.TWalletObserverOptions<IWalletMetadata> = {
+const observerOptions: TWalletObserverOptions<IWalletMetadata> = {
   metadataResolver: async (assetIds) => {
     const metadataMap = new Map<string, IWalletMetadata>();
     assetIds.forEach((id) => {

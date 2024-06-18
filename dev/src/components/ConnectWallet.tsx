@@ -1,8 +1,8 @@
 import {
-  ObserverTypes,
   RenderWallet,
   RenderWalletPeerConnect,
   RenderWalletState,
+  TSupportedWalletExtensions,
   useAvailableExtensions,
 } from "@sundaeswap/wallet-lite";
 import classNames from "classnames";
@@ -32,7 +32,7 @@ export const ConnectWallet: FC = () => {
               value={activeWallet || "default"}
               onChange={async ({ target }) => {
                 await observer.connectWallet(
-                  target.value as ObserverTypes.TSupportedWalletExtensions
+                  target.value as TSupportedWalletExtensions
                 );
               }}
             >

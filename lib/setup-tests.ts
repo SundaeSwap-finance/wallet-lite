@@ -52,8 +52,8 @@ mock.module("@cardano-sdk/core", () => ({
   Cardano: {
     Address: {
       fromBytes: mock((val) => ({
-        // Just keep as hex for testing.
-        toBech32: mock(() => Buffer.from(val).toString("hex")),
+        // Convert back to string just for testing.
+        toBech32: mock(() => Buffer.from(val).toString()),
       })),
     },
   },

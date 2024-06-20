@@ -1,7 +1,10 @@
 import capitalize from "lodash/capitalize.js";
 import { useCallback, useEffect, useState } from "react";
 
-import { TSupportedWalletExtensions } from "../../@types/observer.js";
+import {
+  IWindowCip30Extension,
+  TSupportedWalletExtensions,
+} from "../../@types/observer.js";
 import { useWalletObserverContext } from "../contexts/observer/context.js";
 
 /**
@@ -10,6 +13,7 @@ import { useWalletObserverContext } from "../contexts/observer/context.js";
 export interface IWalletExtension {
   property: TSupportedWalletExtensions;
   name: string;
+  reference: IWindowCip30Extension;
 }
 
 /**
@@ -44,6 +48,7 @@ export const useAvailableExtensions = (refreshInterval?: number) => {
         list.push({
           name: capitalize(extension.name),
           property: key,
+          reference: extension,
         });
       }
     });

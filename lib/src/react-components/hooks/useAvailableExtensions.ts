@@ -24,13 +24,21 @@ export const useAvailableExtensions = (refreshInterval?: number) => {
   const [list, setList] = useState<IWalletExtension[]>([]);
 
   const updateExtensions = useCallback(() => {
-    if (!window.cardano) {
+    if (!window.cardano && !window.parent.cardano) {
       return;
+    }
+
+    let cardano: typeof window.cardano;
+
+    if (window.self !== window.top) {
+      cardano = window.parent.cardano;
+    } else {
+      cardano = window.cardano;
     }
 
     const list: IWalletExtension[] = [];
     observerRef.current.getSupportedExtensions().forEach((key) => {
-      const extension = window.cardano?.[key];
+      const extension = cardano?.[key];
 
       if (extension) {
         list.push({

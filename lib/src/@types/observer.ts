@@ -27,15 +27,12 @@ export interface IWindowCip30Extension {
   name: TSupportedWalletExtensions;
 }
 
+/**
+ * Interface to describe our expected window configuration.
+ */
 export type TWindowCardano = {
   [K in TSupportedWalletExtensions]?: IWindowCip30Extension;
 };
-
-declare global {
-  interface Window {
-    cardano?: TWindowCardano;
-  }
-}
 
 /**
  * The metadata resolver should return a map composed of

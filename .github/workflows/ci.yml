@@ -48,10 +48,11 @@ jobs:
           git pull --rebase origin main
           git push --follow-tags origin main
 
+      - name: Configure npm authentication
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+
       # Create Release
       - name: Publish
         run: |
           cd lib
           npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

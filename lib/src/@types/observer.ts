@@ -6,6 +6,17 @@ import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
 
 /**
+ * A list of support CIP-30 wallet extensions in the browser.
+ */
+export type TSupportedWalletExtensions =
+  | "eternl"
+  | "lace"
+  | "typhon"
+  | "sorbet"
+  | "flint"
+  | "nami";
+
+/**
  * Interface to describe window extension.
  */
 export interface IWindowCip30Extension {
@@ -16,11 +27,13 @@ export interface IWindowCip30Extension {
   name: TSupportedWalletExtensions;
 }
 
+export type TWindowCardano = {
+  [K in TSupportedWalletExtensions]?: IWindowCip30Extension;
+};
+
 declare global {
   interface Window {
-    cardano?: {
-      [k in TSupportedWalletExtensions]?: IWindowCip30Extension;
-    };
+    cardano?: TWindowCardano;
   }
 }
 
@@ -50,17 +63,6 @@ export interface IResolvedWalletObserverOptions<
 export type TWalletObserverOptions<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 > = Partial<IResolvedWalletObserverOptions<AssetMetadata>>;
-
-/**
- * A list of support CIP-30 wallet extensions in the browser.
- */
-export type TSupportedWalletExtensions =
-  | "eternl"
-  | "lace"
-  | "typhon"
-  | "sorbet"
-  | "flint"
-  | "nami";
 
 /**
  * Interface describing the Map type of an asset.

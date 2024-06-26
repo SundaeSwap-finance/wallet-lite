@@ -18,7 +18,7 @@ export const useWalletObserver = <
 
   const memoizedState = useMemo(() => {
     const result: TUseWalletObserverState<AssetMetadata> = {
-      ready: state.ready,
+      ready: Boolean(state.activeWallet && state.observer.api),
       isCip45: state.isCip45,
       activeWallet: state.activeWallet,
       adaBalance: state.adaBalance,

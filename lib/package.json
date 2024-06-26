@@ -27,8 +27,9 @@
     "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
     "types": "tsc --project ./tsconfig.build.json",
-    "build": "bun run clean && bun run types && bun run build:esm && bun run build:cjs",
-    "watch": "bun run clean && bun run build && bun run build:esm --watch",
+    "build": "bun clean && bun types && bun build:esm && bun build:cjs && bun set-cjs",
+    "watch": "bun clean && bun run build && bun build:esm --watch",
+    "set-cjs": "echo '{ \"type\": \"commonjs\" }' > ./dist/cjs/package.json",
     "version": "standard-version"
   },
   "dependencies": {

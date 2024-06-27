@@ -50,6 +50,13 @@ describe("RenderWalletHandles", () => {
       () => async () => mockHandleMetadata
     );
 
+    // Necessary because we are mocking transitions and this will return false.
+    // const spiedOnUseDerivedState = spyOn(derivedStateHook, "useDerivedState");
+    // spiedOnUseDerivedState.mockImplementation(() => ({
+    //   mainAddress: "0c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d00",
+    //   stakeAddress: "",
+    // }));
+
     const { container, getByTestId, queryByTestId, rerender } = render(
       <RenderWalletHandles render={TestComponent} />,
       {

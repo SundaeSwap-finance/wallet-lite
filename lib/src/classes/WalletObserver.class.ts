@@ -18,6 +18,7 @@ import {
 } from "../utils/getLibs.js";
 import { WalletBalanceMap } from "./WalletBalanceMap.class.js";
 import { WalletObserverEvent } from "./WalletObserverEvent.js";
+import { WalletObserverUtils } from "./WalletObserverUtils.class.js";
 
 /**
  * Class representing the Wallet Observer. This is the main interface
@@ -40,6 +41,7 @@ export class WalletObserver<
   static ADA_ASSET_ID = "ada.lovelace";
   public network: number = 0;
   public api?: Cip30WalletApi;
+  public utils?: WalletObserverUtils;
   public peerConnectInstance?: import("@fabianbormann/cardano-peer-connect").DAppPeerConnect;
 
   private _performingSync: boolean = false;
@@ -499,4 +501,17 @@ export class WalletObserver<
 
       return map;
     };
+
+  /**
+   * Helper method to retrieve the cached utils instance.
+   *
+   * @returns {Promise<WalletObserverUtils>} Resolves to a WalletObserverUtils class.
+   */
+  public async getUtils(): Promise<WalletObserverUtils> {
+    if (!this.utils) {
+      this.utils = await WalletObserverUtils.new(this.network);
+    }
+
+    return this.utils;
+  }
 }

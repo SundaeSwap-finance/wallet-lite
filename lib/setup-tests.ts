@@ -48,7 +48,7 @@ window.cardano = {
  * which uses CommonJS exports, which are incompatible with
  * Bun runtime.
  */
-mock.module("@cardano-sdk/core", () => ({
+export const coreModuleMock = {
   Cardano: {
     Address: {
       fromBytes: mock((val) => ({
@@ -77,7 +77,9 @@ mock.module("@cardano-sdk/core", () => ({
       })),
     },
   },
-}));
+};
+
+mock.module("@cardano-sdk/core", () => coreModuleMock);
 
 /**
  * Mock the peer connect library for cip-45 support.

@@ -13,18 +13,6 @@ export const ConnectWallet: FC = () => {
 
   return (
     <div className="m-4 w-1/4 border border-gray-400 p-4 flex flex-col">
-      <h4>CIP-45</h4>
-      <RenderWalletPeerConnect
-        render={({ peerConnect, QRCodeElement, activeWallet }) =>
-          !activeWallet &&
-          peerConnect && (
-            <>
-              <p>Address: {peerConnect.instance.getAddress()}</p>
-              {QRCodeElement}
-            </>
-          )
-        }
-      />
       <RenderWallet
         render={({ activeWallet, observer }) => {
           return (
@@ -45,6 +33,18 @@ export const ConnectWallet: FC = () => {
             </select>
           );
         }}
+      />
+      <h4>CIP-45</h4>
+      <RenderWalletPeerConnect
+        render={({ activeWallet, peerConnect, QRCodeElement }) =>
+          !activeWallet &&
+          peerConnect && (
+            <>
+              <p>Address: {peerConnect.instance.getAddress()}</p>
+              {QRCodeElement}
+            </>
+          )
+        }
       />
       <div className="flex items-center">
         <p>
@@ -83,6 +83,21 @@ export const ConnectWallet: FC = () => {
               onClick={observer.disconnect}
             />
           )
+        }
+      />
+
+      <RenderWallet
+        render={({ ready, stakeAddress, mainAddress }) =>
+          ready ? (
+            <div>
+              <span className="block text-xs overflow-hidden text-ellipsis text-nowrap">
+                Stake Address: {stakeAddress}
+              </span>
+              <span className="block text-xs overflow-hidden text-ellipsis text-nowrap">
+                Main Address: {mainAddress}
+              </span>
+            </div>
+          ) : null
         }
       />
     </div>

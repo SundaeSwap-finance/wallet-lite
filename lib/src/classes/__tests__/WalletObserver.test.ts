@@ -8,7 +8,12 @@ import {
   usedAddresses,
 } from "../../__data__/eternl.js";
 import { EWalletObserverEvents, TWalletObserverOptions } from "../../index.js";
+import * as getLibModules from "../../utils/getLibs.js";
 import { WalletObserver } from "../WalletObserver.class.js";
+
+const spiedOnGetCardano = spyOn(getLibModules, "getCardanoCore");
+const spiedOnGetUtils = spyOn(getLibModules, "getCardanoUtil");
+const spiedOnGetPeerConnect = spyOn(getLibModules, "getPeerConnect");
 
 afterEach(() => {
   window.localStorage.clear();
@@ -225,6 +230,10 @@ describe("WalletObserver", async () => {
       const spiedDispatch = spyOn(observer, "dispatch");
       await observer.connectWallet("eternl");
 
+      expect(spiedOnGetCardano).toHaveBeenCalled();
+      expect(spiedOnGetPeerConnect).not.toHaveBeenCalled();
+      expect(spiedOnGetUtils).toHaveBeenCalled();
+
       expect(observer.getActiveWallet()).toEqual("eternl");
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
@@ -246,6 +255,7 @@ describe("WalletObserver", async () => {
         7,
         EWalletObserverEvents.DISCONNECT
       );
+      expect(spiedOnGetPeerConnect).not.toHaveBeenCalled();
     });
   });
 
@@ -282,7 +292,7 @@ describe("WalletObserver", async () => {
       expect(spiedOnConnect).toHaveBeenCalledWith("eternl-p2p");
 
       data.instance.shutdownServer();
-      expect(spiedOnConnect).toHaveBeenCalled();
+      expect(spiedOnDisconnect).toHaveBeenCalled();
     });
   });
 });

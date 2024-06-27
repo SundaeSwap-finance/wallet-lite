@@ -61,6 +61,7 @@ export interface IWalletObserverState<
     setBalance: Dispatch<SetStateAction<WalletBalanceMap<AssetMetadata>>>;
     observer: WalletObserver;
     mainAddress?: string;
+    stakeAddress?: string;
     network?: number;
     setNetwork: Dispatch<SetStateAction<number | undefined>>;
     unusedAddresses: string[];

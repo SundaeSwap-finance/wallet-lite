@@ -5,10 +5,11 @@ import {
   IWalletObserverState,
   WalletObserverContext,
 } from "../contexts/observer/index.js";
+import { useDerivedState } from "./hooks/effects/useDerivedState.js";
 import { useProviderEventListeners } from "./hooks/effects/useProviderEventListeners.js";
 import { useProviderRefreshInterval } from "./hooks/effects/useProviderRefreshInterval.js";
 import { useProviderWalletObserverRef } from "./hooks/useProviderWalletObserverRef.js";
-import { useWalletObserverState } from "./hooks/useSyncWalletFunction.js";
+import { useWalletObserverState } from "./hooks/useWalletObserverState.js";
 
 /**
  * The main context provider component. This handles setting up all the initial
@@ -32,6 +33,10 @@ const WalletObserverProvider: FC<
     options?.refreshInterval
   );
 
+  const derivedState = useDerivedState(observerRef.current, {
+    usedAddresses: reactiveState.usedAddresses,
+  });
+
   // Memoize the context value
   const contextValue: IWalletObserverState = useMemo(
     () => ({
@@ -39,12 +44,12 @@ const WalletObserverProvider: FC<
       refreshInterval: options?.refreshInterval || 30000,
       state: {
         ...reactiveState,
-        mainAddress: reactiveState.usedAddresses?.[0],
+        ...derivedState,
         observer: observerRef.current,
         syncWallet,
       },
     }),
-    [options, syncWallet, reactiveState]
+    [options, syncWallet, reactiveState, derivedState]
   );
 
   return (

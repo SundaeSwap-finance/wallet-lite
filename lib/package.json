@@ -1,6 +1,7 @@
 {
   "name": "@sundaeswap/wallet-lite",
   "version": "0.0.12",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -17,7 +18,8 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "LICENSE.md"
   ],
   "engines": {
     "node": ">=16.0.0"

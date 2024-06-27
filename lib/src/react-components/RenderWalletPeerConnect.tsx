@@ -1,17 +1,10 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import {
-  FC,
-  MutableRefObject,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { FC, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { TGetPeerConnectInstance } from "../@types/observer.js";
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
+import { useWalletPeerConnect } from "./hooks/useWalletPeerConnect.js";
 
 export type TRenderWalletPeerConnectFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
@@ -37,44 +30,15 @@ export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
   render,
 }) => {
   const state = useWalletObserver();
-  const [peerConnect, setPeerConnect] =
-    useState<ReturnType<TGetPeerConnectInstance>>();
-  const [error, setError] = useState<string>();
-  const qrCode = useRef<HTMLDivElement>(null);
+  const peerConnectState = useWalletPeerConnect();
 
-  useEffect(() => {
-    if (!state.observer) {
-      return;
-    }
-
-    state.observer
-      .getCip45Instance()
-      .then((res) => setPeerConnect(res))
-      .catch((e) => setError((e as Error).message));
-  }, [state.observer, state.ready, setPeerConnect, setError]);
-
-  useEffect(() => {
-    if (peerConnect && qrCode.current) {
-      peerConnect.instance.generateQRCode(qrCode.current);
-    }
-  }, [peerConnect, qrCode]);
-
-  const memoizedState = useMemo(
-    () => ({
-      ...state,
-      peerConnect,
-      QRCodeElement: <div ref={qrCode as MutableRefObject<HTMLDivElement>} />,
-    }),
-    [state, peerConnect]
-  );
-
-  if (!memoizedState.peerConnect) {
+  if (!peerConnectState.peerConnect) {
     return null;
   }
 
   return (
-    <ErrorBoundary fallback={<p>{error}</p>}>
-      {render(memoizedState)}
+    <ErrorBoundary fallback={<p>{peerConnectState.error}</p>}>
+      {render({ ...state, ...peerConnectState })}
     </ErrorBoundary>
   );
 };

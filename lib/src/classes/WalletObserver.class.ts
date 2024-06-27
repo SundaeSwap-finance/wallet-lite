@@ -1,7 +1,7 @@
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
-import merge from "lodash/merge.js";
 
+import merge from "lodash/merge.js";
 import { EWalletObserverEvents } from "../@types/events.js";
 import type {
   IResolvedWalletObserverOptions,

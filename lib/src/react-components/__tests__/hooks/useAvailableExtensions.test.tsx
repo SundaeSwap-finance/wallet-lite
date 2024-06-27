@@ -21,7 +21,9 @@ describe("useAvailableExtensions", () => {
       wrapper: (props) => <WalletObserverProvider {...props} />,
     });
 
-    expect(result.current).toEqual([{ name: "Eternl", property: "eternl" }]);
+    expect(result.current).toEqual([
+      { name: "Eternl", property: "eternl", reference: mockedEternlWallet },
+    ]);
 
     await act(async () => {
       // Inject a duplicate api.
@@ -38,10 +40,12 @@ describe("useAvailableExtensions", () => {
       {
         name: "Eternl",
         property: "eternl",
+        reference: mockedEternlWallet,
       },
       {
         name: "Eternl",
         property: "flint",
+        reference: mockedEternlWallet,
       },
     ]);
   });

@@ -27,6 +27,7 @@ export const useWalletObserver = <
       stakeAddress: state.stakeAddress,
       network: state.network,
       utxos: state.utxos,
+      collateral: state.collateral,
       observer: state.observer,
       syncWallet: state.syncWallet,
       unusedAddresses: state.unusedAddresses,
@@ -46,6 +47,7 @@ export const useWalletObserver = <
     state.unusedAddresses,
     state.usedAddresses,
     state.utxos,
+    state.collateral,
     state.ready,
     state.isCip45,
   ]);

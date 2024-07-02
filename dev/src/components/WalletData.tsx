@@ -57,6 +57,28 @@ export const WalletData = () => {
               }}
             />
           </ul>
+
+          <h4 className="text-xl font-bold">Collateral</h4>
+          <ul>
+            <RenderWallet
+              render={({
+                collateral,
+              }: TRenderWalletFunctionState<IWalletMetadata>) => {
+                return collateral?.map(({ input, output }) => (
+                  <li key={input().transactionId()}>
+                    <strong>Hash</strong>:{" "}
+                    {`${input().transactionId()}#${input().index()}`}
+                    <br />
+                    <strong>ADA</strong>:{" "}
+                    {new AssetAmount(output().amount().coin(), {
+                      assetId: "ada.lovelace",
+                      decimals: 6,
+                    }).value.toString()}
+                  </li>
+                ));
+              }}
+            />
+          </ul>
         </div>
         <div>
           <WalletHandles />

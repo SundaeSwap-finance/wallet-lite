@@ -24,6 +24,7 @@ type TMockedCip30Wallet = Pick<
   | "getUnusedAddresses"
   | "getUsedAddresses"
   | "getUtxos"
+  | "getCollateral"
 >;
 
 export const mockedEternlApi = jest
@@ -34,6 +35,7 @@ export const mockedEternlApi = jest
     getUnusedAddresses: mock(async () => unusedAddresses),
     getUsedAddresses: mock(async () => usedAddresses),
     getUtxos: mock(async () => utxos),
+    getCollateral: mock(async () => utxos),
   });
 
 export const mockedEternlWallet: IWindowCip30Extension = {

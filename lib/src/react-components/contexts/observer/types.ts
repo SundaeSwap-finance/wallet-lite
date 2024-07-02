@@ -61,6 +61,10 @@ export interface IWalletObserverState<
     balance: WalletBalanceMap<AssetMetadata>;
     utxos?: TransactionUnspentOutput[];
     setUtxos: Dispatch<SetStateAction<TransactionUnspentOutput[] | undefined>>;
+    collateral?: TransactionUnspentOutput[];
+    setCollateral: Dispatch<
+      SetStateAction<TransactionUnspentOutput[] | undefined>
+    >;
     setBalance: Dispatch<SetStateAction<WalletBalanceMap<AssetMetadata>>>;
     observer: WalletObserver;
     mainAddress?: string;
@@ -99,4 +103,5 @@ export type TUseWalletObserverState<
   | "setReady"
   | "setIsCip45"
   | "setUtxos"
+  | "setCollateral"
 >;

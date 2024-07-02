@@ -154,19 +154,26 @@ export class WalletObserver<
       }
     }
 
-    const [newBalanceMap, newUsedAddresses, newUnusedAddresses, newOutputs] =
-      await Promise.all([
-        this.getBalanceMap(),
-        this.getUsedAddresses(),
-        this.getUnusedAddresses(),
-        this.getUtxos(),
-      ]);
+    const [
+      newBalanceMap,
+      newUsedAddresses,
+      newUnusedAddresses,
+      newOutputs,
+      newCollateral,
+    ] = await Promise.all([
+      this.getBalanceMap(),
+      this.getUsedAddresses(),
+      this.getUnusedAddresses(),
+      this.getUtxos(),
+      this.getCollateral(),
+    ]);
 
     const result = {
       balanceMap: newBalanceMap,
       usedAddresses: newUsedAddresses,
       unusedAddresses: newUnusedAddresses,
       utxos: newOutputs,
+      collateral: newCollateral,
       network: newNetwork,
     };
 
@@ -472,6 +479,36 @@ export class WalletObserver<
 
     const [cbor, { Serialization }, { typedHex }] = await Promise.all([
       this.api.getUtxos(),
+      getCardanoCore(),
+      getCardanoUtil(),
+    ]);
+
+    const data = cbor?.map((val) => {
+      let txOutput = Serialization.TransactionUnspentOutput.fromCbor(
+        typedHex(val)
+      );
+
+      // These methods must be bound to their initial creation instance.
+      txOutput.input = txOutput.input.bind(txOutput);
+      txOutput.output = txOutput.output.bind(txOutput);
+      return txOutput;
+    });
+
+    return data;
+  };
+
+  /**
+   * Gets a list of wallet UTXOs suitable for collateral.
+   *
+   * @returns {Promise<TransactionUnspentOutput[]>} The list of TransactionUnspentOutputs.
+   */
+  getCollateral = async (): Promise<TransactionUnspentOutput[] | undefined> => {
+    if (!this.api) {
+      throw new Error("Attempted to query UTXOs without an API instance.");
+    }
+
+    const [cbor, { Serialization }, { typedHex }] = await Promise.all([
+      this.api.getCollateral(),
       getCardanoCore(),
       getCardanoUtil(),
     ]);

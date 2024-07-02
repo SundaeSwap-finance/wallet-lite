@@ -9,12 +9,19 @@ import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
  * A list of support CIP-30 wallet extensions in the browser.
  */
 export type TSupportedWalletExtensions =
+  | "nami"
   | "eternl"
-  | "lace"
+  | "typhoncip30"
+  | "ccvault"
   | "typhon"
-  | "sorbet"
+  | "yoroi"
   | "flint"
-  | "nami";
+  | "gerowallet"
+  | "cardwallet"
+  | "nufi"
+  | "begin"
+  | "lace"
+  | "sorbet";
 
 /**
  * Interface to describe window extension.

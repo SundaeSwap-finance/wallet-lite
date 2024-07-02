@@ -43,7 +43,9 @@ export const WalletData = () => {
                 utxos,
               }: TRenderWalletFunctionState<IWalletMetadata>) => {
                 return utxos?.map(({ input, output }) => (
-                  <li key={input().transactionId()}>
+                  <li
+                    key={`utxos-${input().transactionId()}-${input().index()}`}
+                  >
                     <strong>Hash</strong>:{" "}
                     {`${input().transactionId()}#${input().index()}`}
                     <br />
@@ -65,7 +67,9 @@ export const WalletData = () => {
                 collateral,
               }: TRenderWalletFunctionState<IWalletMetadata>) => {
                 return collateral?.map(({ input, output }) => (
-                  <li key={input().transactionId()}>
+                  <li
+                    key={`collateral-${input().transactionId()}-${input().index()}`}
+                  >
                     <strong>Hash</strong>:{" "}
                     {`${input().transactionId()}#${input().index()}`}
                     <br />

@@ -12,6 +12,7 @@ import type {
   TSupportedWalletExtensions,
   TWalletObserverOptions,
 } from "../@types/observer.js";
+import { isAdaAsset, normalizeAssetIdWithDot } from "../utils/assets.js";
 import {
   getCardanoCore,
   getCardanoUtil,
@@ -391,7 +392,10 @@ export class WalletObserver<
     const multiassetEntries = data.multiasset()?.entries() ?? [];
     if (multiassetEntries) {
       for (const [id, amount] of multiassetEntries) {
-        balanceMap.set(id, new AssetAmount(amount, metadata.get(id)));
+        balanceMap.set(
+          id,
+          new AssetAmount(amount, metadata.get(normalizeAssetIdWithDot(id)))
+        );
       }
     }
 
@@ -549,7 +553,11 @@ export class WalletObserver<
       }
     }
 
-    const newMetadata = await this._options.metadataResolver(assetIds);
+    const newMetadata = await this._options.metadataResolver(
+      assetIds.map(normalizeAssetIdWithDot),
+      normalizeAssetIdWithDot,
+      isAdaAsset
+    );
     this._cachedMetadata = newMetadata;
     return newMetadata;
   };
@@ -563,8 +571,8 @@ export class WalletObserver<
     async (assetIds) => {
       const map = new Map<string, AssetMetadata>();
       assetIds.forEach((id) =>
-        map.set(id, {
-          assetId: id,
+        map.set(normalizeAssetIdWithDot(id), {
+          assetId: normalizeAssetIdWithDot(id),
           decimals: 6,
         } as AssetMetadata)
       );

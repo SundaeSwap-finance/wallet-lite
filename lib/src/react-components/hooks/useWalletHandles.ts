@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { IHandle } from "@koralabs/adahandle-sdk";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { TAssetAmountMap } from "../../@types/observer.js";
+import { WalletAssetMap } from "../../classes/WalletAssetMap.class.js";
+import { normalizeAssetIdWithDot } from "../../utils/assets.js";
 import { THandleMetadata } from "../contexts/observer/types.js";
 import { useWalletObserver } from "./useWalletObserver.js";
 
@@ -13,7 +15,7 @@ export const useWalletHandles = <
   const [loadingHandles, setLoadingHandles] = useState(true);
   const [handles, setHandles] = useState<
     TAssetAmountMap<THandleMetadata<AssetMetadata>>
-  >(new Map());
+  >(new WalletAssetMap());
   const memoizedHandleDep = useMemo(
     () => [...state.balance.getHandles().keys()],
     [state.balance]
@@ -24,10 +26,9 @@ export const useWalletHandles = <
   >(async () => {
     // Make a copy of our wallet map.
     const walletHandles: TAssetAmountMap<THandleMetadata<AssetMetadata>> =
-      new Map([...state.balance.getHandles()]);
+      new WalletAssetMap([...state.balance.getHandles()]);
 
     if (walletHandles.size === 0) {
-      setLoadingHandles(false);
       return walletHandles;
     }
 
@@ -53,30 +54,31 @@ export const useWalletHandles = <
       const walletHandleDataArray: IHandle[] = await sdk
         .provider()
         .getAllDataBatch(
-          walletHandlesWithDataArray.map(([key]) => ({ value: key.slice(56) }))
+          walletHandlesWithDataArray.map(([key]) => ({
+            value: key.split(".")[1],
+          }))
         );
 
       walletHandlesWithDataArray.forEach(([key, asset]) => {
         const matchingData = walletHandleDataArray.find(
-          ({ hex }) => hex === key.slice(56)
+          ({ hex }) => hex === key.split(".")[1]
         ) as IHandle;
 
         walletHandles.set(
-          key,
+          normalizeAssetIdWithDot(key),
           asset
             .withMetadata({
               ...matchingData,
               ...asset.metadata,
+              assetId: normalizeAssetIdWithDot(asset.metadata.assetId),
               decimals: 0,
             })
             .withAmount(1n)
         );
       });
 
-      setLoadingHandles(false);
       return walletHandles;
     } catch (e) {
-      setLoadingHandles(false);
       console.log(e);
       return walletHandles;
     }
@@ -84,31 +86,33 @@ export const useWalletHandles = <
   }, [state.balance, setLoadingHandles]);
 
   useEffect(() => {
-    syncHandles().then((newHandles) => {
-      setHandles((prevHandles) => {
-        let handleMetadataChanged = false;
+    syncHandles()
+      .then((newHandles) => {
+        setHandles((prevHandles) => {
+          let handleMetadataChanged = false;
 
-        if (newHandles.size !== prevHandles?.size) {
-          handleMetadataChanged = true;
-        } else {
-          for (const [key, val] of newHandles) {
-            if (
-              !prevHandles.has(key) ||
-              prevHandles.get(key)?.amount !== val?.amount
-            ) {
-              handleMetadataChanged = true;
+          if (newHandles.size !== prevHandles?.size) {
+            handleMetadataChanged = true;
+          } else {
+            for (const [key, val] of newHandles) {
+              if (
+                !prevHandles.has(key) ||
+                prevHandles.get(key)?.amount !== val?.amount
+              ) {
+                handleMetadataChanged = true;
+              }
             }
           }
-        }
 
-        if (!handleMetadataChanged) {
-          return prevHandles;
-        }
+          if (!handleMetadataChanged) {
+            return prevHandles;
+          }
 
-        return newHandles;
-      });
-    });
-  }, [memoizedHandleDep, syncHandles, setHandles]);
+          return newHandles;
+        });
+      })
+      .then(() => setLoadingHandles((prevValue) => !prevValue));
+  }, [memoizedHandleDep, syncHandles, setHandles, setLoadingHandles]);
 
   const data = useMemo(
     () => ({
@@ -117,6 +121,8 @@ export const useWalletHandles = <
     }),
     [handles, loadingHandles]
   );
+
+  console.log(handles, loadingHandles);
 
   return data;
 };

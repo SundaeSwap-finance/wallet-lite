@@ -1,4 +1,5 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import { normalizeAssetIdWithDot } from "../utils/assets";
 
 export const assetIds = [
   "ada.lovelace",
@@ -107,7 +108,7 @@ export const assetIds = [
 ];
 
 export const assetMap = assetIds.map((id) => {
-  const assetId = `${id.slice(0, 56)}.${id.slice(56)}`;
+  const assetId = normalizeAssetIdWithDot(id);
   const name = Buffer.from(id.slice(56), "hex").toString("utf-8");
 
   const nftMetadata = {
@@ -126,7 +127,7 @@ export const assetMap = assetIds.map((id) => {
     name.includes("Gutenberg Bible");
 
   return {
-    key: id,
+    key: assetId,
     assetAmount: new AssetAmount(
       isNFT ? 1 : Math.floor(Math.random() * 10000000) + 1,
       isNFT ? nftMetadata : fungibleMetadata

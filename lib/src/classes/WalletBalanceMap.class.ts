@@ -1,6 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { TAssetAmountMap } from "../@types/observer.js";
+import { WalletAssetMap } from "./WalletAssetMap.class.js";
 import { WalletObserver } from "./WalletObserver.class.js";
 
 /**
@@ -13,7 +14,7 @@ import { WalletObserver } from "./WalletObserver.class.js";
  */
 export class WalletBalanceMap<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
-> extends Map<string, AssetAmount<AssetMetadata>> {
+> extends WalletAssetMap<AssetMetadata> {
   /**
    * @private
    * @type {Record<number, string[]>}
@@ -41,7 +42,7 @@ export class WalletBalanceMap<
    * @returns {TAssetAmountMap<AssetMetadata>} A map of fungible tokens.
    */
   getFungibleTokens = (): TAssetAmountMap<AssetMetadata> => {
-    const map: TAssetAmountMap<AssetMetadata> = new Map();
+    const map: TAssetAmountMap<AssetMetadata> = new WalletAssetMap();
     [...this.entries()].forEach(([key, asset]) => {
       if (asset.metadata.decimals > 0) {
         map.set(key, asset);
@@ -58,7 +59,7 @@ export class WalletBalanceMap<
    * @returns {TAssetAmountMap<AssetMetadata>} A map of handle assets.
    */
   getHandles = (): TAssetAmountMap<AssetMetadata> => {
-    const map: TAssetAmountMap<AssetMetadata> = new Map();
+    const map: TAssetAmountMap<AssetMetadata> = new WalletAssetMap();
     [...this.entries()].forEach(([key, asset]) => {
       const isHandle = this._handlePolicyIds[this._observer.network].some(
         (policyId) => asset.metadata.assetId.includes(policyId)
@@ -82,7 +83,7 @@ export class WalletBalanceMap<
   getNonFungibleTokens = (
     withHandles?: boolean
   ): TAssetAmountMap<AssetMetadata> => {
-    const map: TAssetAmountMap<AssetMetadata> = new Map();
+    const map: TAssetAmountMap<AssetMetadata> = new WalletAssetMap();
     [...this.entries()].forEach(([key, asset]) => {
       if (
         !withHandles &&

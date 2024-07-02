@@ -15,12 +15,16 @@ export interface IWalletMetadata {
 }
 
 const observerOptions: TWalletObserverOptions<IWalletMetadata> = {
-  metadataResolver: async (assetIds) => {
+  metadataResolver: async (assetIds, normalize, isAda) => {
     const metadataMap = new Map<string, IWalletMetadata>();
     assetIds.forEach((id) => {
-      const assetName = Buffer.from(id.slice(56), "hex").toString("utf-8");
-      metadataMap.set(id, {
-        assetId: id,
+      const hexName = id.split(".")?.[1] ?? "";
+      const assetName = isAda(id)
+        ? "ADA"
+        : Buffer.from(hexName, "hex").toString("utf-8");
+
+      metadataMap.set(normalize(id), {
+        assetId: normalize(id),
         assetName,
         decimals: 6,
       });

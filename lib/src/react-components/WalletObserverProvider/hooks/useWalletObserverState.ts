@@ -6,6 +6,7 @@ import {
   TAssetAmountMap,
   TSupportedWalletExtensions,
 } from "../../../@types/observer.js";
+import { WalletAssetMap } from "../../../classes/WalletAssetMap.class.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { areAssetMapsEqual } from "../../../utils/comparisons.js";
@@ -26,7 +27,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   );
   const [handleMetadata, setHandleMetadata] = useState<
     TAssetAmountMap<THandleMetadata>
-  >(new Map());
+  >(new WalletAssetMap());
   const [balance, setBalance] = useState<WalletBalanceMap>(
     new WalletBalanceMap(observer)
   );

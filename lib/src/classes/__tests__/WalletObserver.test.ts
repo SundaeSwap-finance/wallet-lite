@@ -7,7 +7,11 @@ import {
   unusedAddresses,
   usedAddresses,
 } from "../../__data__/eternl.js";
-import { EWalletObserverEvents, TWalletObserverOptions } from "../../index.js";
+import {
+  EWalletObserverEvents,
+  TMetadataResolverFunc,
+  TWalletObserverOptions,
+} from "../../index.js";
 import * as getLibModules from "../../utils/getLibs.js";
 import { WalletObserver } from "../WalletObserver.class.js";
 
@@ -87,10 +91,13 @@ describe("WalletObserver", async () => {
     });
 
     test("with parameters", () => {
-      const handler = async (ids: string[]) => {
+      const handler: TMetadataResolverFunc<IAssetAmountMetadata> = async (
+        ids: string[],
+        normalize
+      ) => {
         const metadata = ids.map((id) => ({ decimals: 6, assetId: id }));
         const map = new Map<string, IAssetAmountMetadata>();
-        metadata.forEach((m) => map.set(m.assetId, m));
+        metadata.forEach((m) => map.set(normalize(m.assetId), m));
         return map;
       };
       const observer = new WalletObserver({

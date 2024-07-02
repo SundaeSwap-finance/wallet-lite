@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, spyOn, test } from "bun:test";
 
 import { assetIds, assetMap } from "../../__data__/assets.js";
+import { normalizeAssetIdWithDot } from "../../utils/assets.js";
 import { WalletBalanceMap } from "../WalletBalanceMap.class.js";
 import { WalletObserver } from "../WalletObserver.class.js";
 
@@ -30,7 +31,7 @@ describe("WalletBalanceMap", () => {
 
   it("should setup the test instance properly", () => {
     expect(instance.size).toEqual(103);
-    expect([...instance.keys()]).toEqual(assetIds);
+    expect([...instance.keys()]).toEqual(assetIds.map(normalizeAssetIdWithDot));
   });
 
   test("getFungibleTokens()", () => {

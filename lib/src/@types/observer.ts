@@ -2,9 +2,11 @@ import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serial
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import type { DAppPeerConnect } from "@fabianbormann/cardano-peer-connect";
 import type { DAppPeerConnectParameters } from "@fabianbormann/cardano-peer-connect/dist/src/types.js";
-import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import type { IAssetAmountMetadata } from "@sundaeswap/asset";
 
+import { WalletAssetMap } from "../classes/WalletAssetMap.class.js";
 import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
+import { isAdaAsset, normalizeAssetIdWithDot } from "../utils/assets.js";
 
 /**
  * A list of support CIP-30 wallet extensions in the browser.
@@ -48,7 +50,11 @@ export type TWindowCardano = {
  */
 export type TMetadataResolverFunc<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
-> = (assetIds: string[]) => Promise<Map<string, T>>;
+> = (
+  assetIds: string[],
+  normalizeAssetIdFunc: typeof normalizeAssetIdWithDot,
+  isAdaAssetFunc: typeof isAdaAsset
+) => Promise<Map<string, T>>;
 
 /**
  * Options that are passed to the WalletObserver instance.
@@ -74,7 +80,7 @@ export type TWalletObserverOptions<
  */
 export type TAssetAmountMap<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
-> = Map<string, AssetAmount<T>>;
+> = WalletAssetMap<T>;
 
 /**
  * Interface describing the structure of the persistent

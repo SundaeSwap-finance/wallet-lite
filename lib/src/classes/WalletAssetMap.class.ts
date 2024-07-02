@@ -1,5 +1,6 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { normalizeAssetIdWithDot } from "../utils/assets";
+
+import { normalizeAssetIdWithDot } from "../utils/assets.js";
 
 /**
  * Map wrapper to enforce asset id normalization when setting and getting assets.

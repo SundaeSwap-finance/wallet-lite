@@ -7,8 +7,8 @@
     "node": ">=14.0.0 || >=16.0.0"
   },
   "scripts": {
-    "build": "vite build",
-    "start": "vite"
+    "build": "bun --bun vite build",
+    "start": "bun --bun vite"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -48,6 +48,8 @@
   "dependencies": {
     "@cardano-foundation/cardano-connect-with-wallet": "^0.2.9",
     "@koralabs/adahandle-sdk": "^1.4.0",
+    "@sundaeswap/asset": "^1.0.5",
+    "@sundaeswap/fraction": "^1.0.5",
     "@sundaeswap/wallet-lite": "workspace:*",
     "@tailwindcss/forms": "^0.5.2",
     "@tanstack/react-query": "^4.0.10",

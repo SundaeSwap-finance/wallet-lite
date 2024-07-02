@@ -1,3 +1,4 @@
+import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import { AssetAmount } from "@sundaeswap/asset";
 import { useCallback, useRef, useState } from "react";
 
@@ -32,6 +33,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   const [network, setNetwork] = useState<number | undefined>();
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
   const [unusedAddresses, setUnusedAddresses] = useState<string[]>([]);
+  const [utxos, setUtxos] = useState<TransactionUnspentOutput[]>();
   const [ready, setReady] = useState(false);
   const [isCip45, setIsCip45] = useState(false);
 
@@ -49,6 +51,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
       setUnusedAddresses([]);
       setActiveWallet(undefined);
       setNetwork(undefined);
+      setUtxos(undefined);
       return;
     }
 
@@ -90,6 +93,16 @@ export const useWalletObserverState = (observer: WalletObserver) => {
       prevValue === freshData.network ? prevValue : freshData.network
     );
 
+    setUtxos((prevValue) => {
+      const prevValueRep = prevValue?.map((v) => v.toCbor());
+      const newValueRep = freshData.utxos?.map((v) => v.toCbor());
+      if (prevValueRep !== newValueRep) {
+        return freshData.utxos;
+      }
+
+      return prevValue;
+    });
+
     setReady(true);
     setIsCip45(newWallet.includes("p2p"));
   }, [observer]);
@@ -111,6 +124,8 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     setUnusedAddresses,
     usedAddresses,
     setUsedAddresses,
+    utxos,
+    setUtxos,
     syncWallet,
     ready,
     setReady,

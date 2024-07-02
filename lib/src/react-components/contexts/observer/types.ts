@@ -1,3 +1,4 @@
+import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import type { IHandle } from "@koralabs/adahandle-sdk";
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
@@ -58,6 +59,8 @@ export interface IWalletObserverState<
     >;
     adaBalance: AssetAmount<AssetMetadata>;
     balance: WalletBalanceMap<AssetMetadata>;
+    utxos?: TransactionUnspentOutput[];
+    setUtxos: Dispatch<SetStateAction<TransactionUnspentOutput[] | undefined>>;
     setBalance: Dispatch<SetStateAction<WalletBalanceMap<AssetMetadata>>>;
     observer: WalletObserver;
     mainAddress?: string;
@@ -95,4 +98,5 @@ export type TUseWalletObserverState<
   | "setUsedAddresses"
   | "setReady"
   | "setIsCip45"
+  | "setUtxos"
 >;

@@ -1,7 +1,8 @@
+import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
-
 import merge from "lodash/merge.js";
+
 import { EWalletObserverEvents } from "../@types/events.js";
 import type {
   IResolvedWalletObserverOptions,
@@ -153,17 +154,19 @@ export class WalletObserver<
       }
     }
 
-    const [newBalanceMap, newUsedAddresses, newUnusedAddresses] =
+    const [newBalanceMap, newUsedAddresses, newUnusedAddresses, newOutputs] =
       await Promise.all([
         this.getBalanceMap(),
         this.getUsedAddresses(),
         this.getUnusedAddresses(),
+        this.getUtxos(),
       ]);
 
     const result = {
       balanceMap: newBalanceMap,
       usedAddresses: newUsedAddresses,
       unusedAddresses: newUnusedAddresses,
+      utxos: newOutputs,
       network: newNetwork,
     };
 
@@ -453,6 +456,36 @@ export class WalletObserver<
     const data = cbor.map((val) =>
       Cardano.Address.fromBytes(typedHex(val)).toBech32()
     );
+
+    return data;
+  };
+
+  /**
+   * Gets a list of wallet UTXOs.
+   *
+   * @returns {Promise<TransactionUnspentOutput[]>} The list of TransactionUnspentOutputs.
+   */
+  getUtxos = async (): Promise<TransactionUnspentOutput[] | undefined> => {
+    if (!this.api) {
+      throw new Error("Attempted to query UTXOs without an API instance.");
+    }
+
+    const [cbor, { Serialization }, { typedHex }] = await Promise.all([
+      this.api.getUtxos(),
+      getCardanoCore(),
+      getCardanoUtil(),
+    ]);
+
+    const data = cbor?.map((val) => {
+      let txOutput = Serialization.TransactionUnspentOutput.fromCbor(
+        typedHex(val)
+      );
+
+      // These methods must be bound to their initial creation instance.
+      txOutput.input = txOutput.input.bind(txOutput);
+      txOutput.output = txOutput.output.bind(txOutput);
+      return txOutput;
+    });
 
     return data;
   };

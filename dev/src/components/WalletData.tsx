@@ -3,6 +3,7 @@ import {
   TRenderWalletFunctionState,
 } from "@sundaeswap/wallet-lite";
 
+import { AssetAmount } from "@sundaeswap/asset";
 import { IWalletMetadata } from "../App";
 import { WalletHandles } from "./WalletHandles";
 
@@ -29,6 +30,28 @@ export const WalletData = () => {
                   <li key={key}>
                     {aa.metadata.assetName || aa.metadata.assetId}:{" "}
                     {aa.value.toString()}
+                  </li>
+                ));
+              }}
+            />
+          </ul>
+
+          <h4 className="text-xl font-bold">UTXOS</h4>
+          <ul>
+            <RenderWallet
+              render={({
+                utxos,
+              }: TRenderWalletFunctionState<IWalletMetadata>) => {
+                return utxos?.map(({ input, output }) => (
+                  <li key={input().transactionId()}>
+                    <strong>Hash</strong>:{" "}
+                    {`${input().transactionId()}#${input().index()}`}
+                    <br />
+                    <strong>ADA</strong>:{" "}
+                    {new AssetAmount(output().amount().coin(), {
+                      assetId: "ada.lovelace",
+                      decimals: 6,
+                    }).value.toString()}
                   </li>
                 ));
               }}

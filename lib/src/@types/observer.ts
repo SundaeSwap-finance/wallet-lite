@@ -1,3 +1,4 @@
+import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import type { DAppPeerConnect } from "@fabianbormann/cardano-peer-connect";
 import type { DAppPeerConnectParameters } from "@fabianbormann/cardano-peer-connect/dist/src/types.js";
@@ -99,5 +100,6 @@ export interface IWalletObserverSync<
   balanceMap: WalletBalanceMap<AssetMetadata>;
   usedAddresses: string[];
   unusedAddresses: string[];
+  utxos?: TransactionUnspentOutput[];
   network: number;
 }

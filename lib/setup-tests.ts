@@ -10,6 +10,7 @@ import {
   network,
   unusedAddresses,
   usedAddresses,
+  utxos,
 } from "./src/__data__/eternl.js";
 
 GlobalRegistrator.register({
@@ -18,7 +19,11 @@ GlobalRegistrator.register({
 
 type TMockedCip30Wallet = Pick<
   Cip30WalletApi,
-  "getBalance" | "getNetworkId" | "getUnusedAddresses" | "getUsedAddresses"
+  | "getBalance"
+  | "getNetworkId"
+  | "getUnusedAddresses"
+  | "getUsedAddresses"
+  | "getUtxos"
 >;
 
 export const mockedEternlApi = jest
@@ -28,6 +33,7 @@ export const mockedEternlApi = jest
     getNetworkId: mock(async () => network),
     getUnusedAddresses: mock(async () => unusedAddresses),
     getUsedAddresses: mock(async () => usedAddresses),
+    getUtxos: mock(async () => utxos),
   });
 
 export const mockedEternlWallet: IWindowCip30Extension = {
@@ -58,6 +64,13 @@ export const coreModuleMock = {
     },
   },
   Serialization: {
+    TransactionUnspentOutput: {
+      fromCbor: mock(() => ({
+        input: mock(),
+        output: mock(),
+        toCbor: mock(),
+      })),
+    },
     Value: {
       fromCbor: mock(() => ({
         coin: mock(

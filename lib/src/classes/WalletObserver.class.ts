@@ -1,5 +1,8 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
-import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
+import type {
+  Cip30WalletApi,
+  GetCollateral,
+} from "@cardano-sdk/dapp-connector";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import merge from "lodash/merge.js";
 
@@ -517,7 +520,16 @@ export class WalletObserver<
     }
 
     const [cbor, { Serialization }, { typedHex }] = await Promise.all([
-      this.api.getCollateral(),
+      (async () => {
+        const funcCall =
+          this.api?.getCollateral ||
+          (this.api?.experimental.getCollateral as GetCollateral);
+        if (typeof funcCall !== "function") {
+          return [];
+        }
+
+        return await funcCall();
+      })(),
       getCardanoCore(),
       getCardanoUtil(),
     ]);

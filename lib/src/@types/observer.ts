@@ -66,6 +66,7 @@ export interface IResolvedWalletObserverOptions<
   persistence: boolean;
   peerConnectArgs: DAppPeerConnectParameters;
   connectTimeout: number;
+  debug: boolean;
 }
 
 /**

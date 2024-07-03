@@ -80,9 +80,7 @@ export const useProviderEventListeners = (
    * Ensure the wallet syncs on connect and disconnect.
    */
   useEffect(() => {
-    window.addEventListener("focus", () => {
-      syncWallet;
-    });
+    window.addEventListener("focus", syncWallet);
 
     observer.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,

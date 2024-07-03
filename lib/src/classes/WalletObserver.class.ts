@@ -78,6 +78,7 @@ export class WalletObserver<
         metadataResolver: this.fallbackMetadataResolver,
         persistence: false,
         connectTimeout: 10000,
+        debug: false,
         peerConnectArgs: {
           dAppInfo: {
             name: "Placeholder dApp Connecter Name",
@@ -141,6 +142,8 @@ export class WalletObserver<
       );
     }
 
+    const start = performance.now();
+
     try {
       this._performingSync = true;
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
@@ -185,6 +188,10 @@ export class WalletObserver<
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
       this._performingSync = false;
 
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`sync: ${end - start}ms`);
+      }
       return result;
     } catch (e) {
       this._performingSync = false;
@@ -267,6 +274,7 @@ export class WalletObserver<
   connectWallet = async (
     extension: TSupportedWalletExtensions
   ): Promise<void> => {
+    const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
 
     let attempts = 0;
@@ -310,14 +318,25 @@ export class WalletObserver<
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
       extension,
     });
+
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`connectWallet: ${end - start}ms`);
+    }
   };
 
   getCip45Instance = async () => {
+    const start = performance.now();
     if (!this.peerConnectInstance) {
       const { DAppPeerConnect } = await getPeerConnect();
       this.peerConnectInstance = new DAppPeerConnect(
         this._options.peerConnectArgs
       );
+    }
+
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getCip45Instance: ${end - start}ms`);
     }
 
     return {
@@ -376,6 +395,8 @@ export class WalletObserver<
       throw new Error("Attempted to query balance without an API instance.");
     }
 
+    const start = performance.now();
+
     this.dispatch(EWalletObserverEvents.GET_BALANCE_MAP_START);
     const [cbor, { Serialization }, { typedHex }] = await Promise.all([
       this.api.getBalance(),
@@ -411,6 +432,10 @@ export class WalletObserver<
       balanceMap,
     });
 
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getBalanceMap: ${end - start}ms`);
+    }
     return balanceMap;
   };
 
@@ -424,8 +449,15 @@ export class WalletObserver<
       throw new Error("Attempted to query network without an API instance.");
     }
 
+    const start = performance.now();
+
     const val = await this.api.getNetworkId();
     this.network = val;
+
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getNetwork: ${end - start}ms`);
+    }
     return val;
   };
 
@@ -441,6 +473,8 @@ export class WalletObserver<
       );
     }
 
+    const start = performance.now();
+
     const [cbor, { Cardano }, { typedHex }] = await Promise.all([
       this.api.getUsedAddresses(),
       getCardanoCore(),
@@ -451,6 +485,10 @@ export class WalletObserver<
       Cardano.Address.fromBytes(typedHex(val)).toBech32()
     );
 
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getUsedAddresses: ${end - start}ms`);
+    }
     return data;
   };
 
@@ -466,6 +504,8 @@ export class WalletObserver<
       );
     }
 
+    const start = performance.now();
+
     const [cbor, { Cardano }, { typedHex }] = await Promise.all([
       this.api.getUnusedAddresses(),
       getCardanoCore(),
@@ -476,6 +516,10 @@ export class WalletObserver<
       Cardano.Address.fromBytes(typedHex(val)).toBech32()
     );
 
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getUnusedAddresses: ${end - start}ms`);
+    }
     return data;
   };
 
@@ -488,6 +532,8 @@ export class WalletObserver<
     if (!this.api) {
       throw new Error("Attempted to query UTXOs without an API instance.");
     }
+
+    const start = performance.now();
 
     const [cbor, { Serialization }, { typedHex }] = await Promise.all([
       this.api.getUtxos(),
@@ -506,6 +552,10 @@ export class WalletObserver<
       return txOutput;
     });
 
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getUtxos: ${end - start}ms`);
+    }
     return data;
   };
 
@@ -518,6 +568,8 @@ export class WalletObserver<
     if (!this.api) {
       throw new Error("Attempted to query UTXOs without an API instance.");
     }
+
+    const start = performance.now();
 
     const [cbor, { Serialization }, { typedHex }] = await Promise.all([
       (async () => {
@@ -545,6 +597,10 @@ export class WalletObserver<
       return txOutput;
     });
 
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getCollateral: ${end - start}ms`);
+    }
     return data;
   };
 
@@ -558,6 +614,8 @@ export class WalletObserver<
   private __metadataResolverWithCache = async (
     assetIds: string[]
   ): Promise<Map<string, AssetMetadata>> => {
+    const start = performance.now();
+
     if (this._cachedMetadata) {
       const cachedKeys = new Set(this._cachedMetadata.keys());
       const inputKeys = new Set(assetIds);
@@ -566,6 +624,10 @@ export class WalletObserver<
         cachedKeys.size === inputKeys.size &&
         [...cachedKeys].every((key) => inputKeys.has(key))
       ) {
+        const end = performance.now();
+        if (this._options.debug) {
+          console.log(`metadataResolver (cached): ${end - start}ms`);
+        }
         return this._cachedMetadata;
       }
     }
@@ -593,6 +655,11 @@ export class WalletObserver<
     }
 
     this._cachedMetadata = newMetadata;
+
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`metadataResolver: ${end - start}ms`);
+    }
     return newMetadata;
   };
 

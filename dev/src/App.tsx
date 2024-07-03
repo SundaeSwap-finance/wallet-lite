@@ -15,6 +15,7 @@ export interface IWalletMetadata {
 }
 
 const observerOptions: TWalletObserverOptions<IWalletMetadata> = {
+  debug: true,
   metadataResolver: async (assetIds, normalize, isAda) => {
     const metadataMap = new Map<string, IWalletMetadata>();
     assetIds.forEach((id) => {

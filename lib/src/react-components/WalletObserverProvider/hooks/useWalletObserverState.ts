@@ -1,6 +1,7 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import { AssetAmount } from "@sundaeswap/asset";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+import { unstable_batchedUpdates } from "react-dom";
 
 import {
   TAssetAmountMap,
@@ -19,7 +20,6 @@ import { THandleMetadata } from "../../contexts/observer/index.js";
  * @param {WalletObserver} observer
  */
 export const useWalletObserverState = (observer: WalletObserver) => {
-  const prevActiveWallet = useRef<TSupportedWalletExtensions>();
   const [activeWallet, setActiveWallet] =
     useState<TSupportedWalletExtensions>();
   const [adaBalance, setAdaBalance] = useState<AssetAmount>(
@@ -47,77 +47,82 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     const newWallet = observer.getActiveWallet();
 
     if (!newWallet) {
-      setAdaBalance(new AssetAmount(0n));
-      setBalance(new WalletBalanceMap(observer));
-      setUsedAddresses([]);
-      setUnusedAddresses([]);
-      setActiveWallet(undefined);
-      setNetwork(undefined);
-      setUtxos(undefined);
-      setCollateral(undefined);
+      unstable_batchedUpdates(() => {
+        setAdaBalance(new AssetAmount(0n));
+        setBalance(new WalletBalanceMap(observer));
+        setUsedAddresses([]);
+        setUnusedAddresses([]);
+        setActiveWallet(undefined);
+        setNetwork(undefined);
+        setUtxos(undefined);
+        setCollateral(undefined);
+      });
       return;
     }
 
-    prevActiveWallet.current = newWallet;
-    setActiveWallet((prevWallet) =>
-      newWallet === prevWallet ? prevWallet : newWallet
-    );
-
     const freshData = await observer.sync();
 
-    const newAdaBalance = freshData.balanceMap.get(WalletObserver.ADA_ASSET_ID);
-    if (newAdaBalance) {
-      setAdaBalance((prevBalance) =>
-        prevBalance.amount === newAdaBalance.amount
-          ? prevBalance
-          : newAdaBalance
+    unstable_batchedUpdates(() => {
+      setActiveWallet((prevWallet) =>
+        newWallet === prevWallet ? prevWallet : newWallet
       );
-    }
 
-    setBalance((prevBalance) =>
-      areAssetMapsEqual(prevBalance, freshData.balanceMap)
-        ? prevBalance
-        : freshData.balanceMap
-    );
-
-    setUsedAddresses((prevValue) =>
-      JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
-        ? prevValue
-        : freshData.usedAddresses
-    );
-
-    setUnusedAddresses((prevValue) =>
-      JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
-        ? prevValue
-        : freshData.unusedAddresses
-    );
-
-    setNetwork((prevValue) =>
-      prevValue === freshData.network ? prevValue : freshData.network
-    );
-
-    setUtxos((prevValue) => {
-      const prevValueRep = prevValue?.map((v) => v.toCbor());
-      const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-      if (prevValueRep !== newValueRep) {
-        return freshData.utxos;
+      const newAdaBalance = freshData.balanceMap.get(
+        WalletObserver.ADA_ASSET_ID
+      );
+      if (newAdaBalance) {
+        setAdaBalance((prevBalance) =>
+          prevBalance.amount === newAdaBalance.amount
+            ? prevBalance
+            : newAdaBalance
+        );
       }
 
-      return prevValue;
+      setBalance((prevBalance) =>
+        areAssetMapsEqual(prevBalance, freshData.balanceMap)
+          ? prevBalance
+          : freshData.balanceMap
+      );
+
+      setUsedAddresses((prevValue) =>
+        JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
+          ? prevValue
+          : freshData.usedAddresses
+      );
+
+      setUnusedAddresses((prevValue) =>
+        JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
+          ? prevValue
+          : freshData.unusedAddresses
+      );
+
+      setNetwork((prevValue) =>
+        prevValue === freshData.network ? prevValue : freshData.network
+      );
+
+      setUtxos((prevValue) => {
+        const prevValueRep = prevValue?.map((v) => v.toCbor());
+        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
+        if (prevValueRep !== newValueRep) {
+          return freshData.utxos;
+        }
+
+        return prevValue;
+      });
+
+      setCollateral((prevValue) => {
+        const prevValueRep = prevValue?.map((v) => v.toCbor());
+        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
+        if (prevValueRep !== newValueRep) {
+          return freshData.utxos;
+        }
+
+        return prevValue;
+      });
+
+      setReady(true);
+      setIsCip45(newWallet.includes("p2p"));
     });
-
-    setCollateral((prevValue) => {
-      const prevValueRep = prevValue?.map((v) => v.toCbor());
-      const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-      if (prevValueRep !== newValueRep) {
-        return freshData.utxos;
-      }
-
-      return prevValue;
-    });
-
-    setReady(true);
-    setIsCip45(newWallet.includes("p2p"));
   }, [observer]);
 
   return {

@@ -33,20 +33,16 @@ export const useWalletHandles = <
     }
 
     try {
-      const {
-        default: HandleClient,
-        HandleClientContext,
-        KoraLabsProvider,
-      } = await import("@koralabs/adahandle-sdk");
+      const HandleClient = await import("@koralabs/adahandle-sdk");
       const context =
         state.network === 1
-          ? HandleClientContext.MAINNET
-          : HandleClientContext.PREVIEW;
+          ? HandleClient.HandleClientContext.MAINNET
+          : HandleClient.HandleClientContext.PREVIEW;
 
       // @ts-ignore Type isn't exported from default.
       const sdk = new HandleClient({
         context,
-        provider: new KoraLabsProvider(context),
+        provider: new HandleClient.KoraLabsProvider(context),
       });
 
       // Restore once SDK updated
@@ -121,8 +117,6 @@ export const useWalletHandles = <
     }),
     [handles, loadingHandles]
   );
-
-  console.log(handles, loadingHandles);
 
   return data;
 };

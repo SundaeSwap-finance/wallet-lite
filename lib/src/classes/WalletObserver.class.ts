@@ -138,50 +138,55 @@ export class WalletObserver<
       );
     }
 
-    this._performingSync = true;
-    this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
-
-    let newNetwork: number;
     try {
-      newNetwork = await this.getNetwork();
-    } catch (e) {
+      this._performingSync = true;
+      this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
+
+      let newNetwork: number;
       try {
-        await this.syncApi();
         newNetwork = await this.getNetwork();
       } catch (e) {
-        this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
-        this._performingSync = false;
-        throw e;
+        try {
+          await this.syncApi();
+          newNetwork = await this.getNetwork();
+        } catch (e) {
+          this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
+          this._performingSync = false;
+          throw e;
+        }
       }
+
+      const [
+        newBalanceMap,
+        newUsedAddresses,
+        newUnusedAddresses,
+        newOutputs,
+        newCollateral,
+      ] = await Promise.all([
+        this.getBalanceMap(),
+        this.getUsedAddresses(),
+        this.getUnusedAddresses(),
+        this.getUtxos(),
+        this.getCollateral(),
+      ]);
+
+      const result = {
+        balanceMap: newBalanceMap,
+        usedAddresses: newUsedAddresses,
+        unusedAddresses: newUnusedAddresses,
+        utxos: newOutputs,
+        collateral: newCollateral,
+        network: newNetwork,
+      };
+
+      this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
+      this._performingSync = false;
+
+      return result;
+    } catch (e) {
+      this._performingSync = false;
+      throw e;
     }
-
-    const [
-      newBalanceMap,
-      newUsedAddresses,
-      newUnusedAddresses,
-      newOutputs,
-      newCollateral,
-    ] = await Promise.all([
-      this.getBalanceMap(),
-      this.getUsedAddresses(),
-      this.getUnusedAddresses(),
-      this.getUtxos(),
-      this.getCollateral(),
-    ]);
-
-    const result = {
-      balanceMap: newBalanceMap,
-      usedAddresses: newUsedAddresses,
-      unusedAddresses: newUnusedAddresses,
-      utxos: newOutputs,
-      collateral: newCollateral,
-      network: newNetwork,
-    };
-
-    this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
-    this._performingSync = false;
-
-    return result;
   };
 
   /**

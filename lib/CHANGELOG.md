@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.19 (2024-07-02)
+
+
+### Bug Fixes
+
+* non-explicit import ([7f0457d](https://github.com/SundaeSwap-finance/wallet-lite/commit/7f0457de9f426fd36e1a88bf9b133958722be7e4))
+
 ### 0.0.18 (2024-07-02)
 
 ### 0.0.17 (2024-07-02)

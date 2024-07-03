@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.22 (2024-07-03)
+
+
+### Bug Fixes
+
+* normalize getCollateral ([ea585b0](https://github.com/SundaeSwap-finance/wallet-lite/commit/ea585b05fe759d4ad4ac2c84d5bbb90927eafc9a))
+
 ### 0.0.21 (2024-07-03)
 
 

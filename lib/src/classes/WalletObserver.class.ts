@@ -572,7 +572,7 @@ export class WalletObserver<
 
     let attempts = 0;
     let newMetadata: Map<string, AssetMetadata> | undefined;
-    while (attempts <= 3) {
+    while (attempts <= 3 && !newMetadata) {
       try {
         newMetadata = await this._options.metadataResolver(
           assetIds.map(normalizeAssetIdWithDot),

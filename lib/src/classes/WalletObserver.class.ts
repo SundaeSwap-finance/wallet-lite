@@ -570,11 +570,28 @@ export class WalletObserver<
       }
     }
 
-    const newMetadata = await this._options.metadataResolver(
-      assetIds.map(normalizeAssetIdWithDot),
-      normalizeAssetIdWithDot,
-      isAdaAsset
-    );
+    let attempts = 0;
+    let newMetadata: Map<string, AssetMetadata> | undefined;
+    while (attempts <= 3) {
+      try {
+        newMetadata = await this._options.metadataResolver(
+          assetIds.map(normalizeAssetIdWithDot),
+          normalizeAssetIdWithDot,
+          isAdaAsset
+        );
+      } catch (e) {
+        attempts++;
+      }
+    }
+
+    if (!newMetadata) {
+      newMetadata = await this.fallbackMetadataResolver(
+        assetIds.map(normalizeAssetIdWithDot),
+        normalizeAssetIdWithDot,
+        isAdaAsset
+      );
+    }
+
     this._cachedMetadata = newMetadata;
     return newMetadata;
   };

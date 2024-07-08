@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.28 (2024-07-08)
+
+
+### Bug Fixes
+
+* connect refusal was not respected ([3ed0f97](https://github.com/SundaeSwap-finance/wallet-lite/commit/3ed0f972bde02e093cf0cb95bd61392a985701c6))
+
 ### 0.0.27 (2024-07-08)
 
 ### 0.0.26 (2024-07-08)

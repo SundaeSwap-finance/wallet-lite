@@ -230,8 +230,6 @@ export class WalletObserver<
    * @returns {Promise<Cip30WalletApi>} - A promise that resolves to the API instance.
    */
   syncApi = async (activeWallet?: TSupportedWalletExtensions): Promise<any> => {
-    let attempts = 0;
-    this.api = undefined;
     if (!activeWallet && !this.activeWallet) {
       throw new Error(
         "A wallet is required to be passed as a parameter, or to be defined in the class."
@@ -241,8 +239,10 @@ export class WalletObserver<
     const selectedWallet =
       activeWallet || (this.activeWallet as TSupportedWalletExtensions);
 
+    let attempts = 0;
     let shouldContinue = true;
-    while (!this.api && shouldContinue) {
+
+    while (shouldContinue) {
       if (attempts === 10) {
         throw new Error(
           "Could not reconnect to the selected wallet. Please check your extension."
@@ -258,6 +258,7 @@ export class WalletObserver<
 
         this.api = api;
         this.network = await api.getNetworkId();
+        shouldContinue = false;
       } catch (e) {
         if (
           (e as Error)?.message === "user canceled connection" ||

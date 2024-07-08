@@ -49,10 +49,8 @@ export interface IWalletObserverState<
   observerRef: MutableRefObject<WalletObserver<AssetMetadata>>;
   refreshInterval: number | false;
   state: {
-    ready: boolean;
     isCip45: boolean;
     setIsCip45: Dispatch<SetStateAction<boolean>>;
-    setReady: Dispatch<SetStateAction<boolean>>;
     activeWallet?: TSupportedWalletExtensions;
     setActiveWallet: Dispatch<
       SetStateAction<TSupportedWalletExtensions | undefined>

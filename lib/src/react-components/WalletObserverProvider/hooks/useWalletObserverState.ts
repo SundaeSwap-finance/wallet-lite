@@ -35,7 +35,6 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   const [unusedAddresses, setUnusedAddresses] = useState<string[]>([]);
   const [utxos, setUtxos] = useState<TransactionUnspentOutput[]>();
   const [collateral, setCollateral] = useState<TransactionUnspentOutput[]>();
-  const [ready, setReady] = useState(false);
   const [isCip45, setIsCip45] = useState(false);
   const [switching, setSwitching] = useState(false);
 
@@ -53,7 +52,6 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     setNetwork(undefined);
     setUtxos(undefined);
     setCollateral(undefined);
-    setReady(false);
     setIsCip45(false);
   }, [observer]);
 
@@ -125,7 +123,6 @@ export const useWalletObserverState = (observer: WalletObserver) => {
       return prevValue;
     });
 
-    setReady(true);
     setIsCip45(newWallet.includes("p2p"));
   }, [observer, disconnect]);
 
@@ -170,7 +167,5 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     connectWallet,
     switching,
     setSwitching,
-    ready,
-    setReady,
   };
 };

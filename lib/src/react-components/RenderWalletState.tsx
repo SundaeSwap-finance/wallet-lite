@@ -6,10 +6,8 @@ import { useWalletObserver } from "./hooks/useWalletObserver.js";
 
 export type TRenderWalletStateFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
-> = ReturnType<typeof useWalletObserver<T>> & {
-  connectingWallet: boolean;
-  syncingWallet: boolean;
-};
+> = ReturnType<typeof useWalletObserver<T>> &
+  ReturnType<typeof useWalletLoadingState<T>>;
 
 export type TRenderWalletStateFunction = (
   state: TRenderWalletStateFunctionState

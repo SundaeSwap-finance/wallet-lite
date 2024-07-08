@@ -1,6 +1,6 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+
 import { TGetPeerConnectInstance } from "../../@types/observer.js";
 import { useWalletObserver } from "./useWalletObserver.js";
 
@@ -22,7 +22,7 @@ export const useWalletPeerConnect = <
       .getCip45Instance()
       .then((res) => setPeerConnect(res))
       .catch((e) => setError((e as Error).message));
-  }, [state.observer, state.ready, setPeerConnect, setError]);
+  }, [state.observer, setPeerConnect, setError]);
 
   useEffect(() => {
     if (peerConnect && qrCode.current) {

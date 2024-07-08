@@ -77,7 +77,7 @@ export const ConnectWallet: FC = () => {
           </strong>
         </p>
       </div>
-      <RenderWallet
+      <RenderWalletState
         render={({ isCip45, ready, disconnect }) =>
           ready &&
           !isCip45 && (
@@ -94,18 +94,16 @@ export const ConnectWallet: FC = () => {
       />
 
       <RenderWallet
-        render={({ ready, stakeAddress, mainAddress }) =>
-          ready ? (
-            <div>
-              <span className="block text-xs overflow-hidden text-ellipsis text-nowrap">
-                Stake Address: {stakeAddress}
-              </span>
-              <span className="block text-xs overflow-hidden text-ellipsis text-nowrap">
-                Main Address: {mainAddress}
-              </span>
-            </div>
-          ) : null
-        }
+        render={({ stakeAddress, mainAddress }) => (
+          <div>
+            <span className="block text-xs overflow-hidden text-ellipsis text-nowrap">
+              Stake Address: {stakeAddress}
+            </span>
+            <span className="block text-xs overflow-hidden text-ellipsis text-nowrap">
+              Main Address: {mainAddress}
+            </span>
+          </div>
+        )}
       />
     </div>
   );

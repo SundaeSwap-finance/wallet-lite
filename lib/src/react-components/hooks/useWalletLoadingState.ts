@@ -10,6 +10,7 @@ export const useWalletLoadingState = <
   const state = useWalletObserver<AssetMetadata>();
   const [connecting, setConnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!state.observer) {
@@ -21,6 +22,7 @@ export const useWalletLoadingState = <
     };
     const setConnectingEnd = () => {
       setConnecting(false);
+      setReady(true);
     };
     const setSyncingStart = () => {
       setSyncing(true);
@@ -28,6 +30,7 @@ export const useWalletLoadingState = <
     const setSyncingEnd = () => {
       setSyncing(false);
     };
+    const onDisconnect = () => setReady(false);
 
     state.observer.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_START,
@@ -44,6 +47,10 @@ export const useWalletLoadingState = <
     state.observer.addEventListener(
       EWalletObserverEvents.SYNCING_WALLET_END,
       setSyncingEnd
+    );
+    state.observer.addEventListener(
+      EWalletObserverEvents.DISCONNECT,
+      onDisconnect
     );
 
     return () => {
@@ -63,15 +70,20 @@ export const useWalletLoadingState = <
         EWalletObserverEvents.SYNCING_WALLET_END,
         setSyncingEnd
       );
+      state.observer.removeEventListener(
+        EWalletObserverEvents.DISCONNECT,
+        onDisconnect
+      );
     };
-  }, [state.observer, setConnecting, setSyncing]);
+  }, [state.observer, setConnecting, setSyncing, setReady]);
 
   const memoizedState = useMemo(
     () => ({
       connectingWallet: connecting,
       syncingWallet: syncing,
+      ready,
     }),
-    []
+    [connecting, syncing, ready]
   );
 
   return memoizedState;

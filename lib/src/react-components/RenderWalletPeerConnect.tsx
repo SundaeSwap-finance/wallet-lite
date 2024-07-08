@@ -2,16 +2,13 @@ import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { FC, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { TGetPeerConnectInstance } from "../@types/observer.js";
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
 import { useWalletPeerConnect } from "./hooks/useWalletPeerConnect.js";
 
 export type TRenderWalletPeerConnectFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata
-> = ReturnType<typeof useWalletObserver<T>> & {
-  peerConnect?: ReturnType<TGetPeerConnectInstance>;
-  QRCodeElement: ReactNode;
-};
+> = ReturnType<typeof useWalletObserver<T>> &
+  ReturnType<typeof useWalletPeerConnect<T>>;
 
 export type TRenderWalletPeerConnectFunction = (
   state: TRenderWalletPeerConnectFunctionState

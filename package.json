@@ -11,6 +11,6 @@
     "./lib"
   ],
   "devDependencies": {
-    "@sundaeswap/babel-preset": "^2.0.3"
+    "@sundaeswap/babel-preset": "^2.0.12"
   }
 }

@@ -1,7 +1,9 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
-import type {
-  Cip30WalletApi,
-  GetCollateral,
+import {
+  APIErrorCode,
+  type ApiError,
+  type Cip30WalletApi,
+  type GetCollateral,
 } from "@cardano-sdk/dapp-connector";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import merge from "lodash/merge.js";
@@ -238,7 +240,8 @@ export class WalletObserver<
     const selectedWallet =
       activeWallet || (this._activeWallet as TSupportedWalletExtensions);
 
-    while (!this.api) {
+    let shouldContinue = true;
+    while (!this.api && shouldContinue) {
       if (attempts === 10) {
         throw new Error(
           "Could not reconnect to the selected wallet. Please check your extension."
@@ -255,6 +258,14 @@ export class WalletObserver<
         this.api = api;
         this.network = await api.getNetworkId();
       } catch (e) {
+        if (
+          (e as Error)?.message === "user canceled connection" ||
+          (e as ApiError)?.code === APIErrorCode.Refused
+        ) {
+          shouldContinue = false;
+          return undefined;
+        }
+
         await new Promise((res) => setTimeout(res, 200));
         attempts++;
       }

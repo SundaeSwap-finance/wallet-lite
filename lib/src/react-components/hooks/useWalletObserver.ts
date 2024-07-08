@@ -29,9 +29,12 @@ export const useWalletObserver = <
       utxos: state.utxos,
       collateral: state.collateral,
       observer: state.observer,
-      syncWallet: state.syncWallet,
       unusedAddresses: state.unusedAddresses,
       usedAddresses: state.usedAddresses,
+      syncWallet: state.syncWallet,
+      disconnect: state.disconnect,
+      connectWallet: state.connectWallet,
+      switching: state.switching,
     };
 
     return result;
@@ -44,12 +47,15 @@ export const useWalletObserver = <
     state.network,
     state.observer,
     state.syncWallet,
+    state.disconnect,
+    state.connectWallet,
     state.unusedAddresses,
     state.usedAddresses,
     state.utxos,
     state.collateral,
     state.ready,
     state.isCip45,
+    state.switching,
   ]);
 
   return memoizedState;

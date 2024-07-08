@@ -211,6 +211,15 @@ export class WalletObserver<
   }
 
   /**
+   * Helper method to check if the instance has an active connection.
+   *
+   * @returns {boolean}
+   */
+  hasActiveConnection(): boolean {
+    return Boolean(this._activeWallet && this.api);
+  }
+
+  /**
    * Synchronizes the API with the wallet. This is useful if the account has changed,
    * but the underlying intent has not.
    *

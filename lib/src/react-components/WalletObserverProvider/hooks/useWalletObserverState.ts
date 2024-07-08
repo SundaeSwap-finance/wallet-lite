@@ -1,7 +1,6 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import { AssetAmount } from "@sundaeswap/asset";
 import { useCallback, useState } from "react";
-import { unstable_batchedUpdates } from "react-dom";
 
 import {
   TAssetAmountMap,
@@ -38,92 +37,112 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   const [collateral, setCollateral] = useState<TransactionUnspentOutput[]>();
   const [ready, setReady] = useState(false);
   const [isCip45, setIsCip45] = useState(false);
+  const [switching, setSwitching] = useState(false);
+
+  const disconnect = useCallback(() => {
+    // Reset observer state.
+    observer.disconnect();
+
+    // Reset state.
+    setAdaBalance(new AssetAmount(0n));
+    setBalance(new WalletBalanceMap(observer));
+    setHandleMetadata(new WalletAssetMap());
+    setUsedAddresses([]);
+    setUnusedAddresses([]);
+    setActiveWallet(undefined);
+    setNetwork(undefined);
+    setUtxos(undefined);
+    setCollateral(undefined);
+    setReady(false);
+    setIsCip45(false);
+  }, [observer]);
+
+  const connectWallet = useCallback(
+    async (wallet: TSupportedWalletExtensions) => {
+      if (
+        observer.hasActiveConnection() &&
+        wallet !== observer.getActiveWallet()
+      ) {
+        setSwitching(true);
+      }
+
+      await observer.connectWallet(wallet);
+      setSwitching(false);
+    },
+    [observer, setSwitching]
+  );
 
   const syncWallet = useCallback(async () => {
-    if (observer.isSyncing()) {
+    if (observer.isSyncing() || !observer.hasActiveConnection()) {
       return;
     }
 
     const newWallet = observer.getActiveWallet();
-
     if (!newWallet) {
-      unstable_batchedUpdates(() => {
-        setAdaBalance(new AssetAmount(0n));
-        setBalance(new WalletBalanceMap(observer));
-        setUsedAddresses([]);
-        setUnusedAddresses([]);
-        setActiveWallet(undefined);
-        setNetwork(undefined);
-        setUtxos(undefined);
-        setCollateral(undefined);
-      });
+      disconnect();
       return;
     }
 
     const freshData = await observer.sync();
 
-    unstable_batchedUpdates(() => {
-      setActiveWallet((prevWallet) =>
-        newWallet === prevWallet ? prevWallet : newWallet
-      );
+    setActiveWallet((prevWallet) =>
+      newWallet === prevWallet ? prevWallet : newWallet
+    );
 
-      const newAdaBalance = freshData.balanceMap.get(
-        WalletObserver.ADA_ASSET_ID
+    const newAdaBalance = freshData.balanceMap.get(WalletObserver.ADA_ASSET_ID);
+    if (newAdaBalance) {
+      setAdaBalance((prevBalance) =>
+        prevBalance.amount === newAdaBalance.amount
+          ? prevBalance
+          : newAdaBalance
       );
-      if (newAdaBalance) {
-        setAdaBalance((prevBalance) =>
-          prevBalance.amount === newAdaBalance.amount
-            ? prevBalance
-            : newAdaBalance
-        );
+    }
+
+    setBalance((prevBalance) =>
+      areAssetMapsEqual(prevBalance, freshData.balanceMap)
+        ? prevBalance
+        : freshData.balanceMap
+    );
+
+    setUsedAddresses((prevValue) =>
+      JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
+        ? prevValue
+        : freshData.usedAddresses
+    );
+
+    setUnusedAddresses((prevValue) =>
+      JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
+        ? prevValue
+        : freshData.unusedAddresses
+    );
+
+    setNetwork((prevValue) =>
+      prevValue === freshData.network ? prevValue : freshData.network
+    );
+
+    setUtxos((prevValue) => {
+      const prevValueRep = prevValue?.map((v) => v.toCbor());
+      const newValueRep = freshData.utxos?.map((v) => v.toCbor());
+      if (prevValueRep !== newValueRep) {
+        return freshData.utxos;
       }
 
-      setBalance((prevBalance) =>
-        areAssetMapsEqual(prevBalance, freshData.balanceMap)
-          ? prevBalance
-          : freshData.balanceMap
-      );
-
-      setUsedAddresses((prevValue) =>
-        JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
-          ? prevValue
-          : freshData.usedAddresses
-      );
-
-      setUnusedAddresses((prevValue) =>
-        JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
-          ? prevValue
-          : freshData.unusedAddresses
-      );
-
-      setNetwork((prevValue) =>
-        prevValue === freshData.network ? prevValue : freshData.network
-      );
-
-      setUtxos((prevValue) => {
-        const prevValueRep = prevValue?.map((v) => v.toCbor());
-        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-        if (prevValueRep !== newValueRep) {
-          return freshData.utxos;
-        }
-
-        return prevValue;
-      });
-
-      setCollateral((prevValue) => {
-        const prevValueRep = prevValue?.map((v) => v.toCbor());
-        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-        if (prevValueRep !== newValueRep) {
-          return freshData.utxos;
-        }
-
-        return prevValue;
-      });
-
-      setReady(true);
-      setIsCip45(newWallet.includes("p2p"));
+      return prevValue;
     });
-  }, [observer]);
+
+    setCollateral((prevValue) => {
+      const prevValueRep = prevValue?.map((v) => v.toCbor());
+      const newValueRep = freshData.utxos?.map((v) => v.toCbor());
+      if (prevValueRep !== newValueRep) {
+        return freshData.utxos;
+      }
+
+      return prevValue;
+    });
+
+    setReady(true);
+    setIsCip45(newWallet.includes("p2p"));
+  }, [observer, disconnect]);
 
   return {
     activeWallet,
@@ -147,6 +166,10 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     collateral,
     setCollateral,
     syncWallet,
+    disconnect,
+    connectWallet,
+    switching,
+    setSwitching,
     ready,
     setReady,
   };

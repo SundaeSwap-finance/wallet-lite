@@ -22,19 +22,17 @@ const WalletObserverProvider: FC<
   PropsWithChildren<IWalletObserverProviderProps>
 > = ({ children, options }) => {
   const observerRef = useProviderWalletObserverRef(options?.observerOptions);
-  const { syncWallet, ...reactiveState } = useWalletObserverState(
-    observerRef.current
-  );
+  const state = useWalletObserverState(observerRef.current);
 
-  useProviderEventListeners(observerRef.current, syncWallet);
+  useProviderEventListeners(observerRef.current, state);
   useProviderRefreshInterval(
     observerRef.current,
-    syncWallet,
+    state.syncWallet,
     options?.refreshInterval
   );
 
   const derivedState = useDerivedState(observerRef.current, {
-    usedAddresses: reactiveState.usedAddresses,
+    usedAddresses: state.usedAddresses,
   });
 
   // Memoize the context value
@@ -43,13 +41,12 @@ const WalletObserverProvider: FC<
       observerRef: observerRef,
       refreshInterval: options?.refreshInterval || 30000,
       state: {
-        ...reactiveState,
+        ...state,
         ...derivedState,
         observer: observerRef.current,
-        syncWallet,
       },
     }),
-    [options, syncWallet, reactiveState, derivedState]
+    [options, state, derivedState]
   );
 
   return (

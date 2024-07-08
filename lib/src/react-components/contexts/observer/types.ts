@@ -75,7 +75,10 @@ export interface IWalletObserverState<
     setUnusedAddresses: Dispatch<SetStateAction<string[]>>;
     usedAddresses: string[];
     setUsedAddresses: Dispatch<SetStateAction<string[]>>;
+    switching: boolean;
     syncWallet: () => Promise<void>;
+    disconnect: () => void;
+    connectWallet: (wallet: TSupportedWalletExtensions) => Promise<void>;
   };
 }
 

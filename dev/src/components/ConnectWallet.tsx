@@ -14,14 +14,12 @@ export const ConnectWallet: FC = () => {
   return (
     <div className="m-4 w-1/4 border border-gray-400 p-4 flex flex-col">
       <RenderWallet
-        render={({ activeWallet, observer }) => {
+        render={({ activeWallet, connectWallet }) => {
           return (
             <select
               value={activeWallet || "default"}
               onChange={async ({ target }) => {
-                await observer.connectWallet(
-                  target.value as TSupportedWalletExtensions
-                );
+                await connectWallet(target.value as TSupportedWalletExtensions);
               }}
             >
               <option value={"default"}>Select A Wallet</option>
@@ -51,7 +49,16 @@ export const ConnectWallet: FC = () => {
           <strong>
             Wallet State:{" "}
             <RenderWalletState
-              render={({ connectingWallet, syncingWallet, ready }) => {
+              render={({
+                connectingWallet,
+                syncingWallet,
+                switching,
+                ready,
+              }) => {
+                if (switching) {
+                  return "Switching wallets...";
+                }
+
                 if (connectingWallet) {
                   return "Connecting wallet...";
                 }
@@ -71,7 +78,7 @@ export const ConnectWallet: FC = () => {
         </p>
       </div>
       <RenderWallet
-        render={({ observer, isCip45, ready }) =>
+        render={({ isCip45, ready, disconnect }) =>
           ready &&
           !isCip45 && (
             <input
@@ -80,7 +87,7 @@ export const ConnectWallet: FC = () => {
               )}
               type="button"
               value={"Disconnect"}
-              onClick={observer.disconnect}
+              onClick={disconnect}
             />
           )
         }

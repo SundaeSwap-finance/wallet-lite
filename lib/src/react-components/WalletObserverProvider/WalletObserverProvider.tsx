@@ -1,5 +1,7 @@
-import { FC, PropsWithChildren, useMemo } from "react";
+import { FC, PropsWithChildren, useEffect, useMemo } from "react";
 
+import { TSupportedWalletExtensions } from "../../@types/observer.js";
+import { WalletObserver } from "../../classes/WalletObserver.class.js";
 import {
   IWalletObserverProviderProps,
   IWalletObserverState,
@@ -48,6 +50,17 @@ const WalletObserverProvider: FC<
     }),
     [options, state, derivedState]
   );
+
+  useEffect(() => {
+    const wallet: TSupportedWalletExtensions | null =
+      window.localStorage.getItem(
+        WalletObserver.PERSISTENCE_CACHE_KEY
+      ) as TSupportedWalletExtensions;
+
+    if (wallet) {
+      state.connectWallet(JSON.parse(wallet).activeWallet);
+    }
+  }, []);
 
   return (
     <WalletObserverContext.Provider value={contextValue}>

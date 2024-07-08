@@ -111,18 +111,6 @@ export class WalletObserver<
     if (!this._options.persistence) {
       return;
     }
-
-    const savedWallet = window.localStorage.getItem(
-      WalletObserver.PERSISTENCE_CACHE_KEY
-    );
-
-    if (!savedWallet) {
-      return;
-    }
-
-    // Init connection
-    const seed: IWalletObserverSeed = JSON.parse(savedWallet);
-    this.connectWallet(seed.activeWallet);
   }
 
   /**
@@ -187,13 +175,13 @@ export class WalletObserver<
         network: newNetwork,
       };
 
-      this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
-      this._performingSync = false;
-
       const end = performance.now();
       if (this._options.debug) {
         console.log(`sync: ${end - start}ms`);
       }
+
+      this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
+      this._performingSync = false;
       return result;
     } catch (e) {
       this._performingSync = false;

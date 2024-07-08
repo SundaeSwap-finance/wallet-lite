@@ -129,11 +129,12 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   const connectWallet = useCallback(
     async (wallet: TSupportedWalletExtensions) => {
       if (observer.hasActiveConnection() && wallet !== observer.activeWallet) {
-        setSwitching(true);
+        setSwitching(() => true);
       }
 
-      await observer.connectWallet(wallet).then(syncWallet);
-      setSwitching(false);
+      await observer.connectWallet(wallet);
+      await syncWallet();
+      setSwitching(() => false);
     },
     [observer, setSwitching]
   );

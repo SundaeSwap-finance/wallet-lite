@@ -20,16 +20,16 @@ export const useWalletLoadingState = <
     }
 
     const setConnectingStart = () => {
-      setConnecting(true);
+      setConnecting(() => true);
     };
     const setConnectingEnd = () => {
-      setConnecting(false);
+      setConnecting(() => false);
     };
     const setSyncingStart = () => {
-      setSyncing(true);
+      setSyncing(() => true);
     };
     const setSyncingEnd = () => {
-      setSyncing(false);
+      setSyncing(() => false);
     };
 
     state.observer.addEventListener(
@@ -67,7 +67,7 @@ export const useWalletLoadingState = <
         setSyncingEnd
       );
     };
-  }, [state.observer, setConnecting, setSyncing]);
+  }, []);
 
   return {
     connectingWallet: connecting,

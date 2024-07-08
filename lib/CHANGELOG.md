@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.31 (2024-07-08)
+
+
+### Bug Fixes
+
+* remove memoization for now ([e26a30b](https://github.com/SundaeSwap-finance/wallet-lite/commit/e26a30bc2095ac2a2cc891c098e77bddb166e927))
+
 ### 0.0.30 (2024-07-08)
 
 ### 0.0.29 (2024-07-08)

@@ -83,17 +83,8 @@ export const useProviderEventListeners = (
   useEffect(() => {
     window.addEventListener("focus", state.syncWallet);
 
-    observer.addEventListener(
-      EWalletObserverEvents.CONNECT_WALLET_END,
-      state.syncWallet
-    );
-
     return () => {
       window.addEventListener("focus", state.syncWallet);
-      observer.removeEventListener(
-        EWalletObserverEvents.CONNECT_WALLET_END,
-        state.syncWallet
-      );
     };
-  }, [observer, state.syncWallet]);
+  }, [state.syncWallet]);
 };

@@ -389,7 +389,6 @@ export class WalletObserver<
   disconnect = (): void => {
     this._activeWallet = undefined;
     this.api = undefined;
-    this._cachedMetadata = new Map();
     window.localStorage.removeItem(WalletObserver.PERSISTENCE_CACHE_KEY);
     this.dispatch(EWalletObserverEvents.DISCONNECT);
   };

@@ -57,21 +57,6 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     setIsCip45(false);
   }, [observer]);
 
-  const connectWallet = useCallback(
-    async (wallet: TSupportedWalletExtensions) => {
-      if (
-        observer.hasActiveConnection() &&
-        wallet !== observer.getActiveWallet()
-      ) {
-        setSwitching(true);
-      }
-
-      await observer.connectWallet(wallet);
-      setSwitching(false);
-    },
-    [observer, setSwitching]
-  );
-
   const syncWallet = useCallback(async () => {
     if (observer.isSyncing() || !observer.hasActiveConnection()) {
       return;
@@ -143,6 +128,21 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     setReady(true);
     setIsCip45(newWallet.includes("p2p"));
   }, [observer, disconnect]);
+
+  const connectWallet = useCallback(
+    async (wallet: TSupportedWalletExtensions) => {
+      if (
+        observer.hasActiveConnection() &&
+        wallet !== observer.getActiveWallet()
+      ) {
+        setSwitching(true);
+      }
+
+      await observer.connectWallet(wallet).then(syncWallet);
+      setSwitching(false);
+    },
+    [observer, setSwitching]
+  );
 
   return {
     activeWallet,

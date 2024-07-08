@@ -48,11 +48,11 @@ export class WalletObserver<
   static ADA_ASSET_ID = "ada.lovelace";
   public network: number = 0;
   public api?: Cip30WalletApi;
+  public activeWallet?: TSupportedWalletExtensions;
   public utils?: WalletObserverUtils;
   public peerConnectInstance?: import("@fabianbormann/cardano-peer-connect").DAppPeerConnect;
 
   private _performingSync: boolean = false;
-  private _activeWallet?: TSupportedWalletExtensions;
   private _options: IResolvedWalletObserverOptions<AssetMetadata>;
   private _supportedExtensions: TSupportedWalletExtensions[] = [
     "eternl",
@@ -218,7 +218,7 @@ export class WalletObserver<
    * @returns {boolean}
    */
   hasActiveConnection(): boolean {
-    return Boolean(this._activeWallet && this.api);
+    return Boolean(this.activeWallet && this.api);
   }
 
   /**
@@ -231,14 +231,14 @@ export class WalletObserver<
   syncApi = async (activeWallet?: TSupportedWalletExtensions): Promise<any> => {
     let attempts = 0;
     this.api = undefined;
-    if (!activeWallet && !this._activeWallet) {
+    if (!activeWallet && !this.activeWallet) {
       throw new Error(
         "A wallet is required to be passed as a parameter, or to be defined in the class."
       );
     }
 
     const selectedWallet =
-      activeWallet || (this._activeWallet as TSupportedWalletExtensions);
+      activeWallet || (this.activeWallet as TSupportedWalletExtensions);
 
     let shouldContinue = true;
     while (!this.api && shouldContinue) {
@@ -323,7 +323,7 @@ export class WalletObserver<
 
     await this.syncApi(extension);
 
-    this._activeWallet = extension;
+    this.activeWallet = extension;
     if (this._options.persistence) {
       const seed: IWalletObserverSeed = {
         activeWallet: extension,
@@ -367,15 +367,6 @@ export class WalletObserver<
   };
 
   /**
-   * Helper function to retrieve currently active wallet connection, if present.
-   *
-   * @returns {TSupportedWalletExtensions | undefined}
-   */
-  getActiveWallet = (): TSupportedWalletExtensions | undefined => {
-    return this._activeWallet;
-  };
-
-  /**
    * Helper function to retrieve the currently cached metadata.
    *
    * @returns {Map<string, AssetMetadata>}
@@ -398,7 +389,7 @@ export class WalletObserver<
    * @returns {void}
    */
   disconnect = (): void => {
-    this._activeWallet = undefined;
+    this.activeWallet = undefined;
     this.api = undefined;
     window.localStorage.removeItem(WalletObserver.PERSISTENCE_CACHE_KEY);
     this.dispatch(EWalletObserverEvents.DISCONNECT);

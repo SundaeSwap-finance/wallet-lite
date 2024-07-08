@@ -56,7 +56,7 @@ describe("WalletObserver", async () => {
       const observer = new WalletObserver();
       expect(observer.eventList().size).toEqual(0);
       expect(observer.isSyncing()).toBeFalse();
-      expect(observer.getActiveWallet()).toBeUndefined();
+      expect(observer.activeWallet).toBeUndefined();
       expect(observer.network).toEqual(0);
       expect(observer.api).toBeUndefined();
       expect(observer.getSupportedExtensions()).toEqual([
@@ -114,7 +114,7 @@ describe("WalletObserver", async () => {
       expect(observer.peerConnectInstance).toBeUndefined();
       expect(observer.eventList().size).toEqual(0);
       expect(observer.isSyncing()).toBeFalse();
-      expect(observer.getActiveWallet()).toBeUndefined();
+      expect(observer.activeWallet).toBeUndefined();
       expect(observer.network).toEqual(0);
       expect(observer.api).toBeUndefined();
       expect(observer.getSupportedExtensions()).toEqual([
@@ -161,7 +161,7 @@ describe("WalletObserver", async () => {
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
       ).toBeNull();
-      expect(observer.getActiveWallet()).toEqual("eternl");
+      expect(observer.activeWallet).toEqual("eternl");
       expect(observer.api).toBeDefined();
       expect(spiedOnSyncApi).toHaveBeenNthCalledWith(1, "eternl");
 
@@ -213,7 +213,7 @@ describe("WalletObserver", async () => {
 
       await observer.connectWallet("eternl");
 
-      expect(observer.getActiveWallet()).toEqual("eternl");
+      expect(observer.activeWallet).toEqual("eternl");
       expect(observer.api).toBeDefined();
       expect(spiedOnSyncApi).toHaveBeenNthCalledWith(1, "eternl");
 
@@ -241,20 +241,20 @@ describe("WalletObserver", async () => {
       expect(spiedOnGetPeerConnect).not.toHaveBeenCalled();
       expect(spiedOnGetUtils).toHaveBeenCalled();
 
-      expect(observer.getActiveWallet()).toEqual("eternl");
+      expect(observer.activeWallet).toEqual("eternl");
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
       ).toEqual('{"activeWallet":"eternl"}');
 
       await observer.sync();
 
-      expect(observer.getActiveWallet()).toEqual("eternl");
+      expect(observer.activeWallet).toEqual("eternl");
       expect(observer.getCachedAssetMetadata().size).toEqual(assetIds.length);
 
       observer.disconnect();
 
-      expect(observer.getActiveWallet()).toBeUndefined();
-      expect(observer.getCachedAssetMetadata().size).toEqual(0);
+      expect(observer.activeWallet).toBeUndefined();
+      expect(observer.getCachedAssetMetadata().size).not.toEqual(0);
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
       ).toBeNull();

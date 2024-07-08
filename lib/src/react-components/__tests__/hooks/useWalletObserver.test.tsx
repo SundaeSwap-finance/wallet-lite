@@ -41,7 +41,6 @@ describe("useWalletObserver", () => {
     expect(result.current.mainAddress).toBeUndefined();
     expect(result.current.network).toBeUndefined();
     expect(result.current.observer).toBeInstanceOf(WalletObserver);
-    expect(result.current.ready).toBeFalse();
     expect(result.current.syncWallet).toBeInstanceOf(Function);
     expect(result.current.unusedAddresses).toEqual([]);
     expect(result.current.usedAddresses).toEqual([]);
@@ -57,7 +56,6 @@ describe("useWalletObserver", () => {
     expect(result.current.isCip45).toBeFalse();
     expect(result.current.mainAddress).toEqual(usedAddresses[0]);
     expect(result.current.network).toEqual(network);
-    expect(result.current.ready).toBeTrue();
     expect(result.current.unusedAddresses).toEqual(unusedAddresses);
     expect(result.current.usedAddresses).toEqual(usedAddresses);
   });

@@ -21,13 +21,7 @@ export const useProviderRefreshInterval = (
       return;
     }
 
-    const interval = setInterval(() => {
-      if (!observer.getActiveWallet()) {
-        return;
-      }
-
-      syncWallet();
-    }, refreshInterval);
+    const interval = setInterval(syncWallet, refreshInterval);
 
     return () => {
       clearInterval(interval);

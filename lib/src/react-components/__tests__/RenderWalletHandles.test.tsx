@@ -18,7 +18,6 @@ const TestComponent = (state: TRenderWalletHandlesFunctionState) => {
       {state.isCip45?.toString()}
       {state.mainAddress?.toString()}
       {state.network?.toString()}
-      {state.ready?.toString()}
       {state.unusedAddresses.toString()}
       {state.usedAddresses.toString()}
       {[...state.handles.values()].map(({ metadata }) => (
@@ -28,7 +27,7 @@ const TestComponent = (state: TRenderWalletHandlesFunctionState) => {
       ))}
       <button
         data-testid="connect-with-handles"
-        onClick={() => state.observer.connectWallet("eternl")}
+        onClick={() => state.connectWallet("eternl")}
       ></button>
     </pre>
   );

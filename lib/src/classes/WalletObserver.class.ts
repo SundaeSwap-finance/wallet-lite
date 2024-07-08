@@ -197,6 +197,7 @@ export class WalletObserver<
       return result;
     } catch (e) {
       this._performingSync = false;
+      this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
       throw e;
     }
   };

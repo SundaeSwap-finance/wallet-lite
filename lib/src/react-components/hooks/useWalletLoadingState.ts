@@ -69,14 +69,9 @@ export const useWalletLoadingState = <
     };
   }, [state.observer, setConnecting, setSyncing]);
 
-  const memoizedState = useMemo(
-    () => ({
-      connectingWallet: connecting,
-      syncingWallet: syncing,
-      ready,
-    }),
-    [connecting, syncing, ready]
-  );
-
-  return memoizedState;
+  return {
+    connectingWallet: connecting,
+    syncingWallet: syncing,
+    ready,
+  };
 };

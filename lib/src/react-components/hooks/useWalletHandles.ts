@@ -117,13 +117,8 @@ export const useWalletHandles = <
     });
   }, [memoizedHandleDep, syncHandles, setHandles, setLoadingHandles]);
 
-  const data = useMemo(
-    () => ({
-      handles,
-      loadingHandles,
-    }),
-    [handles, loadingHandles]
-  );
-
-  return data;
+  return {
+    handles,
+    loadingHandles,
+  };
 };

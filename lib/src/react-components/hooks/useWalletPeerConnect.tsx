@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 
 import { TGetPeerConnectInstance } from "../../@types/observer.js";
 import { useWalletObserver } from "./useWalletObserver.js";
@@ -30,14 +30,9 @@ export const useWalletPeerConnect = <
     }
   }, [peerConnect, qrCode]);
 
-  const memoizedState = useMemo(
-    () => ({
-      peerConnect,
-      QRCodeElement: <div ref={qrCode as MutableRefObject<HTMLDivElement>} />,
-      error,
-    }),
-    [peerConnect, qrCode, error]
-  );
-
-  return memoizedState;
+  return {
+    peerConnect,
+    QRCodeElement: <div ref={qrCode as MutableRefObject<HTMLDivElement>} />,
+    error,
+  };
 };

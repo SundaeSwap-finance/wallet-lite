@@ -100,15 +100,17 @@ mock.module("@cardano-sdk/core", () => coreModuleMock);
  * Mock the peer connect library for cip-45 support.
  */
 mock.module("@fabianbormann/cardano-peer-connect", () => ({
-  DAppPeerConnect: mock((args) => ({
-    getIdenticon: mock(),
-    shutdownServer: mock(() => {
-      args.onApiEject();
-    }),
-    __testStartServer: mock(() => {
-      // @ts-ignore This is injected by eternl.
-      window.cardano["eternl-p2p"] = mockedEternlWallet;
-      args.onApiInject("eternl-p2p");
-    }),
-  })),
+  default: {
+    DAppPeerConnect: mock((args) => ({
+      getIdenticon: mock(),
+      shutdownServer: mock(() => {
+        args.onApiEject();
+      }),
+      __testStartServer: mock(() => {
+        // @ts-ignore This is injected by eternl.
+        window.cardano["eternl-p2p"] = mockedEternlWallet;
+        args.onApiInject("eternl-p2p");
+      }),
+    })),
+  },
 }));

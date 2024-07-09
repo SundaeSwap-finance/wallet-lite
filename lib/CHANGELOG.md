@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.36 (2024-07-09)
+
+
+### Bug Fixes
+
+* missing metadata type ([3e17867](https://github.com/SundaeSwap-finance/wallet-lite/commit/3e178678406936e19afcb1ba0a298edd7f3c9599))
+
 ### 0.0.35 (2024-07-09)
 
 

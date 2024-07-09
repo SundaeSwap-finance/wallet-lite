@@ -67,7 +67,7 @@ export const useWalletLoadingState = <
         setSyncingEnd
       );
     };
-  }, []);
+  }, [state.observer]);
 
   return {
     connectingWallet: connecting,

@@ -1,6 +1,6 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
-import { AssetAmount } from "@sundaeswap/asset";
-import { useCallback, useState } from "react";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { useCallback, useState, useTransition } from "react";
 
 import {
   TAssetAmountMap,
@@ -18,17 +18,21 @@ import { THandleMetadata } from "../../contexts/observer/index.js";
  *
  * @param {WalletObserver} observer
  */
-export const useWalletObserverState = (observer: WalletObserver) => {
+export const useWalletObserverState = <
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+>(
+  observer: WalletObserver<AssetMetadata>
+) => {
   const [activeWallet, setActiveWallet] =
     useState<TSupportedWalletExtensions>();
   const [adaBalance, setAdaBalance] = useState<AssetAmount>(
-    new AssetAmount(0n)
+    new AssetAmount<AssetMetadata>(0n)
   );
   const [handleMetadata, setHandleMetadata] = useState<
-    TAssetAmountMap<THandleMetadata>
-  >(new WalletAssetMap());
-  const [balance, setBalance] = useState<WalletBalanceMap>(
-    new WalletBalanceMap(observer)
+    TAssetAmountMap<THandleMetadata<AssetMetadata>>
+  >(new WalletAssetMap<THandleMetadata<AssetMetadata>>());
+  const [balance, setBalance] = useState<WalletBalanceMap<AssetMetadata>>(
+    new WalletBalanceMap<AssetMetadata>(observer)
   );
   const [network, setNetwork] = useState<number | undefined>();
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
@@ -37,6 +41,7 @@ export const useWalletObserverState = (observer: WalletObserver) => {
   const [collateral, setCollateral] = useState<TransactionUnspentOutput[]>();
   const [isCip45, setIsCip45] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const disconnect = useCallback(() => {
     // Reset observer state.
@@ -68,62 +73,66 @@ export const useWalletObserverState = (observer: WalletObserver) => {
 
     const freshData = await observer.sync();
 
-    setActiveWallet((prevWallet) =>
-      newWallet === prevWallet ? prevWallet : newWallet
-    );
-
-    const newAdaBalance = freshData.balanceMap.get(WalletObserver.ADA_ASSET_ID);
-    if (newAdaBalance) {
-      setAdaBalance((prevBalance) =>
-        prevBalance.amount === newAdaBalance.amount
-          ? prevBalance
-          : newAdaBalance
+    startTransition(() => {
+      setActiveWallet((prevWallet) =>
+        newWallet === prevWallet ? prevWallet : newWallet
       );
-    }
 
-    setBalance((prevBalance) =>
-      areAssetMapsEqual(prevBalance, freshData.balanceMap)
-        ? prevBalance
-        : freshData.balanceMap
-    );
-
-    setUsedAddresses((prevValue) =>
-      JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
-        ? prevValue
-        : freshData.usedAddresses
-    );
-
-    setUnusedAddresses((prevValue) =>
-      JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
-        ? prevValue
-        : freshData.unusedAddresses
-    );
-
-    setNetwork((prevValue) =>
-      prevValue === freshData.network ? prevValue : freshData.network
-    );
-
-    setUtxos((prevValue) => {
-      const prevValueRep = prevValue?.map((v) => v.toCbor());
-      const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-      if (prevValueRep !== newValueRep) {
-        return freshData.utxos;
+      const newAdaBalance = freshData.balanceMap.get(
+        WalletObserver.ADA_ASSET_ID
+      );
+      if (newAdaBalance) {
+        setAdaBalance((prevBalance) =>
+          prevBalance.amount === newAdaBalance.amount
+            ? prevBalance
+            : newAdaBalance
+        );
       }
 
-      return prevValue;
+      setBalance((prevBalance) =>
+        areAssetMapsEqual(prevBalance, freshData.balanceMap)
+          ? prevBalance
+          : freshData.balanceMap
+      );
+
+      setUsedAddresses((prevValue) =>
+        JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
+          ? prevValue
+          : freshData.usedAddresses
+      );
+
+      setUnusedAddresses((prevValue) =>
+        JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
+          ? prevValue
+          : freshData.unusedAddresses
+      );
+
+      setNetwork((prevValue) =>
+        prevValue === freshData.network ? prevValue : freshData.network
+      );
+
+      setUtxos((prevValue) => {
+        const prevValueRep = prevValue?.map((v) => v.toCbor());
+        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
+        if (prevValueRep !== newValueRep) {
+          return freshData.utxos;
+        }
+
+        return prevValue;
+      });
+
+      setCollateral((prevValue) => {
+        const prevValueRep = prevValue?.map((v) => v.toCbor());
+        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
+        if (prevValueRep !== newValueRep) {
+          return freshData.utxos;
+        }
+
+        return prevValue;
+      });
+
+      setIsCip45(newWallet.includes("p2p"));
     });
-
-    setCollateral((prevValue) => {
-      const prevValueRep = prevValue?.map((v) => v.toCbor());
-      const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-      if (prevValueRep !== newValueRep) {
-        return freshData.utxos;
-      }
-
-      return prevValue;
-    });
-
-    setIsCip45(newWallet.includes("p2p"));
   }, [observer, disconnect]);
 
   const connectWallet = useCallback(
@@ -165,5 +174,6 @@ export const useWalletObserverState = (observer: WalletObserver) => {
     connectWallet,
     switching,
     setSwitching,
+    isPending,
   };
 };

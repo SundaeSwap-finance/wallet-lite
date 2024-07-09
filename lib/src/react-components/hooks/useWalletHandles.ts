@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 
 import { IHandle } from "@koralabs/adahandle-sdk";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
@@ -12,10 +18,11 @@ export const useWalletHandles = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
 >() => {
   const state = useWalletObserver<THandleMetadata<AssetMetadata>>();
-  const [loadingHandles, setLoadingHandles] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const [handles, setHandles] = useState<
     TAssetAmountMap<THandleMetadata<AssetMetadata>>
   >(new WalletAssetMap());
+
   const memoizedHandleDep = useMemo(
     () => [...state.balance.getHandles().keys()],
     [state.balance]
@@ -24,101 +31,100 @@ export const useWalletHandles = <
   const syncHandles = useCallback<
     () => Promise<TAssetAmountMap<THandleMetadata<AssetMetadata>>>
   >(async () => {
-    // Make a copy of our wallet map.
     const walletHandles: TAssetAmountMap<THandleMetadata<AssetMetadata>> =
-      new WalletAssetMap([...state.balance.getHandles()]);
+      new WalletAssetMap<THandleMetadata<AssetMetadata>>([
+        ...state.balance.getHandles(),
+      ]);
 
     if (walletHandles.size === 0) {
       return walletHandles;
     }
 
     try {
-      await import("@koralabs/adahandle-sdk").then(
-        async ({
-          default: HandleClient,
-          HandleClientContext,
-          KoraLabsProvider,
-        }) => {
-          setLoadingHandles(true);
-          const context =
-            state.network === 1
-              ? HandleClientContext.MAINNET
-              : HandleClientContext.PREVIEW;
+      const {
+        default: HandleClient,
+        HandleClientContext,
+        KoraLabsProvider,
+      } = await import("@koralabs/adahandle-sdk");
 
-          // @ts-ignore Type isn't exported from default.
-          const sdk = new HandleClient({
-            context,
-            provider: new KoraLabsProvider(context),
-          });
+      const context =
+        state.network === 1
+          ? HandleClientContext.MAINNET
+          : HandleClientContext.PREVIEW;
 
-          // Restore once SDK updated
-          const walletHandlesWithDataArray = [...walletHandles.entries()];
-          const walletHandleDataArray: IHandle[] = await sdk
-            .provider()
-            .getAllDataBatch(
-              walletHandlesWithDataArray.map(([key]) => ({
-                value: key.split(".")[1],
-              }))
-            );
+      const sdk = new HandleClient({
+        context,
+        provider: new KoraLabsProvider(context),
+      });
 
-          walletHandlesWithDataArray.forEach(([key, asset]) => {
-            const matchingData = walletHandleDataArray.find(
-              ({ hex }) => hex === key.split(".")[1]
-            ) as IHandle;
+      const walletHandlesWithDataArray = [...walletHandles.entries()];
+      const walletHandleDataArray: IHandle[] = await sdk
+        .provider()
+        .getAllDataBatch(
+          walletHandlesWithDataArray.map(([key]) => ({
+            value: key.split(".")[1],
+          }))
+        );
 
-            walletHandles.set(
-              normalizeAssetIdWithDot(key),
-              asset
-                .withMetadata({
-                  ...matchingData,
-                  ...asset.metadata,
-                  assetId: normalizeAssetIdWithDot(asset.metadata.assetId),
-                  decimals: 0,
-                })
-                .withAmount(1n)
-            );
-          });
-        }
-      );
+      walletHandlesWithDataArray.forEach(([key, asset]) => {
+        const matchingData = walletHandleDataArray.find(
+          ({ hex }) => hex === key.split(".")[1]
+        ) as IHandle;
+
+        walletHandles.set(
+          normalizeAssetIdWithDot(key),
+          asset
+            .withMetadata({
+              ...matchingData,
+              ...asset.metadata,
+              assetId: normalizeAssetIdWithDot(asset.metadata.assetId),
+              decimals: 0,
+            })
+            .withAmount(1n)
+        );
+      });
 
       return walletHandles;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return walletHandles;
     }
-    // We only want to update the callback if the Handle keys change.
-  }, [state.balance]);
+  }, [state.balance, state.network]);
 
   useEffect(() => {
-    syncHandles().then((newHandles) => {
-      setHandles((prevHandles) => {
-        let handleMetadataChanged = false;
+    const fetchHandles = async () => {
+      const newHandles = await syncHandles();
+      startTransition(() => {
+        setHandles((prevHandles) => {
+          let handleMetadataChanged = false;
 
-        if (newHandles.size !== prevHandles?.size) {
-          handleMetadataChanged = true;
-        } else {
-          for (const [key, val] of newHandles) {
-            if (
-              !prevHandles.has(key) ||
-              prevHandles.get(key)?.amount !== val?.amount
-            ) {
-              handleMetadataChanged = true;
+          if (newHandles.size !== prevHandles?.size) {
+            handleMetadataChanged = true;
+          } else {
+            for (const [key, val] of newHandles) {
+              if (
+                !prevHandles.has(key) ||
+                prevHandles.get(key)?.amount !== val?.amount
+              ) {
+                handleMetadataChanged = true;
+              }
             }
           }
-        }
 
-        if (!handleMetadataChanged) {
-          return prevHandles;
-        }
+          if (!handleMetadataChanged) {
+            return prevHandles;
+          }
 
-        return newHandles;
+          return newHandles;
+        });
       });
-      setLoadingHandles(() => false);
-    });
-  }, [memoizedHandleDep, syncHandles, setHandles, setLoadingHandles]);
+    };
+
+    fetchHandles();
+  }, [memoizedHandleDep, syncHandles]);
 
   return {
     handles,
-    loadingHandles,
+    loadingHandles: isPending,
   };
 };

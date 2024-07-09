@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { FC, ReactNode } from "react";
+import { FC, ReactElement, ReactNode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
@@ -16,6 +16,8 @@ export type TRenderWalletPeerConnectFunction = (
 
 export interface IRenderWalletPeerConnectProps {
   render: TRenderWalletPeerConnectFunction;
+  loader?: ReactNode;
+  fallback?: ReactElement;
 }
 
 /**
@@ -25,6 +27,8 @@ export interface IRenderWalletPeerConnectProps {
  */
 export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
   render,
+  loader,
+  fallback,
 }) => {
   const state = useWalletObserver();
   const peerConnectState = useWalletPeerConnect();
@@ -34,8 +38,17 @@ export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
   }
 
   return (
-    <ErrorBoundary fallback={<p>{peerConnectState.error}</p>}>
-      {render({ ...state, ...peerConnectState })}
+    <ErrorBoundary
+      fallback={fallback || <p>{peerConnectState.error}</p>}
+      onError={(error) => {
+        if (state.observer.getOptions().debug) {
+          console.log(error.message, error.stack);
+        }
+      }}
+    >
+      <Suspense fallback={loader}>
+        {render({ ...state, ...peerConnectState })}
+      </Suspense>
     </ErrorBoundary>
   );
 };

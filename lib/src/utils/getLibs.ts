@@ -1,19 +1,20 @@
 export const getCardanoCore = async () => {
-  const { Serialization, Cardano } = await import("@cardano-sdk/core");
-  return {
-    Serialization,
-    Cardano,
-  };
+  return import("@cardano-sdk/core").then((module) => {
+    return {
+      Serialization: module.Serialization,
+      Cardano: module.Cardano,
+    };
+  });
 };
 
 export const getCardanoUtil = async () => {
-  const { typedHex } = await import("@cardano-sdk/util");
-  return { typedHex };
+  return import("@cardano-sdk/util").then((module) => {
+    return module.typedHex;
+  });
 };
 
 export const getPeerConnect = async () => {
-  const { DAppPeerConnect } = await import(
-    "@fabianbormann/cardano-peer-connect"
-  );
-  return { DAppPeerConnect };
+  return import("@fabianbormann/cardano-peer-connect").then((module) => {
+    return module.default.DAppPeerConnect;
+  });
 };

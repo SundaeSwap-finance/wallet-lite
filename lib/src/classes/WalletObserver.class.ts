@@ -123,9 +123,9 @@ export class WalletObserver<
    * In the event that a promise will not resolve due to external issues,
    * after 7 seconds, a timeout function will fire that resets the API and tries again.
    *
-   * @returns {Promise<IWalletObserverSync>} - A promise that resolves to the wallet sync data.
+   * @returns {Promise<IWalletObserverSync<AssetMetadata>>} - A promise that resolves to the wallet sync data.
    */
-  sync = async (): Promise<IWalletObserverSync> => {
+  sync = async (): Promise<IWalletObserverSync<AssetMetadata>> => {
     if (!this.api) {
       throw new Error(
         "Attempted to perform a sync operation without a connected wallet."
@@ -338,7 +338,7 @@ export class WalletObserver<
   getCip45Instance = async () => {
     const start = performance.now();
     if (!this.peerConnectInstance) {
-      const { DAppPeerConnect } = await getPeerConnect();
+      const DAppPeerConnect = await getPeerConnect();
       this.peerConnectInstance = new DAppPeerConnect(
         this._options.peerConnectArgs
       );
@@ -398,7 +398,7 @@ export class WalletObserver<
     const start = performance.now();
 
     this.dispatch(EWalletObserverEvents.GET_BALANCE_MAP_START);
-    const [cbor, { Serialization }, { typedHex }] = await Promise.all([
+    const [cbor, { Serialization }, typedHex] = await Promise.all([
       this.api.getBalance(),
       getCardanoCore(),
       getCardanoUtil(),
@@ -475,7 +475,7 @@ export class WalletObserver<
 
     const start = performance.now();
 
-    const [cbor, { Cardano }, { typedHex }] = await Promise.all([
+    const [cbor, { Cardano }, typedHex] = await Promise.all([
       this.api.getUsedAddresses(),
       getCardanoCore(),
       getCardanoUtil(),
@@ -506,7 +506,7 @@ export class WalletObserver<
 
     const start = performance.now();
 
-    const [cbor, { Cardano }, { typedHex }] = await Promise.all([
+    const [cbor, { Cardano }, typedHex] = await Promise.all([
       this.api.getUnusedAddresses(),
       getCardanoCore(),
       getCardanoUtil(),
@@ -535,7 +535,7 @@ export class WalletObserver<
 
     const start = performance.now();
 
-    const [cbor, { Serialization }, { typedHex }] = await Promise.all([
+    const [cbor, { Serialization }, typedHex] = await Promise.all([
       this.api.getUtxos(),
       getCardanoCore(),
       getCardanoUtil(),
@@ -571,7 +571,7 @@ export class WalletObserver<
 
     const start = performance.now();
 
-    const [cbor, { Serialization }, { typedHex }] = await Promise.all([
+    const [cbor, { Serialization }, typedHex] = await Promise.all([
       (async () => {
         const funcCall =
           this.api?.getCollateral ||

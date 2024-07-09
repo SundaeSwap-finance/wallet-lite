@@ -1,14 +1,11 @@
-import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import type { IHandle } from "@koralabs/adahandle-sdk";
-import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import type { Dispatch, MutableRefObject, SetStateAction } from "react";
+import type { IAssetAmountMetadata } from "@sundaeswap/asset";
+import type { MutableRefObject } from "react";
 
-import type {
-  TSupportedWalletExtensions,
-  TWalletObserverOptions,
-} from "../../../@types/observer.js";
-import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
+import type { TWalletObserverOptions } from "../../../@types/observer.js";
 import type { WalletObserver } from "../../../classes/WalletObserver.class.js";
+import { useDerivedState } from "../../WalletObserverProvider/hooks/effects/useDerivedState.js";
+import { useWalletObserverState } from "../../WalletObserverProvider/hooks/useWalletObserverState.js";
 
 /**
  * Available hooks to apply at various events.
@@ -48,36 +45,11 @@ export interface IWalletObserverState<
 > {
   observerRef: MutableRefObject<WalletObserver<AssetMetadata>>;
   refreshInterval: number | false;
-  state: {
-    isCip45: boolean;
-    setIsCip45: Dispatch<SetStateAction<boolean>>;
-    activeWallet?: TSupportedWalletExtensions;
-    setActiveWallet: Dispatch<
-      SetStateAction<TSupportedWalletExtensions | undefined>
-    >;
-    adaBalance: AssetAmount<AssetMetadata>;
-    balance: WalletBalanceMap<AssetMetadata>;
-    utxos?: TransactionUnspentOutput[];
-    setUtxos: Dispatch<SetStateAction<TransactionUnspentOutput[] | undefined>>;
-    collateral?: TransactionUnspentOutput[];
-    setCollateral: Dispatch<
-      SetStateAction<TransactionUnspentOutput[] | undefined>
-    >;
-    setBalance: Dispatch<SetStateAction<WalletBalanceMap<AssetMetadata>>>;
-    observer: WalletObserver;
-    mainAddress?: string;
-    stakeAddress?: string;
-    network?: number;
-    setNetwork: Dispatch<SetStateAction<number | undefined>>;
-    unusedAddresses: string[];
-    setUnusedAddresses: Dispatch<SetStateAction<string[]>>;
-    usedAddresses: string[];
-    setUsedAddresses: Dispatch<SetStateAction<string[]>>;
-    switching: boolean;
-    syncWallet: () => Promise<void>;
-    disconnect: () => void;
-    connectWallet: (wallet: TSupportedWalletExtensions) => Promise<void>;
-  };
+  state: ReturnType<typeof useWalletObserverState<AssetMetadata>> &
+    ReturnType<typeof useDerivedState> & {
+      isPending: boolean;
+      observer: WalletObserver<AssetMetadata>;
+    };
 }
 
 /**
@@ -97,6 +69,9 @@ export type TUseWalletObserverState<
 > = Omit<
   IWalletObserverState<AssetMetadata>["state"],
   | "setActiveWallet"
+  | "setAdaBalance"
+  | "setHandles"
+  | "setSwitching"
   | "setBalance"
   | "setNetwork"
   | "setUnusedAddresses"

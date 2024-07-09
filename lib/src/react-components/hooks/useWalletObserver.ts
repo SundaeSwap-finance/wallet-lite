@@ -32,6 +32,8 @@ export const useWalletObserver = <
     disconnect: state.disconnect,
     connectWallet: state.connectWallet,
     switching: state.switching,
+    isPending: state.isPending,
+    handles: state.handles,
   };
 
   return result;

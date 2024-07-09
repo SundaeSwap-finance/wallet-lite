@@ -57,7 +57,7 @@ const WalletObserverProvider: FC<
         WalletObserver.PERSISTENCE_CACHE_KEY
       ) as TSupportedWalletExtensions;
 
-    if (wallet) {
+    if (wallet && options?.observerOptions?.persistence) {
       state.connectWallet(JSON.parse(wallet).activeWallet);
     }
   }, []);

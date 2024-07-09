@@ -1,6 +1,6 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 
 import {
   TAssetAmountMap,
@@ -42,6 +42,15 @@ export const useWalletObserverState = <
   const [isCip45, setIsCip45] = useState(false);
   const [switching, setSwitching] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const willAutoConnect = useMemo(
+    () =>
+      Boolean(
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY) &&
+          observer.getOptions().persistence
+      ),
+    [observer]
+  );
 
   const disconnect = useCallback(() => {
     // Reset observer state.
@@ -175,5 +184,6 @@ export const useWalletObserverState = <
     switching,
     setSwitching,
     isPending,
+    willAutoConnect,
   };
 };

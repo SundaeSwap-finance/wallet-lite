@@ -1,7 +1,6 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
-import { TSupportedWalletExtensions } from "./observer.js";
 
 /**
  * A list of observer events that a client can hook into.
@@ -32,9 +31,7 @@ export interface EWalletObserverEventValues<
         unusedAddresses: string[];
       };
   [EWalletObserverEvents.CONNECT_WALLET_START]: undefined;
-  [EWalletObserverEvents.CONNECT_WALLET_END]: {
-    extension: TSupportedWalletExtensions;
-  };
+  [EWalletObserverEvents.CONNECT_WALLET_END]: undefined;
   [EWalletObserverEvents.GET_BALANCE_MAP_START]: undefined;
   [EWalletObserverEvents.GET_BALANCE_MAP_END]: {
     balanceMap: WalletBalanceMap<T>;

@@ -147,6 +147,7 @@ export class WalletObserver<
           newNetwork = await this.getNetwork();
         } catch (e) {
           this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
+          this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
           this._performingSync = false;
           throw e;
         }
@@ -181,11 +182,13 @@ export class WalletObserver<
       }
 
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
       this._performingSync = false;
       return result;
     } catch (e) {
       this._performingSync = false;
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
       throw e;
     }
   };
@@ -324,10 +327,6 @@ export class WalletObserver<
         JSON.stringify(seed)
       );
     }
-
-    this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
-      extension,
-    });
 
     const end = performance.now();
     if (this._options.debug) {

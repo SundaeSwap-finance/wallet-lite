@@ -9,14 +9,20 @@ import {
 /**
  * Exposes the WalletObserver state.
  *
- * @returns {TUseWalletObserverState<AssetMetadata>}
+ * @returns {Omit<TUseWalletObserverState<AssetMetadata>, "ready" | "connectingWallet" | "syncingWallet">}
  */
 export const useWalletObserver = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
->(): TUseWalletObserverState<AssetMetadata> => {
+>(): Omit<
+  TUseWalletObserverState<AssetMetadata>,
+  "ready" | "connectingWallet" | "syncingWallet"
+> => {
   const { state } = useWalletObserverContext<AssetMetadata>();
 
-  const result: TUseWalletObserverState<AssetMetadata> = useMemo(
+  const result: Omit<
+    TUseWalletObserverState<AssetMetadata>,
+    "ready" | "connectingWallet" | "syncingWallet"
+  > = useMemo(
     () => ({
       isCip45: state.isCip45,
       activeWallet: state.activeWallet,

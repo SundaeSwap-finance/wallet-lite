@@ -8,7 +8,6 @@ import {
   WalletObserverContext,
 } from "../contexts/observer/index.js";
 import { useDerivedState } from "./hooks/effects/useDerivedState.js";
-import { useProviderEventListeners } from "./hooks/effects/useProviderEventListeners.js";
 import { useProviderRefreshInterval } from "./hooks/effects/useProviderRefreshInterval.js";
 import { useProviderWalletObserverRef } from "./hooks/useProviderWalletObserverRef.js";
 import { useWalletObserverState } from "./hooks/useWalletObserverState.js";
@@ -23,10 +22,15 @@ import { useWalletObserverState } from "./hooks/useWalletObserverState.js";
 const WalletObserverProvider: FC<
   PropsWithChildren<IWalletObserverProviderProps>
 > = ({ children, options }) => {
-  const observerRef = useProviderWalletObserverRef(options?.observerOptions);
+  const {
+    observerRef,
+    connectingWallet,
+    syncingWallet,
+    ready,
+    eventListenersAttached,
+  } = useProviderWalletObserverRef(options?.observerOptions);
   const state = useWalletObserverState(observerRef.current);
 
-  useProviderEventListeners(observerRef.current, state);
   useProviderRefreshInterval(
     observerRef.current,
     state.syncWallet,
@@ -46,21 +50,36 @@ const WalletObserverProvider: FC<
         ...state,
         ...derivedState,
         observer: observerRef.current,
+        connectingWallet,
+        syncingWallet,
+        ready,
       },
     }),
-    [options, state, derivedState]
+    [
+      options,
+      state,
+      derivedState,
+      connectingWallet,
+      syncingWallet,
+      ready,
+      observerRef.current,
+    ]
   );
 
   useEffect(() => {
+    if (!eventListenersAttached) {
+      return;
+    }
+
     const wallet: TSupportedWalletExtensions | null =
       window.localStorage.getItem(
         WalletObserver.PERSISTENCE_CACHE_KEY
       ) as TSupportedWalletExtensions;
 
-    if (wallet && options?.observerOptions?.persistence) {
+    if (wallet && observerRef.current?.getOptions()?.persistence) {
       state.connectWallet(JSON.parse(wallet).activeWallet);
     }
-  }, []);
+  }, [eventListenersAttached]);
 
   return (
     <WalletObserverContext.Provider value={contextValue}>

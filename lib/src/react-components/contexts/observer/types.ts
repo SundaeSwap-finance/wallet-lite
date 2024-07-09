@@ -49,6 +49,9 @@ export interface IWalletObserverState<
     ReturnType<typeof useDerivedState> & {
       isPending: boolean;
       observer: WalletObserver<AssetMetadata>;
+      connectingWallet: boolean;
+      syncingWallet: boolean;
+      ready: boolean;
     };
 }
 

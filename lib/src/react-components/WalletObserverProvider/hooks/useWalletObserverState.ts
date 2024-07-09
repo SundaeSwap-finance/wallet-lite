@@ -1,6 +1,12 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 
 import {
   TAssetAmountMap,
@@ -156,6 +162,17 @@ export const useWalletObserverState = <
     },
     [observer, setSwitching]
   );
+
+  /**
+   * Ensure the wallet syncs on connect and disconnect.
+   */
+  useEffect(() => {
+    window.addEventListener("focus", syncWallet);
+
+    return () => {
+      window.addEventListener("focus", syncWallet);
+    };
+  }, [syncWallet]);
 
   return {
     activeWallet,

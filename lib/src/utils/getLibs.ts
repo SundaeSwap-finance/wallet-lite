@@ -15,6 +15,6 @@ export const getCardanoUtil = async () => {
 
 export const getPeerConnect = async () => {
   return import("@fabianbormann/cardano-peer-connect").then((module) => {
-    return module.default.DAppPeerConnect;
+    return module?.DAppPeerConnect || module.default.DAppPeerConnect;
   });
 };

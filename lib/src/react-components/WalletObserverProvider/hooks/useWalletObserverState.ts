@@ -25,7 +25,7 @@ export const useWalletObserverState = <
 ) => {
   const [activeWallet, setActiveWallet] =
     useState<TSupportedWalletExtensions>();
-  const [adaBalance, setAdaBalance] = useState<AssetAmount>(
+  const [adaBalance, setAdaBalance] = useState<AssetAmount<AssetMetadata>>(
     new AssetAmount<AssetMetadata>(0n)
   );
   const [handleMetadata, setHandleMetadata] = useState<

@@ -159,6 +159,7 @@ export const useWalletObserverState = <
       await observer.connectWallet(wallet);
       await syncWallet();
       setSwitching(() => false);
+      return observer.api;
     },
     [observer, setSwitching]
   );

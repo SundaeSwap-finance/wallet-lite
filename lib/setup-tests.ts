@@ -62,6 +62,14 @@ export const coreModuleMock = {
         // Convert back to string just for testing.
         toBech32: mock(() => Buffer.from(val).toString()),
       })),
+      isValidBech32: mock(() => true),
+      fromBech32: mock((add) => add),
+    },
+    BaseAddress: {
+      fromAddress: mock(() => ({
+        getPaymentCredential: mock(() => undefined),
+        getStakeCredential: mock(() => undefined),
+      })),
     },
   },
   Serialization: {

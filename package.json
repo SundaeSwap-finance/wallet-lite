@@ -8,7 +8,7 @@
     "utp-native"
   ],
   "scripts": {
-    "setup": "husky",
+    "prepare": "husky",
     "lint": "eslint . --ignore-pattern '**/dist/**'",
     "lint:fix": "bun lint --fix"
   },

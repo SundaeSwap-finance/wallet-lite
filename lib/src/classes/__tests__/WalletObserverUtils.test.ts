@@ -53,7 +53,7 @@ beforeAll(() => {
           })),
         },
       },
-    })
+    }),
   );
 });
 
@@ -91,7 +91,7 @@ describe("WalletObserverUtils", async () => {
     it("should throw an error if the address is malformed", () => {
       isValidMock.mockImplementation(() => false);
       expect(() => instance.getAddressDetails("invalid")).toThrowError(
-        "Expected a Bech32 encoded address."
+        "Expected a Bech32 encoded address.",
       );
     });
   });
@@ -100,19 +100,19 @@ describe("WalletObserverUtils", async () => {
     it("should call correct dependency functions", () => {
       expect(() => instance.getBech32StakingAddress(testAddress)).not.toThrow();
       expect(instance.getBech32StakingAddress(testAddress)).toEqual(
-        stakeAddress
+        stakeAddress,
       );
 
       isValidMock.mockImplementation(() => false);
       expect(() => instance.getBech32StakingAddress("invalid")).toThrowError(
-        "Expected a Bech32 encoded address."
+        "Expected a Bech32 encoded address.",
       );
       expect(isValidMock).toHaveBeenCalled();
 
       // @ts-expect-error It can be undefined.
       getStakeCredentialMock.mockImplementation(() => undefined);
       expect(() => instance.getBech32StakingAddress("invalid")).toThrowError(
-        "Expected a Bech32 encoded address."
+        "Expected a Bech32 encoded address.",
       );
     });
   });

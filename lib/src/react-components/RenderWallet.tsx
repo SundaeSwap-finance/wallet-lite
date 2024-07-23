@@ -5,12 +5,12 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
 
 export type TRenderWalletFunctionState<
-  T extends IAssetAmountMetadata = IAssetAmountMetadata
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = ReturnType<typeof useWalletObserver<T>>;
 
-export type TRenderWalletFunction = (
-  state: TRenderWalletFunctionState<any>
-) => JSX.Element | ReactNode;
+export type TRenderWalletFunction<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> = (state: TRenderWalletFunctionState<T>) => JSX.Element | ReactNode;
 
 export interface IRenderWalletProps {
   render: TRenderWalletFunction;

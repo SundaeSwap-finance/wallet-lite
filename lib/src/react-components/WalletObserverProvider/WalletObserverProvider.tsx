@@ -34,7 +34,7 @@ const WalletObserverProvider: FC<
   useProviderRefreshInterval(
     observerRef.current,
     state.syncWallet,
-    options?.refreshInterval
+    options?.refreshInterval,
   );
 
   const derivedState = useDerivedState(observerRef.current, {
@@ -63,7 +63,7 @@ const WalletObserverProvider: FC<
       syncingWallet,
       ready,
       observerRef.current,
-    ]
+    ],
   );
 
   useEffect(() => {
@@ -73,7 +73,7 @@ const WalletObserverProvider: FC<
 
     const wallet: TSupportedWalletExtensions | null =
       window.localStorage.getItem(
-        WalletObserver.PERSISTENCE_CACHE_KEY
+        WalletObserver.PERSISTENCE_CACHE_KEY,
       ) as TSupportedWalletExtensions;
 
     if (wallet && observerRef.current?.getOptions()?.persistence) {

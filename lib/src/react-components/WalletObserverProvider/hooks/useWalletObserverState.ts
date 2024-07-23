@@ -19,20 +19,20 @@ import { THandleMetadata } from "../../contexts/observer/index.js";
  * @param {WalletObserver} observer
  */
 export const useWalletObserverState = <
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >(
-  observer: WalletObserver<AssetMetadata>
+  observer: WalletObserver<AssetMetadata>,
 ) => {
   const [activeWallet, setActiveWallet] =
     useState<TSupportedWalletExtensions>();
   const [adaBalance, setAdaBalance] = useState<AssetAmount<AssetMetadata>>(
-    new AssetAmount<AssetMetadata>(0n)
+    new AssetAmount<AssetMetadata>(0n),
   );
   const [handleMetadata, setHandleMetadata] = useState<
     TAssetAmountMap<THandleMetadata<AssetMetadata>>
   >(new WalletAssetMap<THandleMetadata<AssetMetadata>>());
   const [balance, setBalance] = useState<WalletBalanceMap<AssetMetadata>>(
-    new WalletBalanceMap<AssetMetadata>(observer)
+    new WalletBalanceMap<AssetMetadata>(observer),
   );
   const [network, setNetwork] = useState<number | undefined>();
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
@@ -45,8 +45,8 @@ export const useWalletObserverState = <
   const [willAutoConnect, setWillAutoConnect] = useState(
     Boolean(
       window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY) &&
-        observer.getOptions().persistence
-    )
+        observer.getOptions().persistence,
+    ),
   );
 
   const disconnect = useCallback(() => {
@@ -82,40 +82,40 @@ export const useWalletObserverState = <
 
     startTransition(() => {
       setActiveWallet((prevWallet) =>
-        newWallet === prevWallet ? prevWallet : newWallet
+        newWallet === prevWallet ? prevWallet : newWallet,
       );
 
       const newAdaBalance = freshData.balanceMap.get(
-        WalletObserver.ADA_ASSET_ID
+        WalletObserver.ADA_ASSET_ID,
       );
       if (newAdaBalance) {
         setAdaBalance((prevBalance) =>
           prevBalance.amount === newAdaBalance.amount
             ? prevBalance
-            : newAdaBalance
+            : newAdaBalance,
         );
       }
 
       setBalance((prevBalance) =>
         areAssetMapsEqual(prevBalance, freshData.balanceMap)
           ? prevBalance
-          : freshData.balanceMap
+          : freshData.balanceMap,
       );
 
       setUsedAddresses((prevValue) =>
         JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
           ? prevValue
-          : freshData.usedAddresses
+          : freshData.usedAddresses,
       );
 
       setUnusedAddresses((prevValue) =>
         JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
           ? prevValue
-          : freshData.unusedAddresses
+          : freshData.unusedAddresses,
       );
 
       setNetwork((prevValue) =>
-        prevValue === freshData.network ? prevValue : freshData.network
+        prevValue === freshData.network ? prevValue : freshData.network,
       );
 
       setUtxos((prevValue) => {
@@ -153,7 +153,7 @@ export const useWalletObserverState = <
       setSwitching(() => false);
       return observer.api;
     },
-    [observer, setSwitching]
+    [observer, setSwitching],
   );
 
   /**

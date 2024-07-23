@@ -23,7 +23,7 @@ describe("WalletObserverEvent", () => {
 
     instance.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      handler
+      handler,
     );
 
     instance.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
@@ -43,14 +43,14 @@ describe("WalletObserverEvent", () => {
 
     instance.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      handler
+      handler,
     );
 
     expect(instance.eventList().size).toEqual(1);
 
     instance.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      handler
+      handler,
     );
 
     expect(instance.eventList().size).toEqual(1);
@@ -67,29 +67,29 @@ describe("WalletObserverEvent", () => {
 
     instance.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_START,
-      handler1
+      handler1,
     );
     instance.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      handler1
+      handler1,
     );
     instance.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      handler2
+      handler2,
     );
 
     expect(instance.eventList().size).toEqual(3);
 
     instance.removeEventListener(
       EWalletObserverEvents.CONNECT_WALLET_START,
-      handler1
+      handler1,
     );
 
     expect(instance.eventList().size).toEqual(2);
 
     instance.removeEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      handler1
+      handler1,
     );
 
     expect(instance.eventList().size).toEqual(1);

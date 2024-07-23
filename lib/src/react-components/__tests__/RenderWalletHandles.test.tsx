@@ -38,15 +38,15 @@ describe("RenderWalletHandles", () => {
     const user = userEvent.setup();
     const spiedOnGetAllDataBatch = spyOn(
       KoraLabsProvider.prototype,
-      "getAllDataBatch"
+      "getAllDataBatch",
     );
     spiedOnGetAllDataBatch.mockImplementationOnce(
-      // @ts-ignore Bug in Bun.sh that mocks the function result rather than the reference.
-      () => async () => mockHandleMetadata
+      // @ts-expect-error Bug in Bun.sh that mocks the function result rather than the reference.
+      () => async () => mockHandleMetadata,
     );
     spiedOnGetAllDataBatch.mockImplementationOnce(
-      // @ts-ignore Bug in Bun.sh that mocks the function result rather than the reference.
-      () => async () => mockHandleMetadata
+      // @ts-expect-error Bug in Bun.sh that mocks the function result rather than the reference.
+      () => async () => mockHandleMetadata,
     );
 
     const { container, getByTestId, queryByTestId, rerender } = render(
@@ -55,7 +55,7 @@ describe("RenderWalletHandles", () => {
         wrapper(props) {
           return <WalletObserverProvider {...props} />;
         },
-      }
+      },
     );
 
     expect(spiedOnGetAllDataBatch).not.toHaveBeenCalled();
@@ -74,8 +74,8 @@ describe("RenderWalletHandles", () => {
     expect(container.innerHTML).toMatchSnapshot();
 
     spiedOnGetAllDataBatch.mockImplementationOnce(
-      // @ts-ignore See first mock comment.
-      () => async () => mockHandleMetadata.map(({ name }) => `${name}-updated`)
+      // @ts-expect-error See first mock comment.
+      () => async () => mockHandleMetadata.map(({ name }) => `${name}-updated`),
     );
 
     rerender(<RenderWalletHandles render={TestComponent} />);

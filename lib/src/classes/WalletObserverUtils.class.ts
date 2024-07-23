@@ -2,10 +2,16 @@ import { TAddressDetails } from "../@types/utils.js";
 import { getCardanoCore } from "../utils/getLibs.js";
 
 export class WalletObserverUtils {
+  public network: number;
+  public Cardano: typeof import("@cardano-sdk/core").Cardano;
+
   private constructor(
-    public network: number,
-    public Cardano: typeof import("@cardano-sdk/core").Cardano
-  ) {}
+    network: number,
+    Cardano: typeof import("@cardano-sdk/core").Cardano,
+  ) {
+    this.network = network;
+    this.Cardano = Cardano;
+  }
 
   static async new(network: number): Promise<WalletObserverUtils> {
     const cardano = await getCardanoCore().then(({ Cardano }) => Cardano);
@@ -23,7 +29,7 @@ export class WalletObserverUtils {
     }
 
     const Address = this.Cardano.BaseAddress.fromAddress(
-      this.Cardano.Address.fromBech32(address)
+      this.Cardano.Address.fromBech32(address),
     );
 
     return {
@@ -40,7 +46,7 @@ export class WalletObserverUtils {
 
     const stakingAddress = this.Cardano.RewardAddress.fromCredentials(
       this.network,
-      stakingCredential
+      stakingCredential,
     );
     return stakingAddress.toAddress().toBech32();
   }

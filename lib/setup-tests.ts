@@ -1,7 +1,6 @@
 import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
-import { jest, mock } from "bun:test";
-// @ts-ignore commonjs import
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { jest, mock } from "bun:test";
 
 import { IWindowCip30Extension } from "./src/@types/observer.js";
 import { assetIds, assetMap } from "./src/__data__/assets.js";
@@ -78,7 +77,7 @@ export const coreModuleMock = {
         coin: mock(
           () =>
             assetMap.find(({ key }) => key === "ada.lovelace")?.assetAmount
-              .amount
+              .amount,
         ),
         multiasset: mock(() => ({
           keys: mock(() => assetIds),
@@ -86,7 +85,7 @@ export const coreModuleMock = {
             assetIds.map((id) => [
               id,
               assetMap.find(({ key }) => key === id)?.assetAmount.amount,
-            ])
+            ]),
           ),
         })),
       })),
@@ -107,7 +106,7 @@ mock.module("@fabianbormann/cardano-peer-connect", () => ({
         args.onApiEject();
       }),
       __testStartServer: mock(() => {
-        // @ts-ignore This is injected by eternl.
+        // @ts-expect-error This is injected by eternl.
         window.cardano["eternl-p2p"] = mockedEternlWallet;
         args.onApiInject("eternl-p2p");
       }),

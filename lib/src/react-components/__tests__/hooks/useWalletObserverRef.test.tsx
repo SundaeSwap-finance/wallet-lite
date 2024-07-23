@@ -28,6 +28,6 @@ describe("useWalletObserverRef", () => {
       ),
     });
 
-    expect(result.current.current).toBeInstanceOf(WalletObserver);
+    expect(result.current.observerRef.current).toBeInstanceOf(WalletObserver);
   });
 });

@@ -29,6 +29,7 @@ describe("useAvailableExtensions", () => {
       // Inject a duplicate api.
       window.cardano = {
         ...window.cardano,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         flint: mockedEternlWallet as unknown as any,
       };
 

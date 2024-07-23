@@ -130,7 +130,7 @@ export const assetMap = assetIds.map((id) => {
     key: assetId,
     assetAmount: new AssetAmount(
       isNFT ? 1 : Math.floor(Math.random() * 10000000) + 1,
-      isNFT ? nftMetadata : fungibleMetadata
+      isNFT ? nftMetadata : fungibleMetadata,
     ),
   };
 });

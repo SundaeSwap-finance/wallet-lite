@@ -1,4 +1,4 @@
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { TAssetAmountMap } from "../@types/observer.js";
 import { WalletAssetMap } from "./WalletAssetMap.class.js";
@@ -10,10 +10,10 @@ import { WalletObserver } from "./WalletObserver.class.js";
  * for convenience when querying against the map.
  *
  * @template AssetMetadata - Type extending IAssetAmountMetadata.
- * @extends {Map<string, AssetAmount<AssetMetadata>>}
+ * @extends {WalletAssetMap<AssetMetadata>}
  */
 export class WalletBalanceMap<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > extends WalletAssetMap<AssetMetadata> {
   /**
    * @private
@@ -62,7 +62,7 @@ export class WalletBalanceMap<
     const map: TAssetAmountMap<AssetMetadata> = new WalletAssetMap();
     [...this.entries()].forEach(([key, asset]) => {
       const isHandle = this._handlePolicyIds[this._observer.network].some(
-        (policyId) => asset.metadata.assetId.includes(policyId)
+        (policyId) => asset.metadata.assetId.includes(policyId),
       );
 
       if (isHandle) {
@@ -81,14 +81,14 @@ export class WalletBalanceMap<
    * @returns {TAssetAmountMap<AssetMetadata>} A map of non-fungible tokens.
    */
   getNonFungibleTokens = (
-    withHandles?: boolean
+    withHandles?: boolean,
   ): TAssetAmountMap<AssetMetadata> => {
     const map: TAssetAmountMap<AssetMetadata> = new WalletAssetMap();
     [...this.entries()].forEach(([key, asset]) => {
       if (
         !withHandles &&
         this._handlePolicyIds[this._observer.network].some((policyId) =>
-          asset.metadata.assetId.includes(policyId)
+          asset.metadata.assetId.includes(policyId),
         )
       ) {
         return;

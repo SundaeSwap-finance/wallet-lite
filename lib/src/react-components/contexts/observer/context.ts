@@ -15,15 +15,15 @@ export const WalletObserverContext = createContext<
  * @returns {IWalletObserverState<AssetMetadata>}
  */
 export function useWalletObserverContext<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >(): IWalletObserverState<AssetMetadata> {
   const context = useContext(
-    WalletObserverContext
+    WalletObserverContext,
   ) as unknown as IWalletObserverState<AssetMetadata>;
 
   if (!context) {
     throw new Error(
-      "useWalletObserverContext must be used within a WalletObserverProvider"
+      "useWalletObserverContext must be used within a WalletObserverProvider",
     );
   }
 

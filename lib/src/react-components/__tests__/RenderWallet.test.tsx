@@ -37,7 +37,7 @@ describe("RenderWallet", () => {
         wrapper(props) {
           return <WalletObserverProvider {...props} />;
         },
-      }
+      },
     );
 
     expect(container.innerHTML).toMatchSnapshot();

@@ -11,7 +11,7 @@ import { TGetPeerConnectInstance } from "../../@types/observer.js";
 import { useWalletObserver } from "./useWalletObserver.js";
 
 export const useWalletPeerConnect = <
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
   const state = useWalletObserver<AssetMetadata>();
   const [isPending, startTransition] = useTransition();

@@ -42,7 +42,7 @@ import { WalletObserverUtils } from "./WalletObserverUtils.class.js";
  * @extends {WalletObserverEvent}
  */
 export class WalletObserver<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > extends WalletObserverEvent {
   static PERSISTENCE_CACHE_KEY = "walletObserver";
   static ADA_ASSET_ID = "ada.lovelace";
@@ -105,7 +105,7 @@ export class WalletObserver<
           ],
         },
       },
-      options
+      options,
     );
 
     if (!this._options.persistence) {
@@ -128,7 +128,7 @@ export class WalletObserver<
   sync = async (): Promise<IWalletObserverSync<AssetMetadata>> => {
     if (!this.api) {
       throw new Error(
-        "Attempted to perform a sync operation without a connected wallet."
+        "Attempted to perform a sync operation without a connected wallet.",
       );
     }
 
@@ -218,12 +218,14 @@ export class WalletObserver<
    * but the underlying intent has not.
    *
    * @param {TSupportedWalletExtensions} [activeWallet] - The wallet to sync with.
-   * @returns {Promise<Cip30WalletApi>} - A promise that resolves to the API instance.
+   * @returns {Promise<Cip30WalletApi | undefined>} - A promise that resolves to the API instance.
    */
-  syncApi = async (activeWallet?: TSupportedWalletExtensions): Promise<any> => {
+  syncApi = async (
+    activeWallet?: TSupportedWalletExtensions,
+  ): Promise<Cip30WalletApi | undefined> => {
     if (!activeWallet && !this.activeWallet) {
       throw new Error(
-        "A wallet is required to be passed as a parameter, or to be defined in the class."
+        "A wallet is required to be passed as a parameter, or to be defined in the class.",
       );
     }
 
@@ -236,7 +238,7 @@ export class WalletObserver<
     while (shouldContinue) {
       if (attempts === 10) {
         throw new Error(
-          "Could not reconnect to the selected wallet. Please check your extension."
+          "Could not reconnect to the selected wallet. Please check your extension.",
         );
       }
 
@@ -285,7 +287,7 @@ export class WalletObserver<
    * @return {Promise<void>}
    */
   connectWallet = async (
-    extension: TSupportedWalletExtensions
+    extension: TSupportedWalletExtensions,
   ): Promise<void> => {
     const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
@@ -304,7 +306,7 @@ export class WalletObserver<
       }
 
       await new Promise((res) =>
-        setTimeout(res, (this._options.connectTimeout as number) / 40)
+        setTimeout(res, (this._options.connectTimeout as number) / 40),
       );
       extensionObject = window.cardano?.[extension];
       attempts++;
@@ -324,7 +326,7 @@ export class WalletObserver<
 
       window.localStorage.setItem(
         WalletObserver.PERSISTENCE_CACHE_KEY,
-        JSON.stringify(seed)
+        JSON.stringify(seed),
       );
     }
 
@@ -339,7 +341,7 @@ export class WalletObserver<
     if (!this.peerConnectInstance) {
       const DAppPeerConnect = await getPeerConnect();
       this.peerConnectInstance = new DAppPeerConnect(
-        this._options.peerConnectArgs
+        this._options.peerConnectArgs,
       );
     }
 
@@ -414,7 +416,7 @@ export class WalletObserver<
     const balanceMap = new WalletBalanceMap<AssetMetadata>(this);
     balanceMap.set(
       WalletObserver.ADA_ASSET_ID,
-      new AssetAmount(data.coin(), metadata.get(WalletObserver.ADA_ASSET_ID))
+      new AssetAmount(data.coin(), metadata.get(WalletObserver.ADA_ASSET_ID)),
     );
 
     const multiassetEntries = data.multiasset()?.entries() ?? [];
@@ -422,7 +424,7 @@ export class WalletObserver<
       for (const [id, amount] of multiassetEntries) {
         balanceMap.set(
           id,
-          new AssetAmount(amount, metadata.get(normalizeAssetIdWithDot(id)))
+          new AssetAmount(amount, metadata.get(normalizeAssetIdWithDot(id))),
         );
       }
     }
@@ -468,7 +470,7 @@ export class WalletObserver<
   getUsedAddresses = async (): Promise<string[]> => {
     if (!this.api) {
       throw new Error(
-        "Attempted to query used addresses without an API instance."
+        "Attempted to query used addresses without an API instance.",
       );
     }
 
@@ -481,7 +483,7 @@ export class WalletObserver<
     ]);
 
     const data = cbor.map((val) =>
-      Cardano.Address.fromBytes(typedHex(val)).toBech32()
+      Cardano.Address.fromBytes(typedHex(val)).toBech32(),
     );
 
     const end = performance.now();
@@ -499,7 +501,7 @@ export class WalletObserver<
   getUnusedAddresses = async (): Promise<string[]> => {
     if (!this.api) {
       throw new Error(
-        "Attempted to query unused addresses without an API instance."
+        "Attempted to query unused addresses without an API instance.",
       );
     }
 
@@ -512,7 +514,7 @@ export class WalletObserver<
     ]);
 
     const data = cbor.map((val) =>
-      Cardano.Address.fromBytes(typedHex(val)).toBech32()
+      Cardano.Address.fromBytes(typedHex(val)).toBech32(),
     );
 
     const end = performance.now();
@@ -541,8 +543,8 @@ export class WalletObserver<
     ]);
 
     const data = cbor?.map((val) => {
-      let txOutput = Serialization.TransactionUnspentOutput.fromCbor(
-        typedHex(val)
+      const txOutput = Serialization.TransactionUnspentOutput.fromCbor(
+        typedHex(val),
       );
 
       // These methods must be bound to their initial creation instance.
@@ -586,8 +588,8 @@ export class WalletObserver<
     ]);
 
     const data = cbor?.map((val) => {
-      let txOutput = Serialization.TransactionUnspentOutput.fromCbor(
-        typedHex(val)
+      const txOutput = Serialization.TransactionUnspentOutput.fromCbor(
+        typedHex(val),
       );
 
       // These methods must be bound to their initial creation instance.
@@ -611,7 +613,7 @@ export class WalletObserver<
    * @returns {Promise<Map<string, AssetMetadata>>} - A promise that resolves to a map of asset metadata.
    */
   private __metadataResolverWithCache = async (
-    assetIds: string[]
+    assetIds: string[],
   ): Promise<Map<string, AssetMetadata>> => {
     const start = performance.now();
 
@@ -638,7 +640,7 @@ export class WalletObserver<
         newMetadata = await this._options.metadataResolver(
           assetIds.map(normalizeAssetIdWithDot),
           normalizeAssetIdWithDot,
-          isAdaAsset
+          isAdaAsset,
         );
       } catch (e) {
         attempts++;
@@ -649,7 +651,7 @@ export class WalletObserver<
       newMetadata = await this.fallbackMetadataResolver(
         assetIds.map(normalizeAssetIdWithDot),
         normalizeAssetIdWithDot,
-        isAdaAsset
+        isAdaAsset,
       );
     }
 
@@ -674,7 +676,7 @@ export class WalletObserver<
         map.set(normalizeAssetIdWithDot(id), {
           assetId: normalizeAssetIdWithDot(id),
           decimals: 6,
-        } as AssetMetadata)
+        } as AssetMetadata),
       );
 
       return map;

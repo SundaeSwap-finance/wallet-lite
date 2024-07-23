@@ -14,7 +14,7 @@ import { TWalletProviderHooks } from "../../contexts/observer/index.js";
  */
 export const useProviderWalletObserverRef = (
   options?: TWalletObserverOptions,
-  hooks?: TWalletProviderHooks
+  hooks?: TWalletProviderHooks,
 ) => {
   // Use ref to store the observer instance, ensuring it's created only once
   const observerRef = useRef<WalletObserver | null>(null);
@@ -33,7 +33,7 @@ export const useProviderWalletObserverRef = (
     return Boolean(
       observerRef.current &&
         observerRef.current.api &&
-        observerRef.current.activeWallet
+        observerRef.current.activeWallet,
     );
   }, [observerRef, observerRef.current.api, observerRef.current.activeWallet]);
 
@@ -67,23 +67,23 @@ export const useProviderWalletObserverRef = (
 
     observerRef.current.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_START,
-      setConnectingStart
+      setConnectingStart,
     );
     observerRef.current.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      setConnectingEnd
+      setConnectingEnd,
     );
     observerRef.current.addEventListener(
       EWalletObserverEvents.SYNCING_WALLET_START,
-      setSyncingStart
+      setSyncingStart,
     );
     observerRef.current.addEventListener(
       EWalletObserverEvents.SYNCING_WALLET_END,
-      setSyncingEnd
+      setSyncingEnd,
     );
     observerRef.current.addEventListener(
       EWalletObserverEvents.DISCONNECT,
-      onDisconnect
+      onDisconnect,
     );
 
     setEventListenersAttached(() => true);
@@ -95,23 +95,23 @@ export const useProviderWalletObserverRef = (
 
       observerRef.current.removeEventListener(
         EWalletObserverEvents.CONNECT_WALLET_START,
-        setConnectingStart
+        setConnectingStart,
       );
       observerRef.current.removeEventListener(
         EWalletObserverEvents.CONNECT_WALLET_END,
-        setConnectingEnd
+        setConnectingEnd,
       );
       observerRef.current.removeEventListener(
         EWalletObserverEvents.SYNCING_WALLET_START,
-        setSyncingStart
+        setSyncingStart,
       );
       observerRef.current.removeEventListener(
         EWalletObserverEvents.SYNCING_WALLET_END,
-        setSyncingEnd
+        setSyncingEnd,
       );
       observerRef.current.removeEventListener(
         EWalletObserverEvents.DISCONNECT,
-        onDisconnect
+        onDisconnect,
       );
     };
   }, [observerRef, hooks]);

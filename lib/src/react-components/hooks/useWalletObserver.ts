@@ -12,7 +12,7 @@ import {
  * @returns {Omit<TUseWalletObserverState<AssetMetadata>, "ready" | "connectingWallet" | "syncingWallet">}
  */
 export const useWalletObserver = <
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >(): Omit<
   TUseWalletObserverState<AssetMetadata>,
   "ready" | "connectingWallet" | "syncingWallet"
@@ -64,7 +64,7 @@ export const useWalletObserver = <
       state.isPending,
       state.handles,
       state.willAutoConnect,
-    ]
+    ],
   );
 
   return result;

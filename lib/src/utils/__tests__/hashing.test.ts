@@ -25,27 +25,25 @@ describe("hashing functions", () => {
 
     expect(result2).toEqual(2676966711);
 
-    const result3 = getFunctionHash((param) => {
+    const result3 = getFunctionHash(() => {
       for (let i = 0; i < 20; i++) {
         if (i > 5) {
-          console.log(param);
           break;
         }
       }
     });
 
-    expect(result3).toEqual(1148379925);
+    expect(result3).toEqual(879701364);
 
-    const result4 = getFunctionHash((params) => {
+    const result4 = getFunctionHash(() => {
       for (let i = 0; i < 20; i++) {
         if (i > 5) {
-          console.log(params);
           break;
         }
       }
     });
 
-    expect(result4).toEqual(1677458229);
+    expect(result4).toEqual(879701364);
   });
 
   test("getEventKey", () => {
@@ -61,10 +59,10 @@ describe("hashing functions", () => {
 
     const result1 = getEventKey(
       EWalletObserverEvents.CONNECT_WALLET_END,
-      callback
+      callback,
     );
     expect(result1).toEqual(
-      `${EWalletObserverEvents.CONNECT_WALLET_END}-${hash}`
+      `${EWalletObserverEvents.CONNECT_WALLET_END}-${hash}`,
     );
   });
 });

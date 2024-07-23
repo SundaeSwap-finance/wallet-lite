@@ -1,16 +1,31 @@
 {
   "name": "wallet-lite-dev",
   "private": true,
+  "type": "module",
   "trustedDependencies": [
     "fs-native-extensions",
     "node-datachannel",
     "utp-native"
   ],
+  "scripts": {
+    "setup": "husky",
+    "lint": "eslint . --ignore-pattern '**/dist/**'",
+    "lint:fix": "bun lint --fix"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "bun lint:fix --quiet"
+    ]
+  },
   "workspaces": [
     "./dev",
     "./lib"
   ],
   "devDependencies": {
-    "@sundaeswap/babel-preset": "^2.0.12"
+    "@sundaeswap/babel-preset": "^2.0.12",
+    "@sundaeswap/eslint-config": "^2.0.14",
+    "globals": "^15.8.0",
+    "husky": "^9.1.1",
+    "lint-staged": "^15.2.7"
   }
 }

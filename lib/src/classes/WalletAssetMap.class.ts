@@ -6,7 +6,7 @@ import { normalizeAssetIdWithDot } from "../utils/assets.js";
  * Map wrapper to enforce asset id normalization when setting and getting assets.
  */
 export class WalletAssetMap<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > extends Map<string, AssetAmount<AssetMetadata>> {
   /**
    * Overlay to enforce asset ID normalization.

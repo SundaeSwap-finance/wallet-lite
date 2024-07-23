@@ -49,18 +49,18 @@ export type TWindowCardano = {
  * the asset ID as the key, and the metadata as the value.
  */
 export type TMetadataResolverFunc<
-  T extends IAssetAmountMetadata = IAssetAmountMetadata
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = (
   assetIds: string[],
   normalizeAssetIdFunc: typeof normalizeAssetIdWithDot,
-  isAdaAssetFunc: typeof isAdaAsset
+  isAdaAssetFunc: typeof isAdaAsset,
 ) => Promise<Map<string, T>>;
 
 /**
  * Options that are passed to the WalletObserver instance.
  */
 export interface IResolvedWalletObserverOptions<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   metadataResolver: TMetadataResolverFunc<AssetMetadata>;
   persistence: boolean;
@@ -73,14 +73,14 @@ export interface IResolvedWalletObserverOptions<
  * Options that are passed to the WalletObserver instance.
  */
 export type TWalletObserverOptions<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = Partial<IResolvedWalletObserverOptions<AssetMetadata>>;
 
 /**
  * Interface describing the Map type of an asset.
  */
 export type TAssetAmountMap<
-  T extends IAssetAmountMetadata = IAssetAmountMetadata
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = WalletAssetMap<T>;
 
 /**
@@ -102,7 +102,7 @@ export type TGetPeerConnectInstance = () => {
 };
 
 export interface IWalletObserverSync<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   balanceMap: WalletBalanceMap<AssetMetadata>;
   usedAddresses: string[];

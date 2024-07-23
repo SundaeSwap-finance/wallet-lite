@@ -14,7 +14,7 @@ import { WalletObserver } from "../../../../classes/WalletObserver.class.js";
 export const useProviderRefreshInterval = (
   observer: WalletObserver,
   syncWallet: () => Promise<void>,
-  refreshInterval?: number
+  refreshInterval?: number,
 ) => {
   useEffect(() => {
     if (!refreshInterval) {

@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useWalletObserverContext } from "../contexts/observer/context.js";
 
 export const useWalletLoadingState = <
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
   const { state } = useWalletObserverContext<AssetMetadata>();
 
@@ -14,7 +14,7 @@ export const useWalletLoadingState = <
       syncingWallet: state.syncingWallet,
       ready: state.ready,
     }),
-    [state.ready, state.syncingWallet, state.connectingWallet]
+    [state.ready, state.syncingWallet, state.connectingWallet],
   );
 
   return result;

@@ -28,7 +28,7 @@ export const WalletHandles: FC = () => {
         </>
       );
     },
-    []
+    [],
   );
 
   return (

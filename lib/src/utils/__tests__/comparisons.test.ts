@@ -12,13 +12,13 @@ describe("comparisons", () => {
     it("should accurately test instance equality", () => {
       expect(areAssetMapsEqual(new Map(), new Map())).toBeTrue();
       expect(
-        areAssetMapsEqual(new Map(), new WalletBalanceMap(observer))
+        areAssetMapsEqual(new Map(), new WalletBalanceMap(observer)),
       ).toBeTrue();
       expect(
         areAssetMapsEqual(
           new WalletBalanceMap(observer),
-          new WalletBalanceMap(new WalletObserver())
-        )
+          new WalletBalanceMap(new WalletObserver()),
+        ),
       ).toBeTrue();
     });
 

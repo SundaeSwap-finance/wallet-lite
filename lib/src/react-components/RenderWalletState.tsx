@@ -6,12 +6,12 @@ import { useWalletLoadingState } from "./hooks/useWalletLoadingState.js";
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
 
 export type TRenderWalletStateFunctionState<
-  T extends IAssetAmountMetadata = IAssetAmountMetadata
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = ReturnType<typeof useWalletObserver<T>> &
   ReturnType<typeof useWalletLoadingState<T>>;
 
 export type TRenderWalletStateFunction = (
-  state: TRenderWalletStateFunctionState
+  state: TRenderWalletStateFunctionState,
 ) => JSX.Element | ReactNode;
 
 export interface IRenderWalletStateProps {

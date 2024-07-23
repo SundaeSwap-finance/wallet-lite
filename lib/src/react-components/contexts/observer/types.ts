@@ -22,7 +22,7 @@ export type TWalletProviderHooks = {
  * The resolved internal props of the WalletObserverProvider.
  */
 export interface IWalletObserverProviderState<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   observerOptions: TWalletObserverOptions<AssetMetadata>;
   hooks: TWalletProviderHooks;
@@ -33,7 +33,7 @@ export interface IWalletObserverProviderState<
  * The main WalletObserverProvider props.
  */
 export interface IWalletObserverProviderProps<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   options?: Partial<IWalletObserverProviderState<AssetMetadata>>;
 }
@@ -42,7 +42,7 @@ export interface IWalletObserverProviderProps<
  * The WalletObserverProvider's internal state.
  */
 export interface IWalletObserverState<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   observerRef: MutableRefObject<WalletObserver<AssetMetadata>>;
   refreshInterval: number | false;
@@ -62,14 +62,14 @@ export interface IWalletObserverState<
  * returned from the metadataResolver.
  */
 export type THandleMetadata<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = AssetMetadata & IHandle;
 
 /**
  * The exposed state of the WalletObserverProvider.
  */
 export type TUseWalletObserverState<
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = Omit<
   IWalletObserverState<AssetMetadata>["state"],
   | "setActiveWallet"

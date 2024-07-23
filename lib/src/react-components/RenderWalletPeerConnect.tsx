@@ -6,12 +6,12 @@ import { useWalletObserver } from "./hooks/useWalletObserver.js";
 import { useWalletPeerConnect } from "./hooks/useWalletPeerConnect.js";
 
 export type TRenderWalletPeerConnectFunctionState<
-  T extends IAssetAmountMetadata = IAssetAmountMetadata
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = ReturnType<typeof useWalletObserver<T>> &
   ReturnType<typeof useWalletPeerConnect<T>>;
 
 export type TRenderWalletPeerConnectFunction = (
-  state: TRenderWalletPeerConnectFunctionState
+  state: TRenderWalletPeerConnectFunctionState,
 ) => ReactNode;
 
 export interface IRenderWalletPeerConnectProps {

@@ -4,7 +4,7 @@ import { useWalletObserverState } from "../useWalletObserverState.js";
 
 export const useDerivedState = (
   observer: WalletObserver,
-  state: Pick<ReturnType<typeof useWalletObserverState>, "usedAddresses">
+  state: Pick<ReturnType<typeof useWalletObserverState>, "usedAddresses">,
 ) => {
   const [stakeAddress, setStakeAddress] = useState<string>();
 
@@ -23,7 +23,7 @@ export const useDerivedState = (
       stakeAddress,
       mainAddress: state.usedAddresses[0],
     }),
-    [state.usedAddresses[0], stakeAddress]
+    [state.usedAddresses[0], stakeAddress],
   );
 
   return memoizedDerivedState;

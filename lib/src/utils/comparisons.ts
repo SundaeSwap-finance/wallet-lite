@@ -8,8 +8,10 @@ import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
  * @returns {boolean} - Returns true if the maps are equal, false otherwise.
  */
 export const areAssetMapsEqual = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   map1?: Map<string, any> | WalletBalanceMap,
-  map2?: Map<string, any> | WalletBalanceMap
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  map2?: Map<string, any> | WalletBalanceMap,
 ): boolean => {
   if (map1?.size !== map2?.size) {
     return false;

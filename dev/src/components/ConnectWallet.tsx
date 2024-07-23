@@ -89,7 +89,7 @@ export const ConnectWallet: FC = () => {
           !isCip45 && (
             <input
               className={classNames(
-                "ml-auto cursor-pointer bg-gray-400 px-4 py-2"
+                "ml-auto cursor-pointer bg-gray-400 px-4 py-2",
               )}
               type="button"
               value={"Disconnect"}

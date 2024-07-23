@@ -15,7 +15,7 @@ import { THandleMetadata } from "../contexts/observer/types.js";
 import { useWalletObserver } from "./useWalletObserver.js";
 
 export const useWalletHandles = <
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
   const state = useWalletObserver<THandleMetadata<AssetMetadata>>();
   const [isPending, startTransition] = useTransition();
@@ -25,7 +25,7 @@ export const useWalletHandles = <
 
   const memoizedHandleDep = useMemo(
     () => [...state.balance.getHandles().keys()],
-    [state.balance]
+    [state.balance],
   );
 
   const syncHandles = useCallback<
@@ -63,12 +63,12 @@ export const useWalletHandles = <
         .getAllDataBatch(
           walletHandlesWithDataArray.map(([key]) => ({
             value: key.split(".")[1],
-          }))
+          })),
         );
 
       walletHandlesWithDataArray.forEach(([key, asset]) => {
         const matchingData = walletHandleDataArray.find(
-          ({ hex }) => hex === key.split(".")[1]
+          ({ hex }) => hex === key.split(".")[1],
         ) as IHandle;
 
         walletHandles.set(
@@ -80,7 +80,7 @@ export const useWalletHandles = <
               assetId: normalizeAssetIdWithDot(asset.metadata.assetId),
               decimals: 0,
             })
-            .withAmount(1n)
+            .withAmount(1n),
         );
       });
 

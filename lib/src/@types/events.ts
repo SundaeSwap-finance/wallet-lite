@@ -18,8 +18,8 @@ export enum EWalletObserverEvents {
 /**
  * A map of what each event passes to the event listener function.
  */
-export interface EWalletObserverEventValues<
-  T extends IAssetAmountMetadata = IAssetAmountMetadata
+export interface IWalletObserverEventValues<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   [EWalletObserverEvents.SYNCING_WALLET_START]: undefined;
   [EWalletObserverEvents.SYNCING_WALLET_END]:
@@ -44,5 +44,5 @@ export interface EWalletObserverEventValues<
  * type definitions for the arguments.
  */
 export type TWalletObserverEventFunction<
-  E extends keyof EWalletObserverEventValues
-> = (data?: EWalletObserverEventValues[E]) => void;
+  E extends keyof IWalletObserverEventValues,
+> = (data?: IWalletObserverEventValues[E]) => void;

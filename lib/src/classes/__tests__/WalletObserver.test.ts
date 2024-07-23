@@ -28,16 +28,16 @@ describe("WalletObserver", async () => {
     it("should throw appropriate errors before connected", () => {
       const observer = new WalletObserver();
       expect(() => observer.getBalanceMap()).toThrowError(
-        "Attempted to query balance without an API instance."
+        "Attempted to query balance without an API instance.",
       );
       expect(() => observer.getNetwork()).toThrowError(
-        "Attempted to query network without an API instance."
+        "Attempted to query network without an API instance.",
       );
       expect(() => observer.syncApi()).toThrowError(
-        "A wallet is required to be passed as a parameter, or to be defined in the class."
+        "A wallet is required to be passed as a parameter, or to be defined in the class.",
       );
       expect(() => observer.sync()).toThrowError(
-        "Attempted to perform a sync operation without a connected wallet."
+        "Attempted to perform a sync operation without a connected wallet.",
       );
     });
 
@@ -46,7 +46,7 @@ describe("WalletObserver", async () => {
       expect(() =>
         new WalletObserver({
           connectTimeout: 10,
-        }).connectWallet("flint")
+        }).connectWallet("flint"),
       ).toThrowError("Wallet extension not found in the global context.");
     });
   });
@@ -93,7 +93,7 @@ describe("WalletObserver", async () => {
     test("with parameters", () => {
       const handler: TMetadataResolverFunc<IAssetAmountMetadata> = async (
         ids: string[],
-        normalize
+        normalize,
       ) => {
         const metadata = ids.map((id) => ({ decimals: 6, assetId: id }));
         const map = new Map<string, IAssetAmountMetadata>();
@@ -148,18 +148,11 @@ describe("WalletObserver", async () => {
       await observer.connectWallet("eternl");
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         1,
-        EWalletObserverEvents.CONNECT_WALLET_START
-      );
-      expect(spiedDispatch).toHaveBeenNthCalledWith(
-        2,
-        EWalletObserverEvents.CONNECT_WALLET_END,
-        {
-          extension: "eternl",
-        }
+        EWalletObserverEvents.CONNECT_WALLET_START,
       );
 
       expect(
-        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
       ).toBeNull();
       expect(observer.activeWallet).toEqual("eternl");
       expect(observer.api).toBeDefined();
@@ -167,24 +160,24 @@ describe("WalletObserver", async () => {
 
       const syncResults = await observer.sync();
       expect(spiedDispatch).toHaveBeenNthCalledWith(
+        2,
+        EWalletObserverEvents.SYNCING_WALLET_START,
+      );
+      expect(spiedDispatch).toHaveBeenNthCalledWith(
         3,
-        EWalletObserverEvents.SYNCING_WALLET_START
+        EWalletObserverEvents.GET_BALANCE_MAP_START,
       );
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         4,
-        EWalletObserverEvents.GET_BALANCE_MAP_START
-      );
-      expect(spiedDispatch).toHaveBeenNthCalledWith(
-        5,
         EWalletObserverEvents.GET_BALANCE_MAP_END,
         {
           balanceMap: expect.objectContaining({
             size: assetIds.length,
           }),
-        }
+        },
       );
       expect(spiedDispatch).toHaveBeenNthCalledWith(
-        6,
+        5,
         EWalletObserverEvents.SYNCING_WALLET_END,
         expect.objectContaining({
           balanceMap: expect.objectContaining({
@@ -193,7 +186,7 @@ describe("WalletObserver", async () => {
           network,
           unusedAddresses,
           usedAddresses,
-        })
+        }),
       );
 
       expect(syncResults.balanceMap.size).toEqual(assetIds.length);
@@ -208,7 +201,7 @@ describe("WalletObserver", async () => {
       });
       const spiedOnSyncApi = spyOn(observer, "syncApi");
       expect(
-        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
       ).toBeNull();
 
       await observer.connectWallet("eternl");
@@ -224,7 +217,7 @@ describe("WalletObserver", async () => {
       expect(syncResults.unusedAddresses).toEqual(unusedAddresses);
       expect(syncResults.usedAddresses).toEqual(usedAddresses);
       expect(
-        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
       ).toEqual('{"activeWallet":"eternl"}');
     });
   });
@@ -243,7 +236,7 @@ describe("WalletObserver", async () => {
 
       expect(observer.activeWallet).toEqual("eternl");
       expect(
-        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
       ).toEqual('{"activeWallet":"eternl"}');
 
       await observer.sync();
@@ -256,11 +249,11 @@ describe("WalletObserver", async () => {
       expect(observer.activeWallet).toBeUndefined();
       expect(observer.getCachedAssetMetadata().size).not.toEqual(0);
       expect(
-        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY)
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
       ).toBeNull();
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         7,
-        EWalletObserverEvents.DISCONNECT
+        EWalletObserverEvents.DISCONNECT,
       );
       expect(spiedOnGetPeerConnect).not.toHaveBeenCalled();
     });
@@ -290,11 +283,11 @@ describe("WalletObserver", async () => {
           icon: undefined,
           name: "My Test dApp",
           instance: data.instance,
-        })
+        }),
       );
 
       // Simulate injection.
-      // @ts-ignore
+      // @ts-expect-error Simulating the actual function.
       data.instance.__testStartServer();
       expect(spiedOnConnect).toHaveBeenCalledWith("eternl-p2p");
 

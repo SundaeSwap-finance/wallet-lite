@@ -58,7 +58,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  mock.module("@cardano-sdk/core", () => coreModuleMock);
+  mock.restore();
 });
 
 describe("WalletObserverUtils", async () => {

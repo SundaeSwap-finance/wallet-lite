@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   Publish:
+    name: Lint + Test + Publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +31,9 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun lint
 
       - name: Test
         run: bun test

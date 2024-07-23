@@ -36,7 +36,9 @@ jobs:
         run: bun lint
 
       - name: Test
-        run: bun test
+        run: |
+          cd lib
+          bun test
 
       - name: Build
         run: |

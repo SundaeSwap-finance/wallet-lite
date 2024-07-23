@@ -15,6 +15,7 @@ export type TWalletProviderHooks = {
   onSyncWalletEnd?: () => void;
   onConnectWalletStart?: () => void;
   onConnectWalletEnd?: () => void;
+  onDisconnectWallet?: () => void;
 };
 
 /**

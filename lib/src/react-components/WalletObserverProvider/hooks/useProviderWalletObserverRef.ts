@@ -61,6 +61,9 @@ export const useProviderWalletObserverRef = (
       hooks?.onSyncWalletEnd?.();
       setSyncing(() => false);
     };
+    const onDisconnect = () => {
+      hooks?.onDisconnectWallet?.();
+    };
 
     observerRef.current.addEventListener(
       EWalletObserverEvents.CONNECT_WALLET_START,
@@ -77,6 +80,10 @@ export const useProviderWalletObserverRef = (
     observerRef.current.addEventListener(
       EWalletObserverEvents.SYNCING_WALLET_END,
       setSyncingEnd
+    );
+    observerRef.current.addEventListener(
+      EWalletObserverEvents.DISCONNECT,
+      onDisconnect
     );
 
     setEventListenersAttached(() => true);
@@ -101,6 +108,10 @@ export const useProviderWalletObserverRef = (
       observerRef.current.removeEventListener(
         EWalletObserverEvents.SYNCING_WALLET_END,
         setSyncingEnd
+      );
+      observerRef.current.removeEventListener(
+        EWalletObserverEvents.DISCONNECT,
+        onDisconnect
       );
     };
   }, [observerRef, hooks]);

@@ -54,8 +54,8 @@ jobs:
       # Pull latest changes and rebase before pushing
       - name: Pull and Push changes
         run: |
-          git pull --rebase origin main
-          git push --follow-tags origin main -n
+          git pull --rebase --no-verify origin main
+          git push --follow-tags --no-verify origin main
 
       - name: Configure npm authentication
         run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}

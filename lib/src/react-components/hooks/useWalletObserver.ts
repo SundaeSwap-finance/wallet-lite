@@ -41,7 +41,6 @@ export const useWalletObserver = <
       connectWallet: state.connectWallet,
       switching: state.switching,
       isPending: state.isPending,
-      handles: state.handles,
       willAutoConnect: state.willAutoConnect,
     }),
     [
@@ -62,7 +61,6 @@ export const useWalletObserver = <
       state.connectWallet,
       state.switching,
       state.isPending,
-      state.handles,
       state.willAutoConnect,
     ],
   );

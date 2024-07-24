@@ -1,4 +1,5 @@
 import {
+  startTransition,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -96,29 +97,31 @@ export const useWalletHandles = <
   useEffect(() => {
     const fetchHandles = async () => {
       const newHandles = await syncHandles();
-      setHandles((prevHandles) => {
-        let handleMetadataChanged = false;
+      startTransition(() => {
+        setHandles((prevHandles) => {
+          let handleMetadataChanged = false;
 
-        if (newHandles.size !== prevHandles?.size) {
-          handleMetadataChanged = true;
-        } else {
-          for (const [key, val] of newHandles) {
-            if (
-              !prevHandles.has(key) ||
-              prevHandles.get(key)?.amount !== val?.amount
-            ) {
-              handleMetadataChanged = true;
+          if (newHandles.size !== prevHandles?.size) {
+            handleMetadataChanged = true;
+          } else {
+            for (const [key, val] of newHandles) {
+              if (
+                !prevHandles.has(key) ||
+                prevHandles.get(key)?.amount !== val?.amount
+              ) {
+                handleMetadataChanged = true;
+              }
             }
           }
-        }
 
-        if (!handleMetadataChanged) {
-          return prevHandles;
-        }
+          if (!handleMetadataChanged) {
+            return prevHandles;
+          }
 
-        return newHandles;
+          return newHandles;
+        });
+        setIsLoading(() => false);
       });
-      setIsLoading(false);
     };
 
     fetchHandles();

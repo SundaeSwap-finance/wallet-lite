@@ -1,9 +1,9 @@
 import {
   useCallback,
+  useDeferredValue,
   useEffect,
   useMemo,
   useState,
-  useTransition,
 } from "react";
 
 import { IHandle } from "@koralabs/adahandle-sdk";
@@ -18,10 +18,11 @@ export const useWalletHandles = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
   const state = useWalletObserver<THandleMetadata<AssetMetadata>>();
-  const [isPending, startTransition] = useTransition();
   const [handles, setHandles] = useState<
     TAssetAmountMap<THandleMetadata<AssetMetadata>>
   >(new WalletAssetMap());
+  const [isLoading, setIsLoading] = useState(true);
+  const deferredHandles = useDeferredValue(handles);
 
   const memoizedHandleDep = useMemo(
     () => [...state.balance.getHandles().keys()],
@@ -41,6 +42,7 @@ export const useWalletHandles = <
     }
 
     try {
+      setIsLoading(true);
       const {
         default: HandleClient,
         HandleClientContext,
@@ -84,6 +86,7 @@ export const useWalletHandles = <
         );
       });
 
+      setIsLoading(false);
       return walletHandles;
     } catch (e) {
       console.error(e);
@@ -94,29 +97,27 @@ export const useWalletHandles = <
   useEffect(() => {
     const fetchHandles = async () => {
       const newHandles = await syncHandles();
-      startTransition(() => {
-        setHandles((prevHandles) => {
-          let handleMetadataChanged = false;
+      setHandles((prevHandles) => {
+        let handleMetadataChanged = false;
 
-          if (newHandles.size !== prevHandles?.size) {
-            handleMetadataChanged = true;
-          } else {
-            for (const [key, val] of newHandles) {
-              if (
-                !prevHandles.has(key) ||
-                prevHandles.get(key)?.amount !== val?.amount
-              ) {
-                handleMetadataChanged = true;
-              }
+        if (newHandles.size !== prevHandles?.size) {
+          handleMetadataChanged = true;
+        } else {
+          for (const [key, val] of newHandles) {
+            if (
+              !prevHandles.has(key) ||
+              prevHandles.get(key)?.amount !== val?.amount
+            ) {
+              handleMetadataChanged = true;
             }
           }
+        }
 
-          if (!handleMetadataChanged) {
-            return prevHandles;
-          }
+        if (!handleMetadataChanged) {
+          return prevHandles;
+        }
 
-          return newHandles;
-        });
+        return newHandles;
       });
     };
 
@@ -124,7 +125,7 @@ export const useWalletHandles = <
   }, [memoizedHandleDep, syncHandles]);
 
   return {
-    handles,
-    loadingHandles: isPending,
+    handles: deferredHandles,
+    loadingHandles: isLoading,
   };
 };

@@ -86,7 +86,6 @@ export const useWalletHandles = <
         );
       });
 
-      setIsLoading(false);
       return walletHandles;
     } catch (e) {
       console.error(e);
@@ -119,6 +118,7 @@ export const useWalletHandles = <
 
         return newHandles;
       });
+      setIsLoading(false);
     };
 
     fetchHandles();

@@ -20,7 +20,7 @@ export const useWalletHandles = <
   const state = useWalletObserver<THandleMetadata<AssetMetadata>>();
   const [handles, setHandles] = useState<
     TAssetAmountMap<THandleMetadata<AssetMetadata>>
-  >(new WalletAssetMap());
+  >(state.handles);
   const [isLoading, setIsLoading] = useState(true);
   const deferredHandles = useDeferredValue(handles);
 

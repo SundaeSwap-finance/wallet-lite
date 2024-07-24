@@ -316,12 +316,13 @@ export class WalletObserver<
       throw new Error("Wallet extension not found in the global context.");
     }
 
-    await this.syncApi(extension);
+    const api = await this.syncApi(extension);
 
     this.activeWallet = extension;
-    if (this._options.persistence) {
+    if (this._options.persistence && api) {
       const seed: IWalletObserverSeed = {
         activeWallet: extension,
+        mainAddress: (await this.getUsedAddresses())[0],
       };
 
       window.localStorage.setItem(

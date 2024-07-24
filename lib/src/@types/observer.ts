@@ -89,6 +89,7 @@ export type TAssetAmountMap<
  */
 export interface IWalletObserverSeed {
   activeWallet: TSupportedWalletExtensions;
+  mainAddress: string;
 }
 
 /**

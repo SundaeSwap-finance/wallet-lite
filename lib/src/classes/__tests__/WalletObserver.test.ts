@@ -218,7 +218,9 @@ describe("WalletObserver", async () => {
       expect(syncResults.usedAddresses).toEqual(usedAddresses);
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
-      ).toEqual('{"activeWallet":"eternl"}');
+      ).toEqual(
+        `{"activeWallet":"eternl","mainAddress":"${usedAddresses[0]}"}`,
+      );
     });
   });
 
@@ -237,7 +239,9 @@ describe("WalletObserver", async () => {
       expect(observer.activeWallet).toEqual("eternl");
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
-      ).toEqual('{"activeWallet":"eternl"}');
+      ).toEqual(
+        `{"activeWallet":"eternl","mainAddress":"${usedAddresses[0]}"}`,
+      );
 
       await observer.sync();
 

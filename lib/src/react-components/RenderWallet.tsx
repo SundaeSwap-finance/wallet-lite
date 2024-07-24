@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { FC, ReactElement, ReactNode, Suspense } from "react";
+import { ReactElement, ReactNode, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
@@ -12,8 +12,10 @@ export type TRenderWalletFunction<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = (state: TRenderWalletFunctionState<T>) => JSX.Element | ReactNode;
 
-export interface IRenderWalletProps {
-  render: TRenderWalletFunction;
+export interface IRenderWalletProps<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> {
+  render: TRenderWalletFunction<T>;
   loader?: ReactNode;
   fallback?: ReactElement;
 }
@@ -24,16 +26,18 @@ export interface IRenderWalletProps {
  * compose on this and include state for Handles, PeerConnect (CIP-45),
  * and syncing state (RenderWalletState).
  */
-export const RenderWallet: FC<IRenderWalletProps> = ({
+export const RenderWallet = <
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+>({
   render,
   loader,
   fallback,
-}) => {
-  const state = useWalletObserver();
+}: IRenderWalletProps<T>) => {
+  const state = useWalletObserver<T>();
 
   return (
     <ErrorBoundary
-      fallback={fallback || <p>Error.</p>}
+      fallback={fallback || null}
       onError={(error) => {
         if (state.observer.getOptions().debug) {
           console.log(error.message, error.stack);

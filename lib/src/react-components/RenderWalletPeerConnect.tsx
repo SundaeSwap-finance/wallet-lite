@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { FC, ReactElement, ReactNode, Suspense } from "react";
+import { ReactElement, ReactNode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
@@ -10,12 +10,14 @@ export type TRenderWalletPeerConnectFunctionState<
 > = ReturnType<typeof useWalletObserver<T>> &
   ReturnType<typeof useWalletPeerConnect<T>>;
 
-export type TRenderWalletPeerConnectFunction = (
-  state: TRenderWalletPeerConnectFunctionState,
-) => ReactNode;
+export type TRenderWalletPeerConnectFunction<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> = (state: TRenderWalletPeerConnectFunctionState<T>) => ReactNode;
 
-export interface IRenderWalletPeerConnectProps {
-  render: TRenderWalletPeerConnectFunction;
+export interface IRenderWalletPeerConnectProps<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> {
+  render: TRenderWalletPeerConnectFunction<T>;
   loader?: ReactNode;
   fallback?: ReactElement;
 }
@@ -25,13 +27,15 @@ export interface IRenderWalletPeerConnectProps {
  * and exposing them to the render function, including a QR Code
  * element that can be placed in the consuming app.
  */
-export const RenderWalletPeerConnect: FC<IRenderWalletPeerConnectProps> = ({
+export const RenderWalletPeerConnect = <
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+>({
   render,
   loader,
   fallback,
-}) => {
-  const state = useWalletObserver();
-  const peerConnectState = useWalletPeerConnect();
+}: IRenderWalletPeerConnectProps<T>) => {
+  const state = useWalletObserver<T>();
+  const peerConnectState = useWalletPeerConnect<T>();
 
   if (!peerConnectState.peerConnect) {
     return null;

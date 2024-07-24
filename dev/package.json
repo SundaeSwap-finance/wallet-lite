@@ -10,11 +10,6 @@
     "build": "bun --bun vite build",
     "start": "bun --bun vite"
   },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "npm run lint:fix"
-    ]
-  },
   "browserslist": {
     "production": [
       "last 1 chrome version",
@@ -53,7 +48,7 @@
     "@sundaeswap/fraction": "^1.0.5",
     "@sundaeswap/wallet-lite": "workspace:*",
     "@tailwindcss/forms": "^0.5.2",
-    "@tanstack/react-query": "^4.0.10",
+    "@tanstack/react-query": "^5.51.11",
     "classnames": "^2.3.2",
     "crypto-browserify": "^3.12.0",
     "react": "^18.3.1",

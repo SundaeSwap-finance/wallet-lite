@@ -3,6 +3,7 @@ import { render } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { describe, expect, it, spyOn } from "bun:test";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { mockHandleMetadata } from "../../__data__/handles.js";
 import {
   RenderWalletHandles,
@@ -53,7 +54,11 @@ describe("RenderWalletHandles", () => {
       <RenderWalletHandles render={TestComponent} />,
       {
         wrapper(props) {
-          return <WalletObserverProvider {...props} />;
+          return (
+            <QueryClientProvider client={new QueryClient()}>
+              <WalletObserverProvider {...props} />
+            </QueryClientProvider>
+          );
         },
       },
     );
@@ -65,10 +70,9 @@ describe("RenderWalletHandles", () => {
 
     const button = getByTestId("connect-with-handles");
     await user.click(button);
-
     expect(spiedOnGetAllDataBatch).toHaveBeenCalled();
-    rerender(<RenderWalletHandles render={TestComponent} />);
 
+    rerender(<RenderWalletHandles render={TestComponent} />);
     expect(queryByTestId("calvin")).not.toBeNull();
     expect(queryByTestId("pi")).not.toBeNull();
     expect(container.innerHTML).toMatchSnapshot();

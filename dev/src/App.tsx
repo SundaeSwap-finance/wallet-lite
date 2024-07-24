@@ -5,6 +5,7 @@ import {
 import { FC, StrictMode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectWallet } from "./components/ConnectWallet.js";
 import { WalletData } from "./components/WalletData.js";
 
@@ -49,6 +50,8 @@ export const App: FC = () => {
   );
 };
 
+const client = new QueryClient();
+
 export const Root = () => {
   return (
     <StrictMode>
@@ -56,13 +59,15 @@ export const Root = () => {
         fallbackRender={({ error }) => <p>Whoops: {error.message}</p>}
       >
         <Suspense fallback={<p>Loading...</p>}>
-          <WalletObserverProvider
-            options={{
-              observerOptions: observerOptions,
-            }}
-          >
-            <App />
-          </WalletObserverProvider>
+          <QueryClientProvider client={client}>
+            <WalletObserverProvider
+              options={{
+                observerOptions: observerOptions,
+              }}
+            >
+              <App />
+            </WalletObserverProvider>
+          </QueryClientProvider>
         </Suspense>
       </ErrorBoundary>
     </StrictMode>

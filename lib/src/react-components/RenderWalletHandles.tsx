@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { FC, ReactElement, ReactNode, Suspense } from "react";
+import { ReactElement, ReactNode, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
 import { useWalletHandles } from "./hooks/useWalletHandles.js";
@@ -10,12 +10,14 @@ export type TRenderWalletHandlesFunctionState<
 > = ReturnType<typeof useWalletObserver<T>> &
   ReturnType<typeof useWalletHandles<T>>;
 
-export type TRenderWalletHandlesFunction = (
-  state: TRenderWalletHandlesFunctionState,
-) => JSX.Element | ReactNode;
+export type TRenderWalletHandlesFunction<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> = (state: TRenderWalletHandlesFunctionState<T>) => JSX.Element | ReactNode;
 
-export interface IRenderWalletHandlesProps {
-  render: TRenderWalletHandlesFunction;
+export interface IRenderWalletHandlesProps<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> {
+  render: TRenderWalletHandlesFunction<T>;
   loader?: ReactNode;
   fallback?: ReactElement;
 }
@@ -25,17 +27,19 @@ export interface IRenderWalletHandlesProps {
  * fetching and updating wallet Handles with their extra
  * metadata.
  */
-export const RenderWalletHandles: FC<IRenderWalletHandlesProps> = ({
+export const RenderWalletHandles = <
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+>({
   render,
   loader,
   fallback,
-}) => {
-  const state = useWalletObserver();
-  const handleData = useWalletHandles();
+}: IRenderWalletHandlesProps<T>) => {
+  const state = useWalletObserver<T>();
+  const handleData = useWalletHandles<T>();
 
   return (
     <ErrorBoundary
-      fallback={fallback || <p>Error.</p>}
+      fallback={fallback || null}
       onError={(error) => {
         if (state.observer.getOptions().debug) {
           console.log(error.message, error.stack);

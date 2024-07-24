@@ -2,15 +2,10 @@ import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serial
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
-import {
-  TAssetAmountMap,
-  TSupportedWalletExtensions,
-} from "../../../@types/observer.js";
-import { WalletAssetMap } from "../../../classes/WalletAssetMap.class.js";
+import { TSupportedWalletExtensions } from "../../../@types/observer.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { areAssetMapsEqual } from "../../../utils/comparisons.js";
-import { THandleMetadata } from "../../contexts/observer/index.js";
 
 /**
  * Internal use only. The main action that sync WalletObserver api responses with
@@ -28,9 +23,6 @@ export const useWalletObserverState = <
   const [adaBalance, setAdaBalance] = useState<AssetAmount<AssetMetadata>>(
     new AssetAmount<AssetMetadata>(0n),
   );
-  const [handleMetadata, setHandleMetadata] = useState<
-    TAssetAmountMap<THandleMetadata<AssetMetadata>>
-  >(new WalletAssetMap<THandleMetadata<AssetMetadata>>());
   const [balance, setBalance] = useState<WalletBalanceMap<AssetMetadata>>(
     new WalletBalanceMap<AssetMetadata>(observer),
   );
@@ -56,7 +48,6 @@ export const useWalletObserverState = <
     // Reset state.
     setAdaBalance(new AssetAmount(0n));
     setBalance(new WalletBalanceMap(observer));
-    setHandleMetadata(new WalletAssetMap());
     setUsedAddresses([]);
     setUnusedAddresses([]);
     setActiveWallet(undefined);
@@ -174,8 +165,6 @@ export const useWalletObserverState = <
     setAdaBalance,
     balance,
     setBalance,
-    handles: handleMetadata,
-    setHandles: setHandleMetadata,
     isCip45,
     setIsCip45,
     network,

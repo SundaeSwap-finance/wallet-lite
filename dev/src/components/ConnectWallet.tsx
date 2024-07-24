@@ -55,12 +55,6 @@ export const ConnectWallet: FC = () => {
                 switching,
                 ready,
               }) => {
-                console.log({
-                  syncingWallet,
-                  switching,
-                  connectingWallet,
-                  ready,
-                });
                 if (switching) {
                   return "Switching wallets...";
                 }

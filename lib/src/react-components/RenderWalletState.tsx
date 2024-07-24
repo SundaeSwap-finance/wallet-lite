@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { FC, ReactElement, ReactNode, Suspense } from "react";
+import { ReactElement, ReactNode, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
 import { useWalletLoadingState } from "./hooks/useWalletLoadingState.js";
@@ -10,12 +10,14 @@ export type TRenderWalletStateFunctionState<
 > = ReturnType<typeof useWalletObserver<T>> &
   ReturnType<typeof useWalletLoadingState<T>>;
 
-export type TRenderWalletStateFunction = (
-  state: TRenderWalletStateFunctionState,
-) => JSX.Element | ReactNode;
+export type TRenderWalletStateFunction<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> = (state: TRenderWalletStateFunctionState<T>) => JSX.Element | ReactNode;
 
-export interface IRenderWalletStateProps {
-  render: TRenderWalletStateFunction;
+export interface IRenderWalletStateProps<
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+> {
+  render: TRenderWalletStateFunction<T>;
   loader?: ReactNode;
   fallback?: ReactElement;
 }
@@ -26,17 +28,19 @@ export interface IRenderWalletStateProps {
  * a sync or connection operation. Useful for displaying
  * internal operation states of the wallet.
  */
-export const RenderWalletState: FC<IRenderWalletStateProps> = ({
+export const RenderWalletState = <
+  T extends IAssetAmountMetadata = IAssetAmountMetadata,
+>({
   render,
   loader,
-  fallback = null,
-}) => {
-  const state = useWalletObserver();
-  const loadingState = useWalletLoadingState();
+  fallback,
+}: IRenderWalletStateProps<T>) => {
+  const state = useWalletObserver<T>();
+  const loadingState = useWalletLoadingState<T>();
 
   return (
     <ErrorBoundary
-      fallback={fallback}
+      fallback={fallback || null}
       onError={(error) => {
         if (state.observer.getOptions().debug) {
           console.log(error.message, error.stack);

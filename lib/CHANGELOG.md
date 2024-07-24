@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.44 (2024-07-24)
+
+
+### Bug Fixes
+
+* initial handle count ([43eb196](https://github.com/SundaeSwap-finance/wallet-lite/commit/43eb1962b9e821dcb1202aae3563765469213405))
+
 ### 0.0.43 (2024-07-24)
 
 ### 0.0.42 (2024-07-24)

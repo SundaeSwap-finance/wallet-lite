@@ -55,7 +55,7 @@ jobs:
       - name: Pull and Push changes
         run: |
           git pull --rebase origin main
-          git push --follow-tags origin main
+          git push --follow-tags origin main -n
 
       - name: Configure npm authentication
         run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}

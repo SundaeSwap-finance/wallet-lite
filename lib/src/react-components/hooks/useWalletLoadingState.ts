@@ -12,9 +12,10 @@ export const useWalletLoadingState = <
     () => ({
       connectingWallet: state.connectingWallet,
       syncingWallet: state.syncingWallet,
+      switchingWallet: state.switching,
       ready: state.ready,
     }),
-    [state.ready, state.syncingWallet, state.connectingWallet],
+    [state.ready, state.syncingWallet, state.connectingWallet, state.switching],
   );
 
   return result;

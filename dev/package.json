@@ -43,8 +43,8 @@
   },
   "dependencies": {
     "@cardano-foundation/cardano-connect-with-wallet": "^0.2.9",
-    "@koralabs/adahandle-sdk": "^1.4.0",
-    "@sundaeswap/asset": "^1.0.5",
+    "@koralabs/adahandle-sdk": "^1.5.4",
+    "@sundaeswap/asset": "^1.0.6",
     "@sundaeswap/fraction": "^1.0.5",
     "@sundaeswap/wallet-lite": "workspace:*",
     "@tailwindcss/forms": "^0.5.2",

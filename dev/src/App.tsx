@@ -17,16 +17,16 @@ export interface IWalletMetadata {
 
 const observerOptions: TWalletObserverOptions<IWalletMetadata> = {
   debug: true,
-  metadataResolver: async (assetIds, normalize, isAda) => {
+  metadataResolver: async ({ assetIds, isAdaAsset, normalizeAssetId }) => {
     const metadataMap = new Map<string, IWalletMetadata>();
     assetIds.forEach((id) => {
       const hexName = id.split(".")?.[1] ?? "";
-      const assetName = isAda(id)
+      const assetName = isAdaAsset(id)
         ? "ADA"
         : Buffer.from(hexName, "hex").toString("utf-8");
 
-      metadataMap.set(normalize(id), {
-        assetId: normalize(id),
+      metadataMap.set(normalizeAssetId(id), {
+        assetId: normalizeAssetId(id),
         assetName,
         decimals: 6,
       });

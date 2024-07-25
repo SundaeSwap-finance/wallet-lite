@@ -638,22 +638,22 @@ export class WalletObserver<
     let newMetadata: Map<string, AssetMetadata> | undefined;
     while (attempts <= 3 && !newMetadata) {
       try {
-        newMetadata = await this._options.metadataResolver(
-          assetIds.map(normalizeAssetIdWithDot),
-          normalizeAssetIdWithDot,
+        newMetadata = await this._options.metadataResolver({
+          assetIds: assetIds.map(normalizeAssetIdWithDot),
+          normalizeAssetId: normalizeAssetIdWithDot,
           isAdaAsset,
-        );
+        });
       } catch (e) {
         attempts++;
       }
     }
 
     if (!newMetadata) {
-      newMetadata = await this.fallbackMetadataResolver(
-        assetIds.map(normalizeAssetIdWithDot),
-        normalizeAssetIdWithDot,
+      newMetadata = await this.fallbackMetadataResolver({
+        assetIds: assetIds.map(normalizeAssetIdWithDot),
+        normalizeAssetId: normalizeAssetIdWithDot,
         isAdaAsset,
-      );
+      });
     }
 
     this._cachedMetadata = newMetadata;
@@ -671,7 +671,7 @@ export class WalletObserver<
    * @type {TMetadataResolverFunc<AssetMetadata>}
    */
   public fallbackMetadataResolver: TMetadataResolverFunc<AssetMetadata> =
-    async (assetIds) => {
+    async ({ assetIds }) => {
       const map = new Map<string, AssetMetadata>();
       assetIds.forEach((id) =>
         map.set(normalizeAssetIdWithDot(id), {

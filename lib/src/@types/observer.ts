@@ -45,16 +45,21 @@ export type TWindowCardano = {
 };
 
 /**
+ * Describes the function arguments for the metadata resolver.
+ */
+export interface IMetadataResolverFuncArgs {
+  assetIds: string[];
+  normalizeAssetId: typeof normalizeAssetIdWithDot;
+  isAdaAsset: typeof isAdaAsset;
+}
+
+/**
  * The metadata resolver should return a map composed of
  * the asset ID as the key, and the metadata as the value.
  */
 export type TMetadataResolverFunc<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
-> = (
-  assetIds: string[],
-  normalizeAssetIdFunc: typeof normalizeAssetIdWithDot,
-  isAdaAssetFunc: typeof isAdaAsset,
-) => Promise<Map<string, T>>;
+> = (args: IMetadataResolverFuncArgs) => Promise<Map<string, T>>;
 
 /**
  * Options that are passed to the WalletObserver instance.

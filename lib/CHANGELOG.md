@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.50 (2024-07-25)
+
+
+### Bug Fixes
+
+* getfungibletokens ([fc688f8](https://github.com/SundaeSwap-finance/wallet-lite/commit/fc688f8d167f817699253ad6aeda752f33b72498))
+
 ### 0.0.49 (2024-07-25)
 
 ### 0.0.48 (2024-07-24)

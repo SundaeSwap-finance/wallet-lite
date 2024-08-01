@@ -12,7 +12,7 @@ export const WalletHandles: FC = () => {
           render={({ handles, loadingHandles }) => {
             if (loadingHandles) {
               return <p>Fetching handle data...</p>;
-            } else if (handles.size === 0) {
+            } else if (!handles || handles.size === 0) {
               return <p>No handles.</p>;
             }
 

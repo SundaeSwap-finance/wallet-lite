@@ -101,17 +101,15 @@ export const useWalletHandles = <
     },
     refetchInterval: false,
     notifyOnChangeProps: ["data", "isLoading"],
-    initialData: new WalletAssetMap<THandleMetadata<AssetMetadata>>([
-      ...state.balance.getHandles(),
-    ]),
   });
 
   const memoizedResult = useMemo(
     () => ({
       handles,
       loadingHandles: isLoading,
+      totalCount: memoizedHandleDep.length,
     }),
-    [handles, isLoading],
+    [handles, isLoading, memoizedHandleDep],
   );
 
   return memoizedResult;

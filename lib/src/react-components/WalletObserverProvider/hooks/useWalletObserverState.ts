@@ -2,7 +2,6 @@ import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serial
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
-import { TSupportedWalletExtensions } from "../../../@types/observer.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { areAssetMapsEqual } from "../../../utils/comparisons.js";
@@ -18,8 +17,7 @@ export const useWalletObserverState = <
 >(
   observer: WalletObserver<AssetMetadata>,
 ) => {
-  const [activeWallet, setActiveWallet] =
-    useState<TSupportedWalletExtensions>();
+  const [activeWallet, setActiveWallet] = useState<string>();
   const [adaBalance, setAdaBalance] = useState<AssetAmount<AssetMetadata>>(
     new AssetAmount<AssetMetadata>(0n),
   );
@@ -134,7 +132,7 @@ export const useWalletObserverState = <
   }, [observer, disconnect]);
 
   const connectWallet = useCallback(
-    async (wallet: TSupportedWalletExtensions) => {
+    async (wallet: string) => {
       if (observer.hasActiveConnection() && wallet !== observer.activeWallet) {
         setSwitching(() => true);
       }

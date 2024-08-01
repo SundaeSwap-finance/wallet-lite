@@ -1,17 +1,14 @@
 import capitalize from "lodash/capitalize.js";
+import isEqual from "lodash/isEqual.js";
 import { useCallback, useEffect, useState } from "react";
 
-import {
-  IWindowCip30Extension,
-  TSupportedWalletExtensions,
-} from "../../@types/observer.js";
-import { useWalletObserverContext } from "../contexts/observer/context.js";
+import { IWindowCip30Extension } from "../../@types/observer.js";
 
 /**
  * Defines the interface for a returned wallet
  */
 export interface IWalletExtension {
-  property: TSupportedWalletExtensions;
+  property: string;
   name: string;
   reference: IWindowCip30Extension;
 }
@@ -23,29 +20,60 @@ export interface IWalletExtension {
  *
  * @returns {IWalletExtension[]} A list of available wallet extensions.
  */
-export const useAvailableExtensions = (refreshInterval?: number) => {
-  const { observerRef } = useWalletObserverContext();
-  const [list, setList] = useState<IWalletExtension[]>([]);
+export const useAvailableExtensions = (intervalAmount?: number) => {
+  const getSanitizedCardanoNamespace = useCallback(() => {
+    const newCardano = window?.cardano || window?.parent?.cardano;
+    const sanitizedExtension: { [key: string]: IWindowCip30Extension } = {};
+    for (const [key, val] of Object.entries(newCardano || {})) {
+      if (!val?.apiVersion) {
+        continue;
+      }
 
-  const updateExtensions = useCallback(() => {
-    if (!window.cardano && !window.parent.cardano) {
+      sanitizedExtension[key] = val;
+    }
+
+    return sanitizedExtension;
+  }, []);
+
+  const [list, setList] = useState<IWalletExtension[]>([]);
+  const [cardano, setCardano] = useState<
+    | {
+        [key: string]: IWindowCip30Extension;
+      }
+    | undefined
+  >(getSanitizedCardanoNamespace());
+
+  useEffect(() => {
+    const checkForUpdates = () => {
+      const supportedExtensions = getSanitizedCardanoNamespace();
+      setCardano((prevCardano) => {
+        if (isEqual(prevCardano, supportedExtensions)) {
+          return prevCardano;
+        }
+
+        return supportedExtensions;
+      });
+    };
+
+    const interval = setInterval(checkForUpdates, intervalAmount || 1000);
+
+    // Stop checking after 5 minutes;
+    setTimeout(() => {
+      clearInterval(interval);
+    }, 60000 * 5);
+
+    return () => clearInterval(interval);
+  }, [cardano]);
+
+  useEffect(() => {
+    if (!cardano) {
       return;
     }
 
-    let cardano: typeof window.cardano;
-
-    if (window.self !== window.top) {
-      cardano = window.parent.cardano;
-    } else {
-      cardano = window.cardano;
-    }
-
-    const list: IWalletExtension[] = [];
-    observerRef.current.getSupportedExtensions().forEach((key) => {
-      const extension = cardano?.[key];
-
+    const newList: IWalletExtension[] = [];
+    Object.entries(cardano).forEach(([key, extension]) => {
       if (extension) {
-        list.push({
+        newList.push({
           name: capitalize(extension.name),
           property: key,
           reference: extension,
@@ -53,26 +81,8 @@ export const useAvailableExtensions = (refreshInterval?: number) => {
       }
     });
 
-    setList((prevExtensions) => {
-      if (list.length > prevExtensions.length) {
-        return list;
-      }
-
-      return prevExtensions;
-    });
-  }, [observerRef]);
-
-  useEffect(() => {
-    updateExtensions();
-
-    // Check every 2 seconds for 20 seconds (late loading extensions.)
-    (async () => {
-      for (let i = 0; i < 20; i++) {
-        updateExtensions();
-        await new Promise((res) => setTimeout(res, refreshInterval || 2000));
-      }
-    })();
-  }, []);
+    setList(newList);
+  }, [cardano]);
 
   return list;
 };

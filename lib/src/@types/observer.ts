@@ -9,24 +9,6 @@ import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
 import { isAdaAsset, normalizeAssetIdWithDot } from "../utils/assets.js";
 
 /**
- * A list of support CIP-30 wallet extensions in the browser.
- */
-export type TSupportedWalletExtensions =
-  | "nami"
-  | "eternl"
-  | "typhoncip30"
-  | "ccvault"
-  | "typhon"
-  | "yoroi"
-  | "flint"
-  | "gerowallet"
-  | "cardwallet"
-  | "nufi"
-  | "begin"
-  | "lace"
-  | "sorbet";
-
-/**
  * Interface to describe window extension.
  */
 export interface IWindowCip30Extension {
@@ -34,14 +16,15 @@ export interface IWindowCip30Extension {
   enable: () => Promise<Cip30WalletApi>;
   icon: string;
   isEnabled: () => Promise<boolean>;
-  name: TSupportedWalletExtensions;
+  name: string;
 }
 
 /**
  * Interface to describe our expected window configuration.
  */
 export type TWindowCardano = {
-  [K in TSupportedWalletExtensions]?: IWindowCip30Extension;
+  // eslint-disable-next-line
+  [key: string]: any;
 };
 
 /**
@@ -93,7 +76,7 @@ export type TAssetAmountMap<
  * data located in local storage.
  */
 export interface IWalletObserverSeed {
-  activeWallet: TSupportedWalletExtensions;
+  activeWallet: string;
   mainAddress: string;
 }
 

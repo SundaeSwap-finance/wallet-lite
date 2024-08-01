@@ -59,14 +59,6 @@ describe("WalletObserver", async () => {
       expect(observer.activeWallet).toBeUndefined();
       expect(observer.network).toEqual(0);
       expect(observer.api).toBeUndefined();
-      expect(observer.getSupportedExtensions()).toEqual([
-        "eternl",
-        "lace",
-        "typhon",
-        "sorbet",
-        "flint",
-        "nami",
-      ]);
       expect(observer.peerConnectInstance).toBeUndefined();
       expect(observer.getOptions()).toMatchObject({
         metadataResolver: expect.anything(),
@@ -91,13 +83,13 @@ describe("WalletObserver", async () => {
     });
 
     test("with parameters", () => {
-      const handler: TMetadataResolverFunc<IAssetAmountMetadata> = async (
-        ids: string[],
-        normalize,
-      ) => {
-        const metadata = ids.map((id) => ({ decimals: 6, assetId: id }));
+      const handler: TMetadataResolverFunc<IAssetAmountMetadata> = async ({
+        assetIds,
+        normalizeAssetId,
+      }) => {
+        const metadata = assetIds.map((id) => ({ decimals: 6, assetId: id }));
         const map = new Map<string, IAssetAmountMetadata>();
-        metadata.forEach((m) => map.set(normalize(m.assetId), m));
+        metadata.forEach((m) => map.set(normalizeAssetId(m.assetId), m));
         return map;
       };
       const observer = new WalletObserver({
@@ -117,14 +109,6 @@ describe("WalletObserver", async () => {
       expect(observer.activeWallet).toBeUndefined();
       expect(observer.network).toEqual(0);
       expect(observer.api).toBeUndefined();
-      expect(observer.getSupportedExtensions()).toEqual([
-        "eternl",
-        "lace",
-        "typhon",
-        "sorbet",
-        "flint",
-        "nami",
-      ]);
       expect(observer.getOptions()).toMatchObject({
         metadataResolver: handler,
         persistence: true,
@@ -297,6 +281,9 @@ describe("WalletObserver", async () => {
 
       data.instance.shutdownServer();
       expect(spiedOnDisconnect).toHaveBeenCalled();
+
+      // Restore window.
+      delete window.cardano?.["eternl-p2p"];
     });
   });
 });

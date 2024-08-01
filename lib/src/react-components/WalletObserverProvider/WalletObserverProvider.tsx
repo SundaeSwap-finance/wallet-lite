@@ -1,6 +1,5 @@
 import { FC, PropsWithChildren, useEffect, useMemo } from "react";
 
-import { TSupportedWalletExtensions } from "../../@types/observer.js";
 import { WalletObserver } from "../../classes/WalletObserver.class.js";
 import {
   IWalletObserverProviderProps,
@@ -71,10 +70,9 @@ const WalletObserverProvider: FC<
       return;
     }
 
-    const wallet: TSupportedWalletExtensions | null =
-      window.localStorage.getItem(
-        WalletObserver.PERSISTENCE_CACHE_KEY,
-      ) as TSupportedWalletExtensions;
+    const wallet = window.localStorage.getItem(
+      WalletObserver.PERSISTENCE_CACHE_KEY,
+    );
 
     if (wallet && observerRef.current?.getOptions()?.persistence) {
       state.connectWallet(JSON.parse(wallet).activeWallet);

@@ -10,20 +10,22 @@ import {
   WalletObserverProvider,
 } from "../../../index.js";
 
-const REFRESH_INTERVAL = 10;
+const INTERVAL_AMOUNT = 10;
 
 describe("useAvailableExtensions", () => {
   it("should correctly retrieve the instance", async () => {
     const { result } = renderHook<
       IWalletObserverProviderProps,
       ReturnType<typeof useAvailableExtensions>
-    >(() => useAvailableExtensions(REFRESH_INTERVAL), {
+    >(() => useAvailableExtensions(INTERVAL_AMOUNT), {
       wrapper: (props) => <WalletObserverProvider {...props} />,
     });
 
-    expect(result.current).toEqual([
-      { name: "Eternl", property: "eternl", reference: mockedEternlWallet },
-    ]);
+    act(() => {
+      expect(result.current).toEqual([
+        { name: "Eternl", property: "eternl", reference: mockedEternlWallet },
+      ]);
+    });
 
     await act(async () => {
       // Inject a duplicate api.
@@ -34,7 +36,7 @@ describe("useAvailableExtensions", () => {
       };
 
       // Wait 10 milliseconds for interval to catch.
-      await new Promise((res) => setTimeout(res, REFRESH_INTERVAL));
+      await new Promise((res) => setTimeout(res, INTERVAL_AMOUNT));
     });
 
     expect(result.current).toEqual([

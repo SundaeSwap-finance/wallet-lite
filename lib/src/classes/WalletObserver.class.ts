@@ -14,7 +14,6 @@ import type {
   IWalletObserverSeed,
   IWalletObserverSync,
   TMetadataResolverFunc,
-  TSupportedWalletExtensions,
   TWalletObserverOptions,
 } from "../@types/observer.js";
 import { isAdaAsset, normalizeAssetIdWithDot } from "../utils/assets.js";
@@ -48,20 +47,12 @@ export class WalletObserver<
   static ADA_ASSET_ID = "ada.lovelace";
   public network: number = 0;
   public api?: Cip30WalletApi;
-  public activeWallet?: TSupportedWalletExtensions;
+  public activeWallet?: string;
   public utils?: WalletObserverUtils;
   public peerConnectInstance?: import("@fabianbormann/cardano-peer-connect").DAppPeerConnect;
 
   private _performingSync: boolean = false;
   private _options: IResolvedWalletObserverOptions<AssetMetadata>;
-  private _supportedExtensions: TSupportedWalletExtensions[] = [
-    "eternl",
-    "lace",
-    "typhon",
-    "sorbet",
-    "flint",
-    "nami",
-  ];
 
   // Caching
   private _cachedMetadata: Map<string, AssetMetadata> = new Map();
@@ -92,7 +83,7 @@ export class WalletObserver<
           },
           onApiInject: (name, address) => {
             options?.peerConnectArgs?.onApiInject?.(name, address);
-            this.connectWallet(name as TSupportedWalletExtensions);
+            this.connectWallet(name);
           },
           verifyConnection(walletInfo, callback) {
             return callback(true, walletInfo.requestAutoconnect ?? true);
@@ -217,11 +208,11 @@ export class WalletObserver<
    * Synchronizes the API with the wallet. This is useful if the account has changed,
    * but the underlying intent has not.
    *
-   * @param {TSupportedWalletExtensions} [activeWallet] - The wallet to sync with.
+   * @param {string} [activeWallet] - The wallet to sync with.
    * @returns {Promise<Cip30WalletApi | undefined>} - A promise that resolves to the API instance.
    */
   syncApi = async (
-    activeWallet?: TSupportedWalletExtensions,
+    activeWallet?: string,
   ): Promise<Cip30WalletApi | undefined> => {
     if (!activeWallet && !this.activeWallet) {
       throw new Error(
@@ -229,8 +220,7 @@ export class WalletObserver<
       );
     }
 
-    const selectedWallet =
-      activeWallet || (this.activeWallet as TSupportedWalletExtensions);
+    const selectedWallet = (activeWallet || this.activeWallet) as string;
 
     let attempts = 0;
     let shouldContinue = true;
@@ -243,7 +233,8 @@ export class WalletObserver<
       }
 
       try {
-        const api = await window.cardano?.[selectedWallet]?.enable();
+        const cardano = window?.cardano || window?.parent?.cardano;
+        const api = await cardano?.[selectedWallet]?.enable();
 
         if (!api) {
           throw Error;
@@ -254,7 +245,10 @@ export class WalletObserver<
         shouldContinue = false;
       } catch (e) {
         if (
-          (e as Error)?.message === "user canceled connection" ||
+          [
+            "user canceled connection",
+            "User declined to sign the data.",
+          ].includes((e as Error)?.message) ||
           (e as ApiError)?.code === APIErrorCode.Refused
         ) {
           shouldContinue = false;
@@ -286,9 +280,7 @@ export class WalletObserver<
    * @param {string} extension The name of the extension to enable.
    * @return {Promise<void>}
    */
-  connectWallet = async (
-    extension: TSupportedWalletExtensions,
-  ): Promise<void> => {
+  connectWallet = async (extension: string): Promise<void> => {
     const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
 
@@ -365,15 +357,6 @@ export class WalletObserver<
    */
   getCachedAssetMetadata = (): Map<string, AssetMetadata> =>
     this._cachedMetadata;
-
-  /**
-   * Helper function to retrieve a list of supported wallet extensions.
-   *
-   * @returns {keyof TSupportedWalletExtensions[] | undefined}
-   */
-  getSupportedExtensions = (): TSupportedWalletExtensions[] => {
-    return this._supportedExtensions;
-  };
 
   /**
    * Helper function to restore the class instance to its initial state.

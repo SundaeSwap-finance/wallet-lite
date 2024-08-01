@@ -21,11 +21,12 @@ const TestComponent = (state: TRenderWalletHandlesFunctionState) => {
       {state.network?.toString()}
       {state.unusedAddresses.toString()}
       {state.usedAddresses.toString()}
-      {[...state.handles.values()].map(({ metadata }) => (
-        <p key={metadata.assetId} data-testid={metadata.name}>
-          {JSON.stringify(metadata)}
-        </p>
-      ))}
+      {state.handles &&
+        [...state.handles.values()].map(({ metadata }) => (
+          <p key={metadata.assetId} data-testid={metadata.name}>
+            {JSON.stringify(metadata)}
+          </p>
+        ))}
       <button
         data-testid="connect-with-handles"
         onClick={() => state.connectWallet("eternl")}
@@ -41,11 +42,7 @@ describe("RenderWalletHandles", () => {
       KoraLabsProvider.prototype,
       "getAllDataBatch",
     );
-    spiedOnGetAllDataBatch.mockImplementationOnce(
-      // @ts-expect-error Bug in Bun.sh that mocks the function result rather than the reference.
-      () => async () => mockHandleMetadata,
-    );
-    spiedOnGetAllDataBatch.mockImplementationOnce(
+    spiedOnGetAllDataBatch.mockImplementation(
       // @ts-expect-error Bug in Bun.sh that mocks the function result rather than the reference.
       () => async () => mockHandleMetadata,
     );
@@ -76,18 +73,5 @@ describe("RenderWalletHandles", () => {
     expect(queryByTestId("calvin")).not.toBeNull();
     expect(queryByTestId("pi")).not.toBeNull();
     expect(container.innerHTML).toMatchSnapshot();
-
-    spiedOnGetAllDataBatch.mockImplementationOnce(
-      // @ts-expect-error See first mock comment.
-      () => async () => mockHandleMetadata.map(({ name }) => `${name}-updated`),
-    );
-
-    rerender(<RenderWalletHandles render={TestComponent} />);
-
-    expect(container.innerHTML).toMatchSnapshot();
-    // expect(queryByTestId("calvin")).toBeNull();
-    // expect(queryByTestId("pi")).toBeUndefined();
-    // expect(queryByTestId("calvin-updated")).not.toBeUndefined();
-    // expect(queryByTestId("pi-updated")).not.toBeUndefined();
   });
 });

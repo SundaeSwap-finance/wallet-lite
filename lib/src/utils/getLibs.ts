@@ -21,9 +21,8 @@ export const getPeerConnect = async () => {
 
 export const getHandleLib = async () => {
   return import("@koralabs/adahandle-sdk").then((module) => {
-    const HandleClient = module?.default || module;
     return {
-      HandleClient,
+      HandleClient: module.HandleClient,
       HandleClientContext: module.HandleClientContext,
       KoraLabsProvider: module.KoraLabsProvider,
     };

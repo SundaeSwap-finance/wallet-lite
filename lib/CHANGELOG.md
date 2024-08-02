@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.58 (2024-08-02)
+
+
+### Bug Fixes
+
+* adahandle export ([ae57a02](https://github.com/SundaeSwap-finance/wallet-lite/commit/ae57a0267c22518f5c2b1957ab4bec5851f141e5))
+
 ### 0.0.57 (2024-08-02)
 
 ### 0.0.56 (2024-08-01)

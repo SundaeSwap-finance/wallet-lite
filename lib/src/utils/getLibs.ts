@@ -18,3 +18,14 @@ export const getPeerConnect = async () => {
     return module?.DAppPeerConnect || module.default.DAppPeerConnect;
   });
 };
+
+export const getHandleLib = async () => {
+  return import("@koralabs/adahandle-sdk").then((module) => {
+    const HandleClient = module?.default || module;
+    return {
+      HandleClient,
+      HandleClientContext: module.HandleClientContext,
+      KoraLabsProvider: module.KoraLabsProvider,
+    };
+  });
+};

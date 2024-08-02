@@ -1,4 +1,4 @@
-import { IHandle } from "@koralabs/adahandle-sdk";
+import type { IHandle } from "@koralabs/adahandle-sdk";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { TAssetAmountMap } from "../../@types/observer.js";
 import { WalletAssetMap } from "../../classes/WalletAssetMap.class.js";
 import { normalizeAssetIdWithDot } from "../../utils/assets.js";
+import { getHandleLib } from "../../utils/getLibs.js";
 import { THandleMetadata } from "../contexts/observer/types.js";
 import { useWalletObserver } from "./useWalletObserver.js";
 
@@ -49,11 +50,8 @@ export const useWalletHandles = <
       }
 
       try {
-        const {
-          default: HandleClient,
-          HandleClientContext,
-          KoraLabsProvider,
-        } = await import("@koralabs/adahandle-sdk");
+        const { HandleClient, HandleClientContext, KoraLabsProvider } =
+          await getHandleLib();
 
         const context =
           state.network === 1

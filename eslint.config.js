@@ -1,7 +1,7 @@
 import { configs } from "@sundaeswap/eslint-config";
 import globals from "globals";
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
+/** @type {import("eslint").Linter.Config[]} */
 export default [
   ...configs,
   {

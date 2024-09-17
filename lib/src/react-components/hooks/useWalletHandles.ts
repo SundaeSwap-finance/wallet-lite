@@ -30,6 +30,10 @@ export const useWalletHandles = <
         ...state.balance.getHandles(),
       ]);
 
+      if (currentWalletHandles.size === 0) {
+        return [];
+      }
+
       const cachedMetadata =
         queryClient.getQueryData<
           TAssetAmountMap<THandleMetadata<AssetMetadata>>

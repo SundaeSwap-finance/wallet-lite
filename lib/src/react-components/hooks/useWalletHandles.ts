@@ -21,7 +21,9 @@ export const useWalletHandles = <
   );
 
   const queryKey = [memoizedHandleDep, state.mainAddress];
-  const { data: handles, isLoading } = useQuery({
+  const { data: handles, isLoading } = useQuery<
+    TAssetAmountMap<THandleMetadata<AssetMetadata>> | undefined
+  >({
     queryKey,
     queryFn: async () => {
       const currentWalletHandles: TAssetAmountMap<
@@ -30,8 +32,9 @@ export const useWalletHandles = <
         ...state.balance.getHandles(),
       ]);
 
+      // Abort early if no handles.
       if (currentWalletHandles.size === 0) {
-        return [];
+        return currentWalletHandles;
       }
 
       const cachedMetadata =

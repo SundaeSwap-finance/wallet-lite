@@ -1,7 +1,6 @@
 import { IHandle } from "@koralabs/adahandle-sdk";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { TAssetAmountMap } from "../@types/observer.js";
 import { WalletAssetMap } from "../classes/WalletAssetMap.class.js";
 import { THandleMetadata } from "../react-components/contexts/observer/types.js";
 import { normalizeAssetIdWithDot } from "./assets.js";
@@ -10,9 +9,9 @@ import { getHandleLib } from "./getLibs.js";
 export const getHandleMetadata = async <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >(
-  balance: TAssetAmountMap<AssetMetadata>,
+  balance: WalletAssetMap<AssetMetadata>,
   network: number,
-): Promise<TAssetAmountMap<THandleMetadata<AssetMetadata>>> => {
+): Promise<WalletAssetMap<THandleMetadata<AssetMetadata>>> => {
   const currentWalletHandles = new WalletAssetMap<AssetMetadata>(balance);
   const newCurrentWalletHandles = new WalletAssetMap<
     THandleMetadata<AssetMetadata>

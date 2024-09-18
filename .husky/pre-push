@@ -1,2 +1,2 @@
 
-bun test
+cd lib && bun test

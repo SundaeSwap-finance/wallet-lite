@@ -10,7 +10,7 @@ import { useWalletObserver } from "./useWalletObserver.js";
 export const useWalletHandles = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
-  const state = useWalletObserver<THandleMetadata<AssetMetadata>>();
+  const state = useWalletObserver<AssetMetadata>();
   const memoizedHandleDep = useMemo(
     () => [...state.balance.getHandles().keys()],
     [state.balance],

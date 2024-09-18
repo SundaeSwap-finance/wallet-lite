@@ -10,15 +10,17 @@ import { getHandleLib } from "./getLibs.js";
 export const getHandleMetadata = async <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >(
-  balance: TAssetAmountMap<THandleMetadata<AssetMetadata>>,
+  balance: TAssetAmountMap<AssetMetadata>,
   network: number,
-) => {
-  const currentWalletHandles: TAssetAmountMap<THandleMetadata<AssetMetadata>> =
-    new WalletAssetMap<THandleMetadata<AssetMetadata>>(balance);
+): Promise<TAssetAmountMap<THandleMetadata<AssetMetadata>>> => {
+  const currentWalletHandles = new WalletAssetMap<AssetMetadata>(balance);
+  const newCurrentWalletHandles = new WalletAssetMap<
+    THandleMetadata<AssetMetadata>
+  >();
 
   // Abort early if no handles.
   if (currentWalletHandles.size === 0) {
-    return currentWalletHandles;
+    return newCurrentWalletHandles;
   }
 
   try {
@@ -47,7 +49,7 @@ export const getHandleMetadata = async <
         ({ hex }) => hex === key.split(".")[1],
       ) as IHandle;
 
-      currentWalletHandles.set(
+      newCurrentWalletHandles.set(
         normalizeAssetIdWithDot(key),
         asset
           .withMetadata({
@@ -60,10 +62,10 @@ export const getHandleMetadata = async <
       );
     });
 
-    return currentWalletHandles;
+    return newCurrentWalletHandles;
   } catch (e) {
     console.error(e);
   }
 
-  return currentWalletHandles;
+  return newCurrentWalletHandles;
 };

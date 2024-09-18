@@ -1,4 +1,4 @@
-import { WalletObserver } from "../classes/WalletObserver.class.js";
+import { ADA_ASSET_ID } from "../constants.js";
 
 /**
  * Helper function to normalize asset ID notation.
@@ -7,7 +7,7 @@ import { WalletObserver } from "../classes/WalletObserver.class.js";
  * @returns {string}
  */
 export const normalizeAssetIdWithDot = (assetId: string): string => {
-  if (assetId.includes(".") || assetId === WalletObserver.ADA_ASSET_ID) {
+  if (assetId.includes(".") || assetId === ADA_ASSET_ID) {
     return assetId;
   }
 
@@ -27,5 +27,4 @@ export const normalizeAssetIdWithDot = (assetId: string): string => {
  * @param {string} id The asset id.
  * @returns {boolean}
  */
-export const isAdaAsset = (id: string): boolean =>
-  id === WalletObserver.ADA_ASSET_ID;
+export const isAdaAsset = (id: string): boolean => id === ADA_ASSET_ID;

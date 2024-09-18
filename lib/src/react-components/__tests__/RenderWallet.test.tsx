@@ -2,13 +2,19 @@ import { render } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { describe, expect, it } from "bun:test";
 
+import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   RenderWallet,
   TUseWalletObserverState,
   WalletObserverProvider,
 } from "../../index.js";
 
-const TestComponent = (state: TUseWalletObserverState) => {
+const TestComponent = (
+  state: Omit<
+    TUseWalletObserverState<IAssetAmountMetadata>,
+    "connectingWallet" | "syncingWallet" | "ready"
+  >,
+) => {
   return (
     <pre>
       {state.activeWallet?.toString()}
@@ -16,7 +22,6 @@ const TestComponent = (state: TUseWalletObserverState) => {
       {state.isCip45?.toString()}
       {state.mainAddress?.toString()}
       {state.network?.toString()}
-      {state.ready?.toString()}
       {state.unusedAddresses.toString()}
       {state.usedAddresses.toString()}
       <button

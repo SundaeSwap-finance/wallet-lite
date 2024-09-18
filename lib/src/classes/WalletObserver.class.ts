@@ -16,6 +16,7 @@ import type {
   TMetadataResolverFunc,
   TWalletObserverOptions,
 } from "../@types/observer.js";
+import { ADA_ASSET_ID } from "../constants.js";
 import { isAdaAsset, normalizeAssetIdWithDot } from "../utils/assets.js";
 import {
   getCardanoCore,
@@ -44,7 +45,6 @@ export class WalletObserver<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > extends WalletObserverEvent {
   static PERSISTENCE_CACHE_KEY = "walletObserver";
-  static ADA_ASSET_ID = "ada.lovelace";
   public network: number = 0;
   public api?: Cip30WalletApi;
   public activeWallet?: string;
@@ -393,14 +393,14 @@ export class WalletObserver<
     const multiassetKeys = data.multiasset()?.keys() ?? [];
 
     const metadata = await this.__metadataResolverWithCache([
-      WalletObserver.ADA_ASSET_ID,
+      ADA_ASSET_ID,
       ...multiassetKeys,
     ]);
 
     const balanceMap = new WalletBalanceMap<AssetMetadata>(this);
     balanceMap.set(
-      WalletObserver.ADA_ASSET_ID,
-      new AssetAmount(data.coin(), metadata.get(WalletObserver.ADA_ASSET_ID)),
+      ADA_ASSET_ID,
+      new AssetAmount(data.coin(), metadata.get(ADA_ASSET_ID)),
     );
 
     const multiassetEntries = data.multiasset()?.entries() ?? [];

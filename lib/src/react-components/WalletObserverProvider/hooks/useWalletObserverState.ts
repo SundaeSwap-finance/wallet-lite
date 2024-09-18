@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
+import { ADA_ASSET_ID } from "../../../constants.js";
 import { areAssetMapsEqual } from "../../../utils/comparisons.js";
 
 /**
@@ -74,9 +75,7 @@ export const useWalletObserverState = <
         newWallet === prevWallet ? prevWallet : newWallet,
       );
 
-      const newAdaBalance = freshData.balanceMap.get(
-        WalletObserver.ADA_ASSET_ID,
-      );
+      const newAdaBalance = freshData.balanceMap.get(ADA_ASSET_ID);
       if (newAdaBalance) {
         setAdaBalance((prevBalance) =>
           prevBalance.amount === newAdaBalance.amount

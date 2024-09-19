@@ -52,8 +52,8 @@ export const getHandleMetadata = async <
         normalizeAssetIdWithDot(key),
         asset
           .withMetadata({
-            ...matchingData,
             ...asset.metadata,
+            ...matchingData,
             assetId: normalizeAssetIdWithDot(asset.metadata.assetId),
             decimals: 0,
           })

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.67 (2024-10-01)
+
+
+### Bug Fixes
+
+* keep the dot in asset ids even with no asset name ([bf5c115](https://github.com/SundaeSwap-finance/wallet-lite/commit/bf5c115b321cd60eaa016433138880f1d03190eb))
+
 ### 0.0.66 (2024-09-19)
 
 

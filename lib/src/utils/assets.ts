@@ -14,11 +14,7 @@ export const normalizeAssetIdWithDot = (assetId: string): string => {
   const policyId = assetId.slice(0, 56);
   const assetName = assetId.slice(56);
 
-  if (assetName) {
-    return `${policyId}.${assetName}`;
-  }
-
-  return policyId;
+  return `${policyId}.${assetName}`;
 };
 
 /**

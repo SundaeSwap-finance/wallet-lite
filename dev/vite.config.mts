@@ -22,7 +22,7 @@ export default defineConfig({
     extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
   },
   build: {
-    sourcemap: process.env.NODE_ENV === "production" ? undefined : "inline",
+    sourcemap: true,
   },
   css: {
     postcss: "./postcss.config.js",

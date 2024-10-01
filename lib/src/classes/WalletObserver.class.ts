@@ -407,7 +407,7 @@ export class WalletObserver<
     if (multiassetEntries) {
       for (const [id, amount] of multiassetEntries) {
         balanceMap.set(
-          id,
+          normalizeAssetIdWithDot(id),
           new AssetAmount(amount, metadata.get(normalizeAssetIdWithDot(id))),
         );
       }

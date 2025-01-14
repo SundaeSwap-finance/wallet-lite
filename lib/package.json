@@ -57,7 +57,7 @@
     "@babel/preset-env": "^7.24.7",
     "@babel/preset-react": "^7.24.7",
     "@babel/preset-typescript": "^7.24.7",
-    "@happy-dom/global-registrator": "^14.12.0",
+    "@happy-dom/global-registrator": "^16.5.3",
     "@sundaeswap/babel-preset": "^2.0.15",
     "@testing-library/dom": "^10.1.0",
     "@testing-library/react": "^16.0.0",
@@ -71,7 +71,7 @@
     "@types/react-dom": "^18.3.0",
     "cross-env": "^7.0.3",
     "fetch-mock": "^9.11.0",
-    "happy-dom": "^14.12.0",
+    "happy-dom": "^16.5.3",
     "standard-version": "^9.5.0",
     "typescript": "^5.4.5"
   }

@@ -5,22 +5,25 @@ import { useWalletObserverState } from "../useWalletObserverState.js";
 
 export const useDerivedState = (
   observer: WalletObserver,
-  state: Pick<ReturnType<typeof useWalletObserverState>, "usedAddresses">,
+  state: Pick<
+    ReturnType<typeof useWalletObserverState>,
+    "usedAddresses" | "unusedAddresses"
+  >,
 ) => {
   const [stakeAddress, setStakeAddress] = useState<string>();
 
   useEffect(() => {
-    if (state.usedAddresses.length === 0) {
-      return;
-    }
-
     observer.getUtils().then((utils) => {
-      setStakeAddress(utils.getBech32StakingAddress(state.usedAddresses[0]));
+      setStakeAddress(
+        utils.getBech32StakingAddress(
+          state.usedAddresses[0] || state.unusedAddresses[0],
+        ),
+      );
     });
-  }, [observer, state.usedAddresses[0]]);
+  }, [observer, state.usedAddresses[0], state.unusedAddresses[0]]);
 
   const memoizedDerivedState = useMemo(() => {
-    let mainAddress = state.usedAddresses[0];
+    let mainAddress = state.usedAddresses[0] || state.unusedAddresses[0];
     const persistentCache = window.localStorage.getItem(
       WalletObserver.PERSISTENCE_CACHE_KEY,
     );
@@ -35,7 +38,12 @@ export const useDerivedState = (
       stakeAddress,
       mainAddress,
     };
-  }, [observer, state.usedAddresses[0], stakeAddress]);
+  }, [
+    observer,
+    state.usedAddresses[0],
+    state.unusedAddresses[0],
+    stakeAddress,
+  ]);
 
   return memoizedDerivedState;
 };

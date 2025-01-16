@@ -129,18 +129,16 @@ export class WalletObserver<
       this._performingSync = true;
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
 
-      let newNetwork: number;
-      try {
+      let newNetwork = await this.getNetwork();
+      if (newNetwork instanceof Error) {
+        await this.syncApi();
         newNetwork = await this.getNetwork();
-      } catch (e) {
-        try {
-          await this.syncApi();
-          newNetwork = await this.getNetwork();
-        } catch (e) {
+
+        if (newNetwork instanceof Error) {
           this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
           this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
           this._performingSync = false;
-          throw e;
+          throw newNetwork;
         }
       }
 
@@ -312,9 +310,16 @@ export class WalletObserver<
 
     this.activeWallet = extension;
     if (this._options.persistence && api) {
+      const addresses = await this.getUsedAddresses();
+      if (addresses instanceof Error) {
+        addresses.cause =
+          "Could not get a list of used addresses from the wallet when trying to save the connection.";
+        throw addresses;
+      }
+
       const seed: IWalletObserverSeed = {
         activeWallet: extension,
-        mainAddress: (await this.getUsedAddresses())[0],
+        mainAddress: addresses[0],
       };
 
       window.localStorage.setItem(
@@ -375,7 +380,9 @@ export class WalletObserver<
    *
    * @returns {Promise<WalletBalanceMap<AssetMetadata>>} - A promise that resolves to a map of asset amounts keyed by asset IDs.
    */
-  getBalanceMap = async (): Promise<WalletBalanceMap<AssetMetadata>> => {
+  getBalanceMap = async (): Promise<
+    WalletBalanceMap<AssetMetadata> | Error
+  > => {
     if (!this.api) {
       throw new Error("Attempted to query balance without an API instance.");
     }
@@ -383,12 +390,17 @@ export class WalletObserver<
     const start = performance.now();
 
     this.dispatch(EWalletObserverEvents.GET_BALANCE_MAP_START);
-    const [cbor, { Serialization }, typedHex] = await Promise.all([
-      this.api.getBalance(),
+    const [{ Serialization }, typedHex] = await Promise.all([
       getCardanoCore(),
       getCardanoUtil(),
     ]);
 
+    let cbor: string;
+    try {
+      cbor = await this.api.getBalance();
+    } catch (e) {
+      return e as Error;
+    }
     const data = Serialization.Value.fromCbor(typedHex(cbor));
     const multiassetKeys = data.multiasset()?.keys() ?? [];
 
@@ -421,24 +433,30 @@ export class WalletObserver<
     if (this._options.debug) {
       console.log(`getBalanceMap: ${end - start}ms`);
     }
+
     return balanceMap;
   };
 
   /**
    * Gets the current network connection.
    *
-   * @returns {Promise<number>} The network ID.
+   * @returns {Promise<number | Error>} The network ID or an Error from the wallet.
    */
-  getNetwork = async (): Promise<number> => {
+  getNetwork = async (): Promise<number | Error> => {
     if (!this.api) {
       throw new Error("Attempted to query network without an API instance.");
     }
 
     const start = performance.now();
 
-    const val = await this.api.getNetworkId();
-    this.network = val;
+    let val: number;
+    try {
+      val = await this.api.getNetworkId();
+    } catch (e) {
+      return e as Error;
+    }
 
+    this.network = val;
     const end = performance.now();
     if (this._options.debug) {
       console.log(`getNetwork: ${end - start}ms`);
@@ -451,7 +469,7 @@ export class WalletObserver<
    *
    * @returns {Promise<string[]>} The list of addresses.
    */
-  getUsedAddresses = async (): Promise<string[]> => {
+  getUsedAddresses = async (): Promise<string[] | Error> => {
     if (!this.api) {
       throw new Error(
         "Attempted to query used addresses without an API instance.",
@@ -460,11 +478,17 @@ export class WalletObserver<
 
     const start = performance.now();
 
-    const [cbor, { Cardano }, typedHex] = await Promise.all([
-      this.api.getUsedAddresses(),
+    const [{ Cardano }, typedHex] = await Promise.all([
       getCardanoCore(),
       getCardanoUtil(),
     ]);
+
+    let cbor: string[];
+    try {
+      cbor = await this.api.getUsedAddresses();
+    } catch (e) {
+      return e as Error;
+    }
 
     const data = cbor.map((val) =>
       Cardano.Address.fromBytes(typedHex(val)).toBech32(),
@@ -480,9 +504,9 @@ export class WalletObserver<
   /**
    * Gets a list of unused addresses, encoded as Bech32.
    *
-   * @returns {Promise<string[]>} The list of addresses.
+   * @returns {Promise<string[] | Error>} The list of addresses or an Error returned by the wallet.
    */
-  getUnusedAddresses = async (): Promise<string[]> => {
+  getUnusedAddresses = async (): Promise<string[] | Error> => {
     if (!this.api) {
       throw new Error(
         "Attempted to query unused addresses without an API instance.",
@@ -491,11 +515,17 @@ export class WalletObserver<
 
     const start = performance.now();
 
-    const [cbor, { Cardano }, typedHex] = await Promise.all([
-      this.api.getUnusedAddresses(),
+    const [{ Cardano }, typedHex] = await Promise.all([
       getCardanoCore(),
       getCardanoUtil(),
     ]);
+
+    let cbor: string[];
+    try {
+      cbor = await this.api.getUnusedAddresses();
+    } catch (e) {
+      return e as Error;
+    }
 
     const data = cbor.map((val) =>
       Cardano.Address.fromBytes(typedHex(val)).toBech32(),
@@ -513,18 +543,26 @@ export class WalletObserver<
    *
    * @returns {Promise<TransactionUnspentOutput[]>} The list of TransactionUnspentOutputs.
    */
-  getUtxos = async (): Promise<TransactionUnspentOutput[] | undefined> => {
+  getUtxos = async (): Promise<
+    TransactionUnspentOutput[] | Error | undefined
+  > => {
     if (!this.api) {
       throw new Error("Attempted to query UTXOs without an API instance.");
     }
 
     const start = performance.now();
 
-    const [cbor, { Serialization }, typedHex] = await Promise.all([
-      this.api.getUtxos(),
+    const [{ Serialization }, typedHex] = await Promise.all([
       getCardanoCore(),
       getCardanoUtil(),
     ]);
+
+    let cbor: string[] | null;
+    try {
+      cbor = await this.api.getUtxos();
+    } catch (e) {
+      return e as Error;
+    }
 
     const data = cbor?.map((val) => {
       const txOutput = Serialization.TransactionUnspentOutput.fromCbor(
@@ -547,29 +585,35 @@ export class WalletObserver<
   /**
    * Gets a list of wallet UTXOs suitable for collateral.
    *
-   * @returns {Promise<TransactionUnspentOutput[]>} The list of TransactionUnspentOutputs.
+   * @returns {Promise<TransactionUnspentOutput[] | Error | undefined>} The list of TransactionUnspentOutputs, if there are any, or an Error.
    */
-  getCollateral = async (): Promise<TransactionUnspentOutput[] | undefined> => {
+  getCollateral = async (): Promise<
+    TransactionUnspentOutput[] | Error | undefined
+  > => {
     if (!this.api) {
       throw new Error("Attempted to query UTXOs without an API instance.");
     }
 
     const start = performance.now();
 
-    const [cbor, { Serialization }, typedHex] = await Promise.all([
-      (async () => {
-        const funcCall =
-          this.api?.getCollateral ||
-          (this.api?.experimental.getCollateral as GetCollateral);
-        if (typeof funcCall !== "function") {
-          return [];
-        }
-
-        return await funcCall();
-      })(),
+    const [{ Serialization }, typedHex] = await Promise.all([
       getCardanoCore(),
       getCardanoUtil(),
     ]);
+
+    let cbor: string[] | null;
+    try {
+      const funcCall =
+        this.api?.getCollateral ||
+        (this.api?.experimental.getCollateral as GetCollateral);
+      if (typeof funcCall !== "function") {
+        cbor = [];
+      } else {
+        cbor = await funcCall();
+      }
+    } catch (e) {
+      return e as Error;
+    }
 
     const data = cbor?.map((val) => {
       const txOutput = Serialization.TransactionUnspentOutput.fromCbor(

@@ -38,6 +38,7 @@ const WalletObserverProvider: FC<
 
   const derivedState = useDerivedState(observerRef.current, {
     usedAddresses: state.usedAddresses,
+    unusedAddresses: state.unusedAddresses,
   });
 
   // Memoize the context value

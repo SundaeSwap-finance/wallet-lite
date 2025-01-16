@@ -93,9 +93,10 @@ export type TGetPeerConnectInstance = () => {
 export interface IWalletObserverSync<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
-  balanceMap: WalletBalanceMap<AssetMetadata>;
-  usedAddresses: string[];
-  unusedAddresses: string[];
-  utxos?: TransactionUnspentOutput[];
-  network: number;
+  balanceMap: Error | WalletBalanceMap<AssetMetadata>;
+  usedAddresses: Error | string[];
+  unusedAddresses: Error | string[];
+  utxos?: Error | TransactionUnspentOutput[];
+  collateral?: Error | TransactionUnspentOutput[];
+  network: Error | number;
 }

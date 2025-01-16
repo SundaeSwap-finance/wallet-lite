@@ -40,6 +40,7 @@ export const useWalletObserver = <
       disconnect: state.disconnect,
       connectWallet: state.connectWallet,
       switching: state.switching,
+      errorSyncing: state.errorSyncing,
       isPending: state.isPending,
       willAutoConnect: state.willAutoConnect,
     }),
@@ -62,6 +63,7 @@ export const useWalletObserver = <
       state.switching,
       state.isPending,
       state.willAutoConnect,
+      state.errorSyncing,
     ],
   );
 

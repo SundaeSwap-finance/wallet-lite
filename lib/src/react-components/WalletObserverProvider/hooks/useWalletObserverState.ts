@@ -1,4 +1,4 @@
-import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
+import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/TransactionUnspentOutput.js";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
@@ -32,6 +32,7 @@ export const useWalletObserverState = <
   const [collateral, setCollateral] = useState<TransactionUnspentOutput[]>();
   const [isCip45, setIsCip45] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [errorSyncing, setErrorSyncing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [willAutoConnect, setWillAutoConnect] = useState(
     Boolean(
@@ -68,66 +69,103 @@ export const useWalletObserverState = <
       return;
     }
 
-    const freshData = await observer.sync();
+    setIsCip45(newWallet.includes("p2p"));
+    setActiveWallet((prevWallet) =>
+      newWallet === prevWallet ? prevWallet : newWallet,
+    );
 
-    startTransition(() => {
-      setActiveWallet((prevWallet) =>
-        newWallet === prevWallet ? prevWallet : newWallet,
-      );
+    try {
+      const freshData = await observer.sync();
 
-      const newAdaBalance = freshData.balanceMap.get(ADA_ASSET_ID);
-      if (newAdaBalance) {
-        setAdaBalance((prevBalance) =>
-          prevBalance.amount === newAdaBalance.amount
-            ? prevBalance
-            : newAdaBalance,
-        );
-      }
+      startTransition(() => {
+        const newBalanceMap = freshData.balanceMap;
+        if (newBalanceMap instanceof WalletBalanceMap) {
+          const newAdaBalance = newBalanceMap.get(ADA_ASSET_ID);
+          if (newAdaBalance) {
+            setAdaBalance((prevBalance) =>
+              prevBalance.amount === newAdaBalance.amount
+                ? prevBalance
+                : newAdaBalance,
+            );
 
-      setBalance((prevBalance) =>
-        areAssetMapsEqual(prevBalance, freshData.balanceMap)
-          ? prevBalance
-          : freshData.balanceMap,
-      );
-
-      setUsedAddresses((prevValue) =>
-        JSON.stringify(prevValue) === JSON.stringify(freshData.usedAddresses)
-          ? prevValue
-          : freshData.usedAddresses,
-      );
-
-      setUnusedAddresses((prevValue) =>
-        JSON.stringify(prevValue) === JSON.stringify(freshData.unusedAddresses)
-          ? prevValue
-          : freshData.unusedAddresses,
-      );
-
-      setNetwork((prevValue) =>
-        prevValue === freshData.network ? prevValue : freshData.network,
-      );
-
-      setUtxos((prevValue) => {
-        const prevValueRep = prevValue?.map((v) => v.toCbor());
-        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-        if (prevValueRep !== newValueRep) {
-          return freshData.utxos;
+            setBalance((prevBalance) =>
+              areAssetMapsEqual(prevBalance, newBalanceMap)
+                ? prevBalance
+                : newBalanceMap,
+            );
+          }
+        } else {
+          setErrorSyncing(true);
         }
 
-        return prevValue;
-      });
-
-      setCollateral((prevValue) => {
-        const prevValueRep = prevValue?.map((v) => v.toCbor());
-        const newValueRep = freshData.utxos?.map((v) => v.toCbor());
-        if (prevValueRep !== newValueRep) {
-          return freshData.utxos;
+        const newUsedAddresses = freshData.usedAddresses;
+        if (newUsedAddresses instanceof Array) {
+          setUsedAddresses((prevValue) => {
+            return JSON.stringify(prevValue) ===
+              JSON.stringify(newUsedAddresses)
+              ? prevValue
+              : newUsedAddresses;
+          });
+        } else {
+          setErrorSyncing(true);
         }
 
-        return prevValue;
-      });
+        const newUnusedAddresses = freshData.unusedAddresses;
+        if (newUnusedAddresses instanceof Array) {
+          setUnusedAddresses((prevValue) =>
+            JSON.stringify(prevValue) === JSON.stringify(newUnusedAddresses)
+              ? prevValue
+              : newUnusedAddresses,
+          );
+        } else {
+          setErrorSyncing(true);
+        }
 
-      setIsCip45(newWallet.includes("p2p"));
-    });
+        const newNetwork = freshData.network;
+        if (typeof newNetwork === "number") {
+          setNetwork((prevValue) =>
+            prevValue === newNetwork ? prevValue : newNetwork,
+          );
+        } else {
+          setErrorSyncing(true);
+        }
+
+        const newUtxos = freshData.utxos;
+        if (newUtxos instanceof Array) {
+          setUtxos((prevValue) => {
+            const prevValueRep = prevValue?.map((v) => v.toCbor());
+            const newValueRep = newUtxos?.map((v) => v.toCbor());
+            if (prevValueRep !== newValueRep) {
+              return newUtxos;
+            }
+
+            return prevValue;
+          });
+        } else {
+          setErrorSyncing(true);
+        }
+
+        const newCollateral = freshData.collateral;
+        if (newCollateral instanceof Array) {
+          setCollateral((prevValue) => {
+            const prevValueRep = prevValue?.map((v) => v.toCbor());
+            const newValueRep = newCollateral?.map((v) => v.toCbor());
+            if (prevValueRep !== newValueRep) {
+              return newCollateral;
+            }
+
+            return prevValue;
+          });
+        } else {
+          setErrorSyncing(true);
+        }
+      });
+    } catch (e) {
+      setErrorSyncing(true);
+      (e as Error).cause =
+        "The wallet through an error while the app was trying to sync with it. Please try again or contact your wallet provider.";
+      throw e;
+    }
   }, [observer, disconnect]);
 
   const connectWallet = useCallback(
@@ -178,6 +216,7 @@ export const useWalletObserverState = <
     disconnect,
     connectWallet,
     switching,
+    errorSyncing,
     setSwitching,
     isPending,
     willAutoConnect,

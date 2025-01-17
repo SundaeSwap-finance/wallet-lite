@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@cardano-sdk/core": "0.40.1",
-    "@cardano-sdk/dapp-connector": "0.12.38",
+    "@cardano-sdk/dapp-connector": "0.13.2",
     "@cardano-sdk/util": "0.15.5",
     "@cardano-foundation/cardano-connect-with-wallet": "^0.2.9",
     "@koralabs/adahandle-sdk": "^1.5.4",

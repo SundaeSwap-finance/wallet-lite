@@ -13,6 +13,10 @@ export const useDerivedState = (
   const [stakeAddress, setStakeAddress] = useState<string>();
 
   useEffect(() => {
+    if (!state.usedAddresses[0] && !state.unusedAddresses[0]) {
+      return;
+    }
+
     observer.getUtils().then((utils) => {
       setStakeAddress(
         utils.getBech32StakingAddress(
@@ -20,7 +24,7 @@ export const useDerivedState = (
         ),
       );
     });
-  }, [observer, state.usedAddresses[0], state.unusedAddresses[0]]);
+  }, [state.usedAddresses[0] || state.unusedAddresses[0]]);
 
   const memoizedDerivedState = useMemo(() => {
     let mainAddress = state.usedAddresses[0] || state.unusedAddresses[0];

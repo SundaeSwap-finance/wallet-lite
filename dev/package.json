@@ -42,11 +42,11 @@
     "vite": "^5.2.12"
   },
   "dependencies": {
-    "@cardano-sdk/core": "0.40.1",
-    "@cardano-sdk/dapp-connector": "0.13.2",
-    "@cardano-sdk/util": "0.15.5",
+    "@cardano-sdk/core": "^0.45.0",
+    "@cardano-sdk/dapp-connector": "^0.13.3",
+    "@cardano-sdk/util": "^0.15.5",
     "@cardano-foundation/cardano-connect-with-wallet": "^0.2.9",
-    "@koralabs/adahandle-sdk": "^1.5.4",
+    "@koralabs/adahandle-sdk": "^1.5.5",
     "@sundaeswap/asset": "^1.0.6",
     "@sundaeswap/fraction": "^1.0.5",
     "@sundaeswap/wallet-lite": "workspace:*",

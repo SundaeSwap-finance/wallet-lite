@@ -64,7 +64,7 @@ export class WalletBalanceMap<
   getHandles = (): TAssetAmountMap<AssetMetadata> => {
     const map: TAssetAmountMap<AssetMetadata> = new WalletAssetMap();
     [...this.entries()].forEach(([key, asset]) => {
-      const isHandle = this._handlePolicyIds[this._observer.network].some(
+      const isHandle = this._handlePolicyIds[this._observer.network]?.some(
         (policyId) => asset.metadata.assetId.includes(policyId),
       );
 
@@ -90,7 +90,7 @@ export class WalletBalanceMap<
     [...this.entries()].forEach(([key, asset]) => {
       if (
         !withHandles &&
-        this._handlePolicyIds[this._observer.network].some((policyId) =>
+        this._handlePolicyIds[this._observer.network]?.some((policyId) =>
           asset.metadata.assetId.includes(policyId),
         )
       ) {

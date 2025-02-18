@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.73 (2025-02-18)
+
+
+### Bug Fixes
+
+* gracefully fail NFT search ([59d2c0f](https://github.com/SundaeSwap-finance/wallet-lite/commit/59d2c0ff926cea70a16eeb00c21f492f94ed5fc0))
+
 ### 0.0.72 (2025-01-27)
 
 ### 0.0.71 (2025-01-17)

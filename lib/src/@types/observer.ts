@@ -99,4 +99,5 @@ export interface IWalletObserverSync<
   utxos?: Error | TransactionUnspentOutput[];
   collateral?: Error | TransactionUnspentOutput[];
   network: Error | number;
+  feeAddress?: Error | string;
 }

@@ -148,21 +148,24 @@ export class WalletObserver<
         newUnusedAddresses,
         newOutputs,
         newCollateral,
+        newFeeAddress,
       ] = await Promise.all([
         this.getBalanceMap(),
         this.getUsedAddresses(),
         this.getUnusedAddresses(),
         this.getUtxos(),
         this.getCollateral(),
+        this.getFeeAddress(),
       ]);
 
-      const result = {
+      const result: IWalletObserverSync<AssetMetadata> = {
         balanceMap: newBalanceMap,
         usedAddresses: newUsedAddresses,
         unusedAddresses: newUnusedAddresses,
         utxos: newOutputs,
         collateral: newCollateral,
         network: newNetwork,
+        feeAddress: newFeeAddress,
       };
 
       const end = performance.now();
@@ -580,6 +583,33 @@ export class WalletObserver<
       console.log(`getUtxos: ${end - start}ms`);
     }
     return data;
+  };
+
+  /**
+   * Gets the fee address set by the wallet, if available.
+   *
+   * @returns {Promise<string | Error | undefined>} The fee address or an Error.
+   */
+  getFeeAddress = async (): Promise<string | Error | undefined> => {
+    if (!this.api) {
+      throw new Error(
+        "Attempted to query fee address without an API instance.",
+      );
+    }
+
+    const start = performance.now();
+    try {
+      const address = this.api.experimental?.getFeeAddress();
+      const end = performance.now();
+
+      if (this._options.debug) {
+        console.log(`getFeeAddress: ${end - start}ms`);
+      }
+
+      return address;
+    } catch (e) {
+      return e as Error;
+    }
   };
 
   /**

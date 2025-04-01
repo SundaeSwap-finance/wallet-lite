@@ -84,4 +84,5 @@ export type TUseWalletObserverState<
   | "setIsCip45"
   | "setUtxos"
   | "setCollateral"
+  | "setFeeAddress"
 >;

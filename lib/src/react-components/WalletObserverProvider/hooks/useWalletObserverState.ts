@@ -28,6 +28,7 @@ export const useWalletObserverState = <
   const [network, setNetwork] = useState<number | undefined>();
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
   const [unusedAddresses, setUnusedAddresses] = useState<string[]>([]);
+  const [feeAddress, setFeeAddress] = useState<string | undefined>();
   const [utxos, setUtxos] = useState<TransactionUnspentOutput[]>();
   const [collateral, setCollateral] = useState<TransactionUnspentOutput[]>();
   const [isCip45, setIsCip45] = useState(false);
@@ -54,6 +55,7 @@ export const useWalletObserverState = <
     setNetwork(undefined);
     setUtxos(undefined);
     setCollateral(undefined);
+    setFeeAddress(undefined);
     setIsCip45(false);
     setWillAutoConnect(false);
   }, [observer]);
@@ -94,8 +96,6 @@ export const useWalletObserverState = <
                 : newBalanceMap,
             );
           }
-        } else {
-          setErrorSyncing(true);
         }
 
         const newUsedAddresses = freshData.usedAddresses;
@@ -106,8 +106,6 @@ export const useWalletObserverState = <
               ? prevValue
               : newUsedAddresses;
           });
-        } else {
-          setErrorSyncing(true);
         }
 
         const newUnusedAddresses = freshData.unusedAddresses;
@@ -117,8 +115,6 @@ export const useWalletObserverState = <
               ? prevValue
               : newUnusedAddresses,
           );
-        } else {
-          setErrorSyncing(true);
         }
 
         const newNetwork = freshData.network;
@@ -126,8 +122,6 @@ export const useWalletObserverState = <
           setNetwork((prevValue) =>
             prevValue === newNetwork ? prevValue : newNetwork,
           );
-        } else {
-          setErrorSyncing(true);
         }
 
         const newUtxos = freshData.utxos;
@@ -141,8 +135,6 @@ export const useWalletObserverState = <
 
             return prevValue;
           });
-        } else {
-          setErrorSyncing(true);
         }
 
         const newCollateral = freshData.collateral;
@@ -156,14 +148,19 @@ export const useWalletObserverState = <
 
             return prevValue;
           });
-        } else {
-          setErrorSyncing(true);
+        }
+
+        const newFeeAddress = freshData.feeAddress;
+        if (typeof newFeeAddress === "string") {
+          setFeeAddress((prevValue) =>
+            prevValue === newFeeAddress ? prevValue : newFeeAddress,
+          );
         }
       });
     } catch (e) {
       setErrorSyncing(true);
       (e as Error).cause =
-        "The wallet through an error while the app was trying to sync with it. Please try again or contact your wallet provider.";
+        "The wallet threw an error while the app was trying to sync with it. Please try again or contact your wallet provider.";
       throw e;
     }
   }, [observer, disconnect]);
@@ -195,30 +192,32 @@ export const useWalletObserverState = <
 
   return {
     activeWallet,
-    setActiveWallet,
     adaBalance,
-    setAdaBalance,
     balance,
-    setBalance,
-    isCip45,
-    setIsCip45,
-    network,
-    setNetwork,
-    unusedAddresses,
-    setUnusedAddresses,
-    usedAddresses,
-    setUsedAddresses,
-    utxos,
-    setUtxos,
     collateral,
-    setCollateral,
-    syncWallet,
-    disconnect,
     connectWallet,
-    switching,
+    disconnect,
     errorSyncing,
-    setSwitching,
+    feeAddress,
+    isCip45,
     isPending,
+    network,
+    setActiveWallet,
+    setAdaBalance,
+    setBalance,
+    setCollateral,
+    setFeeAddress,
+    setIsCip45,
+    setNetwork,
+    setSwitching,
+    setUnusedAddresses,
+    setUsedAddresses,
+    setUtxos,
+    switching,
+    syncWallet,
+    unusedAddresses,
+    usedAddresses,
+    utxos,
     willAutoConnect,
   };
 };

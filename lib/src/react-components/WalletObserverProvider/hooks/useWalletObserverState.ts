@@ -60,6 +60,20 @@ export const useWalletObserverState = <
     setWillAutoConnect(false);
   }, [observer]);
 
+  const connectWallet = useCallback(
+    async (wallet: string) => {
+      if (observer.hasActiveConnection() && wallet !== observer.activeWallet) {
+        setSwitching(() => true);
+      }
+
+      await observer.connectWallet(wallet);
+      await syncWallet();
+      setSwitching(() => false);
+      return observer.api;
+    },
+    [observer, setSwitching],
+  );
+
   const syncWallet = useCallback(async () => {
     if (observer.isSyncing() || !observer.hasActiveConnection()) {
       return;
@@ -164,20 +178,6 @@ export const useWalletObserverState = <
       throw e;
     }
   }, [observer, disconnect]);
-
-  const connectWallet = useCallback(
-    async (wallet: string) => {
-      if (observer.hasActiveConnection() && wallet !== observer.activeWallet) {
-        setSwitching(() => true);
-      }
-
-      await observer.connectWallet(wallet);
-      await syncWallet();
-      setSwitching(() => false);
-      return observer.api;
-    },
-    [observer, setSwitching],
-  );
 
   /**
    * Ensure the wallet syncs on connect and disconnect.

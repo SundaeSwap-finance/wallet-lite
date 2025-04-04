@@ -1,7 +1,7 @@
-import { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-
 import { useCallback, useMemo, useState } from "react";
+
+import { DataSignError } from "@cardano-sdk/dapp-connector";
 import { useWalletObserver } from "./useWalletObserver";
 
 export interface ISignedData {
@@ -17,7 +17,6 @@ export interface ISignedData {
 export interface ISignDataParams<T = object | string> {
   payload: T;
   signingAddress: string;
-  connectedWallet: Cip30WalletApi;
 }
 
 export const useWalletData = <
@@ -25,6 +24,8 @@ export const useWalletData = <
 >() => {
   const state = useWalletObserver<AssetMetadata>();
   const [signedData, setSignedData] = useState<ISignedData>();
+  const [isSigningData, setIsSigningData] = useState(false);
+  const [error, setError] = useState<DataSignError>();
 
   const signData = useCallback(
     async ({ signingAddress, payload }: ISignDataParams) => {
@@ -42,39 +43,47 @@ export const useWalletData = <
         import("@emurgo/cardano-message-signing-nodejs"),
       ]);
 
-      const response = await state.observer.api.signData(
-        Buffer.from(
-          Cardano.Address.fromBech32(signingAddress).toBytes(),
-        ).toString("hex"),
-        Buffer.from(
-          typeof payload === "string"
-            ? payload
-            : JSON.stringify(payload, null, 0),
-          "utf-8",
-        ).toString("hex"),
-      );
+      setIsSigningData(true);
 
-      const coseSign1 = COSESign1.from_bytes(
-        new Uint8Array(Buffer.from(response.signature, "hex")),
-      );
-      const keySign = COSEKey.from_bytes(
-        new Uint8Array(Buffer.from(response.key, "hex")),
-      );
-      const labelInt = Int.new_negative(BigNum.from_str("2"));
+      try {
+        const response = await state.observer.api.signData(
+          Buffer.from(
+            Cardano.Address.fromBech32(signingAddress).toBytes(),
+          ).toString("hex"),
+          Buffer.from(
+            typeof payload === "string"
+              ? payload
+              : JSON.stringify(payload, null, 0),
+            "utf-8",
+          ).toString("hex"),
+        );
 
-      const data: ISignedData = {
-        payload: Buffer.from(coseSign1.signed_data().to_bytes()).toString(
-          "hex",
-        ),
-        signature: Ed25519Signature.fromBytes(coseSign1.signature()).hex(),
-        key: Buffer.from(
-          keySign.header(Label.new_int(labelInt))?.as_bytes() || [],
-        ).toString("hex"),
-        rawData: { cborKey: response.key, cborSignature: response.signature },
-      };
+        const coseSign1 = COSESign1.from_bytes(
+          new Uint8Array(Buffer.from(response.signature, "hex")),
+        );
+        const keySign = COSEKey.from_bytes(
+          new Uint8Array(Buffer.from(response.key, "hex")),
+        );
+        const labelInt = Int.new_negative(BigNum.from_str("2"));
 
-      setSignedData(data);
-      return data;
+        const data: ISignedData = {
+          payload: Buffer.from(coseSign1.signed_data().to_bytes()).toString(
+            "hex",
+          ),
+          signature: Ed25519Signature.fromBytes(coseSign1.signature()).hex(),
+          key: Buffer.from(
+            keySign.header(Label.new_int(labelInt))?.as_bytes() || [],
+          ).toString("hex"),
+          rawData: { cborKey: response.key, cborSignature: response.signature },
+        };
+
+        setSignedData(data);
+        setIsSigningData(false);
+        return data;
+      } catch (e) {
+        setIsSigningData(false);
+        setError(e as DataSignError);
+      }
     },
     [state.observer.api],
   );
@@ -83,7 +92,9 @@ export const useWalletData = <
     () => ({
       signData,
       signedData,
+      isSigningData,
+      error,
     }),
-    [signData, signedData],
+    [signData, signedData, isSigningData, error],
   );
 };

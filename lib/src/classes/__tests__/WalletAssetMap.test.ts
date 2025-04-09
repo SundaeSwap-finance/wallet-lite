@@ -1,6 +1,7 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { beforeEach, describe, expect, it } from "bun:test";
-import { ADA_ASSET_ID } from "src/constants";
+
+import { ADA_ASSET_ID } from "../../constants";
 import { WalletAssetMap } from "../WalletAssetMap.class";
 
 let am: WalletAssetMap;

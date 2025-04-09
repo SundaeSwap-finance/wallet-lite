@@ -1,6 +1,6 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { ADA_ASSET_ID } from "src/constants.js";
+import { ADA_ASSET_ID } from "../constants.js";
 import { normalizeAssetIdWithDot } from "../utils/assets.js";
 
 /**

@@ -27,7 +27,7 @@ const WalletObserverProvider: FC<
     syncingWallet,
     ready,
     eventListenersAttached,
-  } = useProviderWalletObserverRef(options?.observerOptions);
+  } = useProviderWalletObserverRef(options?.observerOptions, options?.hooks);
   const state = useWalletObserverState(observerRef.current);
 
   useProviderRefreshInterval(

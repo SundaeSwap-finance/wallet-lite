@@ -136,7 +136,6 @@ export class WalletObserver<
 
         if (newNetwork instanceof Error) {
           this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
-          this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
           this._performingSync = false;
           throw newNetwork;
         }
@@ -177,16 +176,11 @@ export class WalletObserver<
         ...result,
         activeWallet: this.activeWallet!,
       });
-      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
-        ...result,
-        activeWallet: this.activeWallet!,
-      });
       this._performingSync = false;
       return result;
     } catch (e) {
       this._performingSync = false;
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
-      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
       throw e;
     }
   };
@@ -285,9 +279,11 @@ export class WalletObserver<
    * 10 seconds before throw an error.
    *
    * @param {string} extension The name of the extension to enable.
-   * @return {Promise<void>}
+   * @return {Promise<IWalletObserverSync<AssetMetadata> | Error>}
    */
-  connectWallet = async (extension: string): Promise<void> => {
+  connectWallet = async (
+    extension: string,
+  ): Promise<IWalletObserverSync<AssetMetadata> | Error> => {
     const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
 
@@ -312,23 +308,24 @@ export class WalletObserver<
     }
 
     if (!extensionObject) {
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
       throw new Error("Wallet extension not found in the global context.");
     }
 
-    const api = await this.syncApi(extension);
-
     this.activeWallet = extension;
-    if (this._options.persistence && api) {
-      const addresses = await this.getUsedAddresses();
-      if (addresses instanceof Error) {
-        addresses.cause =
+    await this.syncApi(extension);
+    const data = await this.sync();
+
+    if (this._options.persistence) {
+      if (data.usedAddresses instanceof Error) {
+        data.usedAddresses.cause =
           "Could not get a list of used addresses from the wallet when trying to save the connection.";
-        throw addresses;
+        throw data.usedAddresses;
       }
 
       const seed: IWalletObserverSeed = {
         activeWallet: extension,
-        mainAddress: addresses[0],
+        mainAddress: data.usedAddresses[0],
       };
 
       window.localStorage.setItem(
@@ -337,10 +334,16 @@ export class WalletObserver<
       );
     }
 
+    this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
+      ...data,
+      activeWallet: extension,
+    });
     const end = performance.now();
     if (this._options.debug) {
       console.log(`connectWallet: ${end - start}ms`);
     }
+
+    return data;
   };
 
   getCip45Instance = async () => {

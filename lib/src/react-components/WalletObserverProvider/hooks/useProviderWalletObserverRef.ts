@@ -49,32 +49,42 @@ export const useProviderWalletObserverRef = (
       return;
     }
 
-    const setConnectingStart = async () => {
-      setConnecting(() => true);
-      await hooks?.onConnectWalletStart?.();
+    const setConnectingStart = () => {
+      (async () => {
+        setConnecting(() => true);
+        await hooks?.onConnectWalletStart?.();
+      })().catch(console.error);
     };
-    const setConnectingEnd = async (
+    const setConnectingEnd = (
       data?: IWalletObserverSync<IAssetAmountMetadata> & {
         activeWallet: string;
       },
     ) => {
-      setConnecting(() => false);
-      await hooks?.onConnectWalletEnd?.(data);
+      (async () => {
+        setConnecting(() => false);
+        await hooks?.onConnectWalletEnd?.(data);
+      })().catch(console.error);
     };
-    const setSyncingStart = async () => {
-      setSyncing(() => true);
-      await hooks?.onSyncWalletStart?.();
+    const setSyncingStart = () => {
+      (async () => {
+        setSyncing(() => true);
+        await hooks?.onSyncWalletStart?.();
+      })().catch(console.error);
     };
-    const setSyncingEnd = async (
+    const setSyncingEnd = (
       data?: IWalletObserverSync<IAssetAmountMetadata> & {
         activeWallet: string;
       },
     ) => {
-      await hooks?.onSyncWalletEnd?.(data);
-      setSyncing(() => false);
+      (async () => {
+        await hooks?.onSyncWalletEnd?.(data);
+        setSyncing(() => false);
+      })().catch(console.error);
     };
     const onDisconnect = () => {
-      hooks?.onDisconnectWallet?.();
+      (async () => {
+        hooks?.onDisconnectWallet?.();
+      })().catch(console.error);
     };
 
     observerRef.current.addEventListener(

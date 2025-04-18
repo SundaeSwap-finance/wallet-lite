@@ -2,6 +2,7 @@ import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serial
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
+import { IWalletObserverSync } from "src/@types/observer.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { ADA_ASSET_ID } from "../../../constants.js";
@@ -66,127 +67,131 @@ export const useWalletObserverState = <
         setSwitching(() => true);
       }
 
-      await observer.connectWallet(wallet);
-      await syncWallet();
+      const data = await observer.connectWallet(wallet);
+      await syncWallet(data instanceof Error ? undefined : data);
       setSwitching(() => false);
       return observer.api;
     },
     [observer, setSwitching],
   );
 
-  const syncWallet = useCallback(async () => {
-    if (observer.isSyncing() || !observer.hasActiveConnection()) {
-      return;
-    }
+  const syncWallet = useCallback(
+    async (importedData?: IWalletObserverSync<AssetMetadata> | undefined) => {
+      if (observer.isSyncing() || !observer.hasActiveConnection()) {
+        return;
+      }
 
-    const newWallet = observer.activeWallet;
-    if (!newWallet) {
-      disconnect();
-      return;
-    }
+      const newWallet = observer.activeWallet;
+      if (!newWallet) {
+        disconnect();
+        return;
+      }
 
-    setIsCip45(newWallet.includes("p2p"));
-    setActiveWallet((prevWallet) =>
-      newWallet === prevWallet ? prevWallet : newWallet,
-    );
+      setIsCip45(newWallet.includes("p2p"));
+      setActiveWallet((prevWallet) =>
+        newWallet === prevWallet ? prevWallet : newWallet,
+      );
 
-    try {
-      const freshData = await observer.sync();
+      try {
+        const freshData = importedData || (await observer.sync());
 
-      startTransition(() => {
-        const newBalanceMap = freshData.balanceMap;
-        if (newBalanceMap instanceof WalletBalanceMap) {
-          const newAdaBalance = newBalanceMap.get(ADA_ASSET_ID);
-          if (newAdaBalance) {
-            setAdaBalance((prevBalance) =>
-              prevBalance.amount === newAdaBalance.amount
-                ? prevBalance
-                : newAdaBalance,
-            );
+        startTransition(() => {
+          const newBalanceMap = freshData.balanceMap;
+          if (newBalanceMap instanceof WalletBalanceMap) {
+            const newAdaBalance = newBalanceMap.get(ADA_ASSET_ID);
+            if (newAdaBalance) {
+              setAdaBalance((prevBalance) =>
+                prevBalance.amount === newAdaBalance.amount
+                  ? prevBalance
+                  : newAdaBalance,
+              );
 
-            setBalance((prevBalance) =>
-              areAssetMapsEqual(prevBalance, newBalanceMap)
-                ? prevBalance
-                : newBalanceMap,
+              setBalance((prevBalance) =>
+                areAssetMapsEqual(prevBalance, newBalanceMap)
+                  ? prevBalance
+                  : newBalanceMap,
+              );
+            }
+          }
+
+          const newUsedAddresses = freshData.usedAddresses;
+          if (newUsedAddresses instanceof Array) {
+            setUsedAddresses((prevValue) => {
+              return JSON.stringify(prevValue) ===
+                JSON.stringify(newUsedAddresses)
+                ? prevValue
+                : newUsedAddresses;
+            });
+          }
+
+          const newUnusedAddresses = freshData.unusedAddresses;
+          if (newUnusedAddresses instanceof Array) {
+            setUnusedAddresses((prevValue) =>
+              JSON.stringify(prevValue) === JSON.stringify(newUnusedAddresses)
+                ? prevValue
+                : newUnusedAddresses,
             );
           }
-        }
 
-        const newUsedAddresses = freshData.usedAddresses;
-        if (newUsedAddresses instanceof Array) {
-          setUsedAddresses((prevValue) => {
-            return JSON.stringify(prevValue) ===
-              JSON.stringify(newUsedAddresses)
-              ? prevValue
-              : newUsedAddresses;
-          });
-        }
+          const newNetwork = freshData.network;
+          if (typeof newNetwork === "number") {
+            setNetwork((prevValue) =>
+              prevValue === newNetwork ? prevValue : newNetwork,
+            );
+          }
 
-        const newUnusedAddresses = freshData.unusedAddresses;
-        if (newUnusedAddresses instanceof Array) {
-          setUnusedAddresses((prevValue) =>
-            JSON.stringify(prevValue) === JSON.stringify(newUnusedAddresses)
-              ? prevValue
-              : newUnusedAddresses,
-          );
-        }
+          const newUtxos = freshData.utxos;
+          if (newUtxos instanceof Array) {
+            setUtxos((prevValue) => {
+              const prevValueRep = prevValue?.map((v) => v.toCbor());
+              const newValueRep = newUtxos?.map((v) => v.toCbor());
+              if (prevValueRep !== newValueRep) {
+                return newUtxos;
+              }
 
-        const newNetwork = freshData.network;
-        if (typeof newNetwork === "number") {
-          setNetwork((prevValue) =>
-            prevValue === newNetwork ? prevValue : newNetwork,
-          );
-        }
+              return prevValue;
+            });
+          }
 
-        const newUtxos = freshData.utxos;
-        if (newUtxos instanceof Array) {
-          setUtxos((prevValue) => {
-            const prevValueRep = prevValue?.map((v) => v.toCbor());
-            const newValueRep = newUtxos?.map((v) => v.toCbor());
-            if (prevValueRep !== newValueRep) {
-              return newUtxos;
-            }
+          const newCollateral = freshData.collateral;
+          if (newCollateral instanceof Array) {
+            setCollateral((prevValue) => {
+              const prevValueRep = prevValue?.map((v) => v.toCbor());
+              const newValueRep = newCollateral?.map((v) => v.toCbor());
+              if (prevValueRep !== newValueRep) {
+                return newCollateral;
+              }
 
-            return prevValue;
-          });
-        }
+              return prevValue;
+            });
+          }
 
-        const newCollateral = freshData.collateral;
-        if (newCollateral instanceof Array) {
-          setCollateral((prevValue) => {
-            const prevValueRep = prevValue?.map((v) => v.toCbor());
-            const newValueRep = newCollateral?.map((v) => v.toCbor());
-            if (prevValueRep !== newValueRep) {
-              return newCollateral;
-            }
-
-            return prevValue;
-          });
-        }
-
-        const newFeeAddress = freshData.feeAddress;
-        if (typeof newFeeAddress === "string") {
-          setFeeAddress((prevValue) =>
-            prevValue === newFeeAddress ? prevValue : newFeeAddress,
-          );
-        }
-      });
-    } catch (e) {
-      setErrorSyncing(true);
-      (e as Error).cause =
-        "The wallet threw an error while the app was trying to sync with it. Please try again or contact your wallet provider.";
-      throw e;
-    }
-  }, [observer, disconnect]);
+          const newFeeAddress = freshData.feeAddress;
+          if (typeof newFeeAddress === "string") {
+            setFeeAddress((prevValue) =>
+              prevValue === newFeeAddress ? prevValue : newFeeAddress,
+            );
+          }
+        });
+      } catch (e) {
+        setErrorSyncing(true);
+        (e as Error).cause =
+          "The wallet threw an error while the app was trying to sync with it. Please try again or contact your wallet provider.";
+        throw e;
+      }
+    },
+    [observer, disconnect],
+  );
 
   /**
    * Ensure the wallet syncs on connect and disconnect.
    */
   useEffect(() => {
-    window.addEventListener("focus", syncWallet);
+    const func = () => syncWallet();
+    window.addEventListener("focus", func);
 
     return () => {
-      window.addEventListener("focus", syncWallet);
+      window.addEventListener("focus", func);
     };
   }, [syncWallet]);
 

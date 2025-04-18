@@ -45,20 +45,20 @@ export const useProviderWalletObserverRef = (
       return;
     }
 
-    const setConnectingStart = () => {
+    const setConnectingStart = async () => {
       setConnecting(() => true);
-      hooks?.onConnectWalletStart?.();
+      await hooks?.onConnectWalletStart?.();
     };
-    const setConnectingEnd = () => {
+    const setConnectingEnd = async () => {
       setConnecting(() => false);
-      hooks?.onConnectWalletEnd?.();
+      await hooks?.onConnectWalletEnd?.();
     };
-    const setSyncingStart = () => {
+    const setSyncingStart = async () => {
       setSyncing(() => true);
-      hooks?.onSyncWalletStart?.();
+      await hooks?.onSyncWalletStart?.();
     };
-    const setSyncingEnd = () => {
-      hooks?.onSyncWalletEnd?.();
+    const setSyncingEnd = async () => {
+      await hooks?.onSyncWalletEnd?.();
       setSyncing(() => false);
     };
     const onDisconnect = () => {

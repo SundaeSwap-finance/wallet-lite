@@ -16,11 +16,15 @@ import { useWalletObserverState } from "../../WalletObserverProvider/hooks/useWa
 export type TWalletProviderHooks<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = {
-  onSyncWalletStart?: () => void;
-  onSyncWalletEnd?: (data?: IWalletObserverSync<AssetMetadata>) => void;
-  onConnectWalletStart?: () => void;
-  onConnectWalletEnd?: (data?: IWalletObserverSync<AssetMetadata>) => void;
-  onDisconnectWallet?: () => void;
+  onSyncWalletStart?: () => Promise<void>;
+  onSyncWalletEnd?: (
+    data?: IWalletObserverSync<AssetMetadata>,
+  ) => Promise<void>;
+  onConnectWalletStart?: () => Promise<void>;
+  onConnectWalletEnd?: (
+    data?: IWalletObserverSync<AssetMetadata>,
+  ) => Promise<void>;
+  onDisconnectWallet?: () => Promise<void>;
 };
 
 /**

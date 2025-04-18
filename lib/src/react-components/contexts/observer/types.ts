@@ -2,7 +2,10 @@ import type { IHandle } from "@koralabs/adahandle-sdk";
 import type { IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { MutableRefObject } from "react";
 
-import type { TWalletObserverOptions } from "../../../@types/observer.js";
+import type {
+  IWalletObserverSync,
+  TWalletObserverOptions,
+} from "../../../@types/observer.js";
 import type { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { useDerivedState } from "../../WalletObserverProvider/hooks/effects/useDerivedState.js";
 import { useWalletObserverState } from "../../WalletObserverProvider/hooks/useWalletObserverState.js";
@@ -10,11 +13,13 @@ import { useWalletObserverState } from "../../WalletObserverProvider/hooks/useWa
 /**
  * Available hooks to apply at various events.
  */
-export type TWalletProviderHooks = {
+export type TWalletProviderHooks<
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
+> = {
   onSyncWalletStart?: () => void;
-  onSyncWalletEnd?: () => void;
+  onSyncWalletEnd?: (data?: IWalletObserverSync<AssetMetadata>) => void;
   onConnectWalletStart?: () => void;
-  onConnectWalletEnd?: () => void;
+  onConnectWalletEnd?: (data?: IWalletObserverSync<AssetMetadata>) => void;
   onDisconnectWallet?: () => void;
 };
 
@@ -25,7 +30,7 @@ export interface IWalletObserverProviderState<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   observerOptions: TWalletObserverOptions<AssetMetadata>;
-  hooks: TWalletProviderHooks;
+  hooks: TWalletProviderHooks<AssetMetadata>;
   refreshInterval: number;
 }
 

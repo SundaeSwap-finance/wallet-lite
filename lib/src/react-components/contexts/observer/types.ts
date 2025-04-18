@@ -18,11 +18,11 @@ export type TWalletProviderHooks<
 > = {
   onSyncWalletStart?: () => Promise<void>;
   onSyncWalletEnd?: (
-    data?: IWalletObserverSync<AssetMetadata>,
+    data?: IWalletObserverSync<AssetMetadata> & { activeWallet: string },
   ) => Promise<void>;
   onConnectWalletStart?: () => Promise<void>;
   onConnectWalletEnd?: (
-    data?: IWalletObserverSync<AssetMetadata>,
+    data?: IWalletObserverSync<AssetMetadata> & { activeWallet: string },
   ) => Promise<void>;
   onDisconnectWallet?: () => Promise<void>;
 };

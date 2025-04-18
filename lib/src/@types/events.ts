@@ -25,11 +25,11 @@ export interface IWalletObserverEventValues<
   [EWalletObserverEvents.SYNCING_WALLET_START]: undefined;
   [EWalletObserverEvents.SYNCING_WALLET_END]:
     | undefined
-    | IWalletObserverSync<T>;
+    | (IWalletObserverSync<T> & { activeWallet: string });
   [EWalletObserverEvents.CONNECT_WALLET_START]: undefined;
   [EWalletObserverEvents.CONNECT_WALLET_END]:
     | undefined
-    | IWalletObserverSync<T>;
+    | (IWalletObserverSync<T> & { activeWallet: string });
   [EWalletObserverEvents.GET_BALANCE_MAP_START]: undefined;
   [EWalletObserverEvents.GET_BALANCE_MAP_END]: {
     balanceMap: WalletBalanceMap<T>;

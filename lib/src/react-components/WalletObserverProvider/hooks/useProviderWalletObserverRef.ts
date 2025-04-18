@@ -1,7 +1,11 @@
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 
+import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { EWalletObserverEvents } from "../../../@types/events.js";
-import { TWalletObserverOptions } from "../../../@types/observer.js";
+import {
+  IWalletObserverSync,
+  TWalletObserverOptions,
+} from "../../../@types/observer.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { TWalletProviderHooks } from "../../contexts/observer/index.js";
 
@@ -49,16 +53,24 @@ export const useProviderWalletObserverRef = (
       setConnecting(() => true);
       await hooks?.onConnectWalletStart?.();
     };
-    const setConnectingEnd = async () => {
+    const setConnectingEnd = async (
+      data?: IWalletObserverSync<IAssetAmountMetadata> & {
+        activeWallet: string;
+      },
+    ) => {
       setConnecting(() => false);
-      await hooks?.onConnectWalletEnd?.();
+      await hooks?.onConnectWalletEnd?.(data);
     };
     const setSyncingStart = async () => {
       setSyncing(() => true);
       await hooks?.onSyncWalletStart?.();
     };
-    const setSyncingEnd = async () => {
-      await hooks?.onSyncWalletEnd?.();
+    const setSyncingEnd = async (
+      data?: IWalletObserverSync<IAssetAmountMetadata> & {
+        activeWallet: string;
+      },
+    ) => {
+      await hooks?.onSyncWalletEnd?.(data);
       setSyncing(() => false);
     };
     const onDisconnect = () => {

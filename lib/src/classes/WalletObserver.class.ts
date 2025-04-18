@@ -173,8 +173,14 @@ export class WalletObserver<
         console.log(`sync: ${end - start}ms`);
       }
 
-      this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
-      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, result);
+      this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, {
+        ...result,
+        activeWallet: this.activeWallet!,
+      });
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
+        ...result,
+        activeWallet: this.activeWallet!,
+      });
       this._performingSync = false;
       return result;
     } catch (e) {

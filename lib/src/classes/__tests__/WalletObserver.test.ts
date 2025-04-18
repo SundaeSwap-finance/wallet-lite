@@ -241,6 +241,10 @@ describe("WalletObserver", async () => {
       ).toBeNull();
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         7,
+        EWalletObserverEvents.SYNCING_WALLET_START,
+      );
+      expect(spiedDispatch).toHaveBeenNthCalledWith(
+        11,
         EWalletObserverEvents.DISCONNECT,
       );
       expect(spiedOnGetPeerConnect).not.toHaveBeenCalled();

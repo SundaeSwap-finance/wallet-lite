@@ -27,7 +27,9 @@ export interface IWalletObserverEventValues<
     | undefined
     | IWalletObserverSync<T>;
   [EWalletObserverEvents.CONNECT_WALLET_START]: undefined;
-  [EWalletObserverEvents.CONNECT_WALLET_END]: undefined;
+  [EWalletObserverEvents.CONNECT_WALLET_END]:
+    | undefined
+    | IWalletObserverSync<T>;
   [EWalletObserverEvents.GET_BALANCE_MAP_START]: undefined;
   [EWalletObserverEvents.GET_BALANCE_MAP_END]: {
     balanceMap: WalletBalanceMap<T>;

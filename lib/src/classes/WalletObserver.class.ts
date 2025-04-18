@@ -174,7 +174,7 @@ export class WalletObserver<
       }
 
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END, result);
-      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, result);
       this._performingSync = false;
       return result;
     } catch (e) {

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.82 (2025-04-18)
+
+
+### Bug Fixes
+
+* missing type signature on hook function declaration ([ed9580d](https://github.com/SundaeSwap-finance/wallet-lite/commit/ed9580d30a0b217279e26ac5002c2a9c7aa1366b))
+
 ### 0.0.81 (2025-04-18)
 
 ### 0.0.80 (2025-04-09)

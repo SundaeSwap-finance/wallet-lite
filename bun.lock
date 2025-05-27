@@ -57,7 +57,7 @@
     },
     "lib": {
       "name": "@sundaeswap/wallet-lite",
-      "version": "0.0.75",
+      "version": "0.0.85",
       "dependencies": {
         "@babel/cli": "^7.24.7",
         "@fabianbormann/cardano-peer-connect": "^1.2.17",

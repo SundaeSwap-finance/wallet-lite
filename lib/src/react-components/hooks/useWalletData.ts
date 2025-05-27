@@ -28,7 +28,7 @@ export const useWalletData = <
   const [error, setError] = useState<DataSignError>();
 
   const signData = useCallback(
-    async ({ signingAddress, payload }: ISignDataParams) => {
+    async (params: ISignDataParams) => {
       if (!state.observer.api) {
         return;
       }
@@ -47,13 +47,11 @@ export const useWalletData = <
 
       try {
         const response = await state.observer.api.signData(
+          Cardano.Address.fromBech32(params.signingAddress).toBytes(),
           Buffer.from(
-            Cardano.Address.fromBech32(signingAddress).toBytes(),
-          ).toString("hex"),
-          Buffer.from(
-            typeof payload === "string"
-              ? payload
-              : JSON.stringify(payload, null, 0),
+            typeof params.payload === "string"
+              ? params.payload
+              : JSON.stringify(params.payload, null, 0),
             "utf-8",
           ).toString("hex"),
         );

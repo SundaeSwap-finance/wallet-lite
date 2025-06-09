@@ -2,33 +2,65 @@ import {
   RenderWallet,
   RenderWalletPeerConnect,
   RenderWalletState,
-  TSupportedWalletExtensions,
   useAvailableExtensions,
 } from "@sundaeswap/wallet-lite";
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, useState } from "react";
 
 export const ConnectWallet: FC = () => {
   const availableExtensions = useAvailableExtensions();
+  const [selectedWallet, setSelectedWallet] = useState<string>();
+  const [customWallet, setCustomWallet] = useState<string>();
 
   return (
     <div className="m-4 w-1/4 border border-gray-400 p-4 flex flex-col">
       <RenderWallet
-        render={({ activeWallet, connectWallet }) => {
+        render={({ connectWallet }) => {
           return (
-            <select
-              value={activeWallet || "default"}
-              onChange={async ({ target }) => {
-                await connectWallet(target.value as TSupportedWalletExtensions);
-              }}
-            >
-              <option value={"default"}>Select A Wallet</option>
-              {availableExtensions.map(({ name, property }) => (
-                <option key={property} value={property}>
-                  Connect {name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <select
+                className="w-1/2"
+                value={selectedWallet || "default"}
+                onChange={async ({ target }) => {
+                  setCustomWallet(undefined);
+                  setSelectedWallet(target.value);
+                }}
+              >
+                <option value={"default"}>Select A Wallet</option>
+                {availableExtensions.map(({ name, property }) => (
+                  <option key={property} value={property}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <input
+                className="w/1-2"
+                placeholder="Read-only address..."
+                type="text"
+                onChange={(e) => setCustomWallet(e.target.value)}
+                value={customWallet}
+              />
+              <button
+                className={classNames(
+                  {
+                    "text-gray-400 cursor-not-allowed":
+                      !selectedWallet && !customWallet,
+                  },
+                  {
+                    "text-white cursor-pointer": selectedWallet || customWallet,
+                  },
+                  "w-full ml-auto bg-black px-4 py-2",
+                )}
+                disabled={!selectedWallet && !customWallet}
+                onClick={() => {
+                  if (selectedWallet || customWallet) {
+                    connectWallet((selectedWallet || customWallet) as string);
+                  }
+                }}
+              >
+                Connect Wallet
+              </button>
+            </div>
           );
         }}
       />

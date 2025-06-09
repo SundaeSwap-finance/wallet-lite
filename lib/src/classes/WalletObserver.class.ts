@@ -23,6 +23,7 @@ import {
   getCardanoUtil,
   getPeerConnect,
 } from "../utils/getLibs.js";
+import { CustomWalletApi } from "./CustomWalletApi.class.js";
 import { WalletBalanceMap } from "./WalletBalanceMap.class.js";
 import { WalletObserverEvent } from "./WalletObserverEvent.js";
 import { WalletObserverUtils } from "./WalletObserverUtils.class.js";
@@ -234,8 +235,13 @@ export class WalletObserver<
       }
 
       try {
-        const cardano = window?.cardano || window?.parent?.cardano;
-        const api = await cardano?.[selectedWallet]?.enable();
+        let api: Cip30WalletApi | undefined;
+        if (selectedWallet.startsWith("addr")) {
+          api = new CustomWalletApi(selectedWallet);
+        } else {
+          const cardano = window?.cardano || window?.parent?.cardano;
+          api = await cardano?.[selectedWallet]?.enable();
+        }
 
         if (!api) {
           throw Error;
@@ -295,19 +301,21 @@ export class WalletObserver<
       this.peerConnectInstance?.shutdownServer();
     }
 
-    while (typeof extensionObject === "undefined") {
-      if (attempts === 40) {
-        break;
-      }
+    if (!extension.startsWith("addr")) {
+      while (typeof extensionObject === "undefined") {
+        if (attempts === 40) {
+          break;
+        }
 
-      await new Promise((res) =>
-        setTimeout(res, (this._options.connectTimeout as number) / 40),
-      );
-      extensionObject = window.cardano?.[extension];
-      attempts++;
+        await new Promise((res) =>
+          setTimeout(res, (this._options.connectTimeout as number) / 40),
+        );
+        extensionObject = window.cardano?.[extension];
+        attempts++;
+      }
     }
 
-    if (!extensionObject) {
+    if (!extensionObject && !extension.startsWith("addr")) {
       this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
       throw new Error("Wallet extension not found in the global context.");
     }

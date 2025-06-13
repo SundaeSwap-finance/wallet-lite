@@ -129,27 +129,28 @@ export class WalletObserver<
       this._performingSync = true;
       this.dispatch(EWalletObserverEvents.SYNCING_WALLET_START);
 
-      let newNetwork = await this.getNetwork();
-      if (newNetwork instanceof Error) {
+      // Check if account has changed.
+      let newBalanceMap = await this.getBalanceMap();
+      if (newBalanceMap instanceof Error) {
         await this.syncApi();
-        newNetwork = await this.getNetwork();
+        newBalanceMap = await this.getBalanceMap();
 
-        if (newNetwork instanceof Error) {
+        if (newBalanceMap instanceof Error) {
           this.dispatch(EWalletObserverEvents.SYNCING_WALLET_END);
           this._performingSync = false;
-          throw newNetwork;
+          throw newBalanceMap;
         }
       }
 
       const [
-        newBalanceMap,
+        newNetwork,
         newUsedAddresses,
         newUnusedAddresses,
         newOutputs,
         newCollateral,
         newFeeAddress,
       ] = await Promise.all([
-        this.getBalanceMap(),
+        this.getNetwork(),
         this.getUsedAddresses(),
         this.getUnusedAddresses(),
         this.getUtxos(),

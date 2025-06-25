@@ -19,6 +19,7 @@ export const useWalletObserverState = <
 >(
   observer: WalletObserver<AssetMetadata>,
 ) => {
+  const [abortController] = useState(new AbortController());
   const [activeWallet, setActiveWallet] = useState<string>();
   const [adaBalance, setAdaBalance] = useState<AssetAmount<AssetMetadata>>(
     new AssetAmount<AssetMetadata>(0n),
@@ -59,7 +60,12 @@ export const useWalletObserverState = <
     setFeeAddress(undefined);
     setIsCip45(false);
     setWillAutoConnect(false);
-  }, [observer]);
+    abortController?.abort();
+  }, [observer, abortController]);
+
+  const cancelConnectWallet = useCallback(() => {
+    return abortController.abort();
+  }, [abortController]);
 
   const connectWallet = useCallback(
     async (wallet: string) => {
@@ -67,12 +73,12 @@ export const useWalletObserverState = <
         setSwitching(() => true);
       }
 
-      const data = await observer.connectWallet(wallet);
+      const data = await observer.connectWallet(wallet, abortController.signal);
       await syncWallet(data instanceof Error ? undefined : data);
       setSwitching(() => false);
       return observer.api;
     },
-    [observer, setSwitching],
+    [observer, setSwitching, abortController],
   );
 
   const syncWallet = useCallback(
@@ -201,6 +207,7 @@ export const useWalletObserverState = <
     balance,
     collateral,
     connectWallet,
+    cancelConnectWallet,
     disconnect,
     errorSyncing,
     feeAddress,

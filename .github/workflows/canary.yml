@@ -1,0 +1,54 @@
+name: CI/CD
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  id-token: write # required to use OIDC authentication
+  contents: write # required to checkout and push to the repo
+
+jobs:
+  Publish:
+    name: Lint + Test + Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Git Identity
+      - name: Git Identity
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun lint
+
+      # - name: Test
+      #   run: |
+      #     cd lib
+      #     bun test
+
+      - name: Build
+        run: |
+          cd lib
+          bun run build
+
+      # Release
+      - name: Release (Canary)
+        run: |
+          cd lib
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+          bun version:canary
+          npm publish --tag dev --access public

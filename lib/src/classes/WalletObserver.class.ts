@@ -215,6 +215,7 @@ export class WalletObserver<
    */
   syncApi = async (
     activeWallet?: string,
+    abortSignal?: AbortSignal,
   ): Promise<Cip30WalletApi | undefined> => {
     if (!activeWallet && !this.activeWallet) {
       throw new Error(
@@ -227,6 +228,10 @@ export class WalletObserver<
     let attempts = 0;
     let shouldContinue = true;
 
+    abortSignal?.addEventListener("abort", () => {
+      shouldContinue = false;
+    });
+
     while (shouldContinue) {
       if (attempts === 10) {
         throw new Error(
@@ -236,12 +241,7 @@ export class WalletObserver<
 
       try {
         const cardano = window?.cardano || window?.parent?.cardano;
-        const api = await cardano?.[selectedWallet]?.enable();
-
-        if (!api) {
-          throw Error;
-        }
-
+        const api = cardano?.[selectedWallet]?.enable();
         this.api = api;
         this.network = await api.getNetworkId();
         shouldContinue = false;
@@ -250,6 +250,7 @@ export class WalletObserver<
           [
             "user canceled connection",
             "User declined to sign the data.",
+            "Attempt to connect timed out after 10 seconds",
           ].includes((e as Error)?.message) ||
           (e as ApiError)?.code === APIErrorCode.Refused
         ) {
@@ -284,67 +285,76 @@ export class WalletObserver<
    */
   connectWallet = async (
     extension: string,
+    abortSignal?: AbortSignal,
   ): Promise<IWalletObserverSync<AssetMetadata> | Error> => {
     const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
 
-    let attempts = 0;
-    let extensionObject = window.cardano?.[extension];
+    try {
+      let attempts = 0;
+      let extensionObject = window.cardano?.[extension];
 
-    // Disconnect any CIP45 connections.
-    if (!extension?.includes("p2p")) {
-      this.peerConnectInstance?.shutdownServer();
-    }
-
-    while (typeof extensionObject === "undefined") {
-      if (attempts === 40) {
-        break;
+      // Disconnect any CIP45 connections.
+      if (!extension?.includes("p2p")) {
+        this.peerConnectInstance?.shutdownServer();
       }
 
-      await new Promise((res) =>
-        setTimeout(res, (this._options.connectTimeout as number) / 40),
-      );
-      extensionObject = window.cardano?.[extension];
-      attempts++;
-    }
+      while (typeof extensionObject === "undefined") {
+        if (attempts === 40) {
+          break;
+        }
 
-    if (!extensionObject) {
-      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
-      throw new Error("Wallet extension not found in the global context.");
-    }
-
-    this.activeWallet = extension;
-    await this.syncApi(extension);
-    const data = await this.sync();
-
-    if (this._options.persistence) {
-      if (data.usedAddresses instanceof Error) {
-        data.usedAddresses.cause =
-          "Could not get a list of used addresses from the wallet when trying to save the connection.";
-        throw data.usedAddresses;
+        await new Promise((res) =>
+          setTimeout(res, (this._options.connectTimeout as number) / 40),
+        );
+        extensionObject = window.cardano?.[extension];
+        attempts++;
       }
 
-      const seed: IWalletObserverSeed = {
+      if (!extensionObject) {
+        throw new Error("Wallet extension not found in the global context.");
+      }
+
+      this.activeWallet = extension;
+      const api = await this.syncApi(extension, abortSignal);
+      if (!api) {
+        throw new Error("API could not be found.");
+      }
+
+      const data = await this.sync();
+
+      if (this._options.persistence) {
+        if (data.usedAddresses instanceof Error) {
+          data.usedAddresses.cause =
+            "Could not get a list of used addresses from the wallet when trying to save the connection.";
+          throw data.usedAddresses;
+        }
+
+        const seed: IWalletObserverSeed = {
+          activeWallet: extension,
+          mainAddress: data.usedAddresses[0],
+        };
+
+        window.localStorage.setItem(
+          WalletObserver.PERSISTENCE_CACHE_KEY,
+          JSON.stringify(seed),
+        );
+      }
+
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
+        ...data,
         activeWallet: extension,
-        mainAddress: data.usedAddresses[0],
-      };
+      });
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`connectWallet: ${end - start}ms`);
+      }
 
-      window.localStorage.setItem(
-        WalletObserver.PERSISTENCE_CACHE_KEY,
-        JSON.stringify(seed),
-      );
+      return data;
+    } catch (e) {
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
+      throw e;
     }
-
-    this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
-      ...data,
-      activeWallet: extension,
-    });
-    const end = performance.now();
-    if (this._options.debug) {
-      console.log(`connectWallet: ${end - start}ms`);
-    }
-
-    return data;
   };
 
   getCip45Instance = async () => {

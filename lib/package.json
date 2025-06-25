@@ -32,7 +32,8 @@
     "build": "bun clean && bun types && bun build:esm && bun build:cjs && bun set-cjs",
     "watch": "bun clean && bun run build && bun build:esm --watch",
     "set-cjs": "echo '{ \"type\": \"commonjs\" }' > ./dist/cjs/package.json",
-    "version": "standard-version"
+    "version": "standard-version",
+    "version:canary": "standard-version --prerelease dev"
   },
   "dependencies": {
     "@babel/cli": "^7.24.7",

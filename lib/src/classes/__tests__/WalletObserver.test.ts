@@ -11,6 +11,7 @@ import {
   EWalletObserverEvents,
   TMetadataResolverFunc,
   TWalletObserverOptions,
+  WalletBalanceMap,
 } from "../../index.js";
 import * as getLibModules from "../../utils/getLibs.js";
 import { WalletObserver } from "../WalletObserver.class.js";
@@ -140,7 +141,7 @@ describe("WalletObserver", async () => {
       ).toBeNull();
       expect(observer.activeWallet).toEqual("eternl");
       expect(observer.api).toBeDefined();
-      expect(spiedOnSyncApi).toHaveBeenNthCalledWith(1, "eternl");
+      expect(spiedOnSyncApi).toHaveBeenNthCalledWith(1, "eternl", undefined);
 
       const syncResults = await observer.sync();
       expect(spiedDispatch).toHaveBeenNthCalledWith(
@@ -173,7 +174,12 @@ describe("WalletObserver", async () => {
         }),
       );
 
-      expect(syncResults.balanceMap.size).toEqual(assetIds.length);
+      expect(syncResults.balanceMap).toBeInstanceOf(
+        WalletBalanceMap<IAssetAmountMetadata>,
+      );
+      expect(
+        (syncResults.balanceMap as WalletBalanceMap<IAssetAmountMetadata>).size,
+      ).toEqual(assetIds.length);
       expect(syncResults.network).toBe(network);
       expect(syncResults.unusedAddresses).toEqual(unusedAddresses);
       expect(syncResults.usedAddresses).toEqual(usedAddresses);
@@ -192,11 +198,16 @@ describe("WalletObserver", async () => {
 
       expect(observer.activeWallet).toEqual("eternl");
       expect(observer.api).toBeDefined();
-      expect(spiedOnSyncApi).toHaveBeenNthCalledWith(1, "eternl");
+      expect(spiedOnSyncApi).toHaveBeenNthCalledWith(1, "eternl", undefined);
 
       const syncResults = await observer.sync();
 
-      expect(syncResults.balanceMap.size).toEqual(assetIds.length);
+      expect(syncResults.balanceMap).toBeInstanceOf(
+        WalletBalanceMap<IAssetAmountMetadata>,
+      );
+      expect(
+        (syncResults.balanceMap as WalletBalanceMap<IAssetAmountMetadata>).size,
+      ).toEqual(assetIds.length);
       expect(syncResults.network).toBe(network);
       expect(syncResults.unusedAddresses).toEqual(unusedAddresses);
       expect(syncResults.usedAddresses).toEqual(usedAddresses);

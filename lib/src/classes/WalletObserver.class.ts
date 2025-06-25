@@ -241,7 +241,7 @@ export class WalletObserver<
 
       try {
         const cardano = window?.cardano || window?.parent?.cardano;
-        const api = cardano?.[selectedWallet]?.enable();
+        const api = await cardano?.[selectedWallet]?.enable();
         this.api = api;
         this.network = await api.getNetworkId();
         shouldContinue = false;

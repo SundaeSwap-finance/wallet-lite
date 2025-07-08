@@ -1,15 +1,21 @@
 import { Cardano } from "@cardano-sdk/core";
 import { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 
+import { ReadOnlyProvider } from "./ReadOnlyProvider.Abstract.class.js";
+
 export class ReadOnlyApi implements Cip30WalletApi {
   address: string;
+  network: 0 | 1;
+  provider: ReadOnlyProvider;
 
-  constructor(address: string) {
+  constructor(address: string, network: 0 | 1, provider: ReadOnlyProvider) {
     this.address = address;
+    this.provider = provider;
+    this.network = network;
   }
 
   getBalance = async () => {
-    throw new Error("not implemented");
+    return this.provider.getBalance(this.address, this.network);
   };
 
   getChangeAddress = async () => {
@@ -25,7 +31,7 @@ export class ReadOnlyApi implements Cip30WalletApi {
   };
 
   getNetworkId = async () => {
-    return this.address.startsWith("addr_") ? 1 : 0;
+    return this.network;
   };
 
   getRewardAddresses = async () => {
@@ -41,7 +47,7 @@ export class ReadOnlyApi implements Cip30WalletApi {
   };
 
   getUtxos = async () => {
-    return [];
+    return this.provider.getUtxos(this.address, this.network);
   };
 
   signData = async () => {

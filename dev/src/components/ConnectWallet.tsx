@@ -2,33 +2,58 @@ import {
   RenderWallet,
   RenderWalletPeerConnect,
   RenderWalletState,
-  TSupportedWalletExtensions,
   useAvailableExtensions,
 } from "@sundaeswap/wallet-lite";
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, useState } from "react";
 
 export const ConnectWallet: FC = () => {
   const availableExtensions = useAvailableExtensions();
+  const [selectedWallet, setSelectedWallet] = useState<string>("default");
+  const [customWallet, setCustomWallet] = useState<string>();
 
   return (
     <div className="m-4 w-1/4 border border-gray-400 p-4 flex flex-col">
       <RenderWallet
-        render={({ activeWallet, connectWallet }) => {
+        render={({ connectWallet }) => {
           return (
-            <select
-              value={activeWallet || "default"}
-              onChange={async ({ target }) => {
-                await connectWallet(target.value as TSupportedWalletExtensions);
-              }}
-            >
-              <option value={"default"}>Select A Wallet</option>
-              {availableExtensions.map(({ name, property }) => (
-                <option key={property} value={property}>
-                  Connect {name}
-                </option>
-              ))}
-            </select>
+            <>
+              <select
+                value={selectedWallet}
+                onChange={(e) => setSelectedWallet(e.target.value)}
+              >
+                <option value={"default"}>Select A Wallet</option>
+                {[
+                  ...availableExtensions,
+                  { name: "Custom", property: "custom" },
+                ].map(({ name, property }) => (
+                  <option key={property} value={property}>
+                    Connect {name}
+                  </option>
+                ))}
+              </select>
+              {selectedWallet === "custom" && (
+                <input
+                  className="mt-2"
+                  placeholder="addr_test..."
+                  type="text"
+                  value={customWallet}
+                  onChange={(e) => setCustomWallet(e.target.value)}
+                />
+              )}
+              <button
+                onClick={async () => {
+                  debugger;
+                  await connectWallet(
+                    selectedWallet === "custom" && customWallet
+                      ? customWallet
+                      : selectedWallet,
+                  );
+                }}
+              >
+                Connect Wallet
+              </button>
+            </>
           );
         }}
       />

@@ -4,6 +4,7 @@ import type { DAppPeerConnect } from "@fabianbormann/cardano-peer-connect";
 import type { DAppPeerConnectParameters } from "@fabianbormann/cardano-peer-connect/dist/src/types.js";
 import type { IAssetAmountMetadata } from "@sundaeswap/asset";
 
+import { ReadOnlyProvider } from "src/classes/ReadOnlyProvider.Abstract.class.js";
 import { WalletAssetMap } from "../classes/WalletAssetMap.class.js";
 import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
 import { isAdaAsset, normalizeAssetIdWithDot } from "../utils/assets.js";
@@ -54,6 +55,7 @@ export interface IResolvedWalletObserverOptions<
   persistence: boolean;
   peerConnectArgs: DAppPeerConnectParameters;
   connectTimeout: number;
+  readOnlyProvider?: ReadOnlyProvider;
   debug: boolean;
 }
 

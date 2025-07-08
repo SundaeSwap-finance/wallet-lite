@@ -1,11 +1,12 @@
 import {
+  ReadOnlyBlockfrostProvider,
   TWalletObserverOptions,
   WalletObserverProvider,
 } from "@sundaeswap/wallet-lite";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, StrictMode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectWallet } from "./components/ConnectWallet.js";
 import { WalletData } from "./components/WalletData.js";
 
@@ -35,6 +36,8 @@ const observerOptions: TWalletObserverOptions<IWalletMetadata> = {
     return metadataMap;
   },
   persistence: true,
+  // @ts-expect-error I haven't added types for this.
+  readOnlyProvider: new ReadOnlyBlockfrostProvider(window.blockfrostApiKey),
 };
 
 export const App: FC = () => {

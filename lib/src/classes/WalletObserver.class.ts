@@ -23,6 +23,7 @@ import {
   getCardanoUtil,
   getPeerConnect,
 } from "../utils/getLibs.js";
+import { ReadOnlyApi } from "./ReadOnlyApi.class.js";
 import { WalletBalanceMap } from "./WalletBalanceMap.class.js";
 import { WalletObserverEvent } from "./WalletObserverEvent.js";
 import { WalletObserverUtils } from "./WalletObserverUtils.class.js";
@@ -227,6 +228,22 @@ export class WalletObserver<
     let attempts = 0;
     let shouldContinue = true;
 
+    if (selectedWallet.startsWith("addr")) {
+      if (!this._options.readOnlyProvider) {
+        throw new Error(
+          "You must provide a ReadOnlyProvider when connecting with a read-only address.",
+        );
+      }
+
+      this.api = new ReadOnlyApi(
+        selectedWallet,
+        selectedWallet.startsWith("addr_test") ? 0 : 1,
+        this._options.readOnlyProvider,
+      );
+      this.network = await this.api.getNetworkId();
+      return this.api;
+    }
+
     while (shouldContinue) {
       if (attempts === 10) {
         throw new Error(
@@ -296,7 +313,14 @@ export class WalletObserver<
       this.peerConnectInstance?.shutdownServer();
     }
 
-    while (typeof extensionObject === "undefined") {
+    while (
+      typeof extensionObject === "undefined" &&
+      !extension.startsWith("addr")
+    ) {
+      if (this._options.debug) {
+        console.warn(`Could not find extension: ${extension}. Trying again...`);
+      }
+
       if (attempts === 40) {
         break;
       }
@@ -308,9 +332,11 @@ export class WalletObserver<
       attempts++;
     }
 
-    if (!extensionObject) {
+    if (!extensionObject && !extension.startsWith("addr")) {
       this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
-      throw new Error("Wallet extension not found in the global context.");
+      throw new Error(
+        `Could not find extension (${extension}) in the global context.`,
+      );
     }
 
     this.activeWallet = extension;

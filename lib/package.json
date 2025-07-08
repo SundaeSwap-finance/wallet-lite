@@ -22,7 +22,7 @@
     "LICENSE.md"
   ],
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "clean": "rm -rf ./dist",
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@babel/cli": "^7.24.7",
+    "@blockfrost/blockfrost-js": "^6.0.0",
     "@fabianbormann/cardano-peer-connect": "^1.2.17",
     "@koralabs/adahandle-sdk": "^1.5.5",
     "@sundaeswap/asset": "^1.0.7",

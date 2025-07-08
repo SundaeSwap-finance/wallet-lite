@@ -23,6 +23,7 @@ import {
   getCardanoUtil,
   getPeerConnect,
 } from "../utils/getLibs.js";
+import { ReadOnlyApi } from "./ReadOnlyApi.class.js";
 import { WalletBalanceMap } from "./WalletBalanceMap.class.js";
 import { WalletObserverEvent } from "./WalletObserverEvent.js";
 import { WalletObserverUtils } from "./WalletObserverUtils.class.js";
@@ -226,6 +227,12 @@ export class WalletObserver<
 
     let attempts = 0;
     let shouldContinue = true;
+
+    if (selectedWallet.startsWith("addr")) {
+      this.api = new ReadOnlyApi(selectedWallet);
+      this.network = await this.api.getNetworkId();
+      return this.api;
+    }
 
     while (shouldContinue) {
       if (attempts === 10) {

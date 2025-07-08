@@ -2,7 +2,6 @@ import {
   RenderWallet,
   RenderWalletPeerConnect,
   RenderWalletState,
-  TSupportedWalletExtensions,
   useAvailableExtensions,
 } from "@sundaeswap/wallet-lite";
 import classNames from "classnames";
@@ -19,7 +18,7 @@ export const ConnectWallet: FC = () => {
             <select
               value={activeWallet || "default"}
               onChange={async ({ target }) => {
-                await connectWallet(target.value as TSupportedWalletExtensions);
+                await connectWallet(target.value);
               }}
             >
               <option value={"default"}>Select A Wallet</option>

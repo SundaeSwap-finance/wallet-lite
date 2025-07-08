@@ -47,7 +47,7 @@ describe("WalletObserver", async () => {
         new WalletObserver({
           connectTimeout: 10,
         }).connectWallet("flint"),
-      ).toThrowError("Wallet extension not found in the global context.");
+      ).toThrowError("Could not find extension (flint) in the global context.");
     });
   });
 

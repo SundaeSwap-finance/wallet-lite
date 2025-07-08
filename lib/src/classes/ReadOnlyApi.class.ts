@@ -43,7 +43,8 @@ export class ReadOnlyApi implements Cip30WalletApi {
   };
 
   getUsedAddresses = async () => {
-    return [];
+    const address = Cardano.Address.fromBech32(this.address);
+    return [address.toBytes()];
   };
 
   getUtxos = async () => {

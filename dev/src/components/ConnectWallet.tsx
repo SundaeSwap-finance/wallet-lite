@@ -43,7 +43,6 @@ export const ConnectWallet: FC = () => {
               )}
               <button
                 onClick={async () => {
-                  debugger;
                   await connectWallet(
                     selectedWallet === "custom" && customWallet
                       ? customWallet

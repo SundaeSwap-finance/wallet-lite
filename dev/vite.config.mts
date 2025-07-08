@@ -8,7 +8,7 @@ import config from "./config/local.json";
 export default defineConfig({
   define: {
     appConfig: config,
-    blockFrostApiKey: process.env.BLOCKFROST_API_KEY!,
+    blockfrostApiKey: JSON.stringify(process.env.VITE_BLOCKFROST_API_KEY!),
   },
   plugins: [
     nodePolyfills({

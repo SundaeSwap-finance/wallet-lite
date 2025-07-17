@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.90 (2025-07-17)
+
+
+### Bug Fixes
+
+* empty address results from blockfrost ([9214959](https://github.com/SundaeSwap-finance/wallet-lite/commit/921495999070dcfef08255bad4bdcf51169143c7))
+
 ### 0.0.89 (2025-07-08)
 
 ### 0.0.88 (2025-07-08)

@@ -40,6 +40,10 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
       },
     ).then((res) => res.json());
 
+    if ("error" in result) {
+      return [];
+    }
+
     const formatted = result.map((r) => {
       return Serialization.TransactionUnspentOutput.fromCore([
         Serialization.TransactionInput.fromCore({
@@ -62,7 +66,16 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
     return formatted;
   }
 
-  private __getValueFromAmount(amount: { unit: string; quantity: string }[]) {
+  private __getValueFromAmount(amount?: { unit: string; quantity: string }[]) {
+    if (!amount) {
+      amount = [
+        {
+          unit: "lovelace",
+          quantity: "0",
+        },
+      ];
+    }
+
     const lovelace = amount.find((a) => a.unit === "lovelace");
     const assets = amount.filter((a) => a.unit !== "lovelace");
 

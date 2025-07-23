@@ -48,7 +48,7 @@
     "react-error-boundary": "^4.0.13",
     "@tanstack/react-query": "^5.51.11",
     "lodash": "^4.17.21",
-    "@cardano-sdk/core": "^0.45.0",
+    "@cardano-sdk/core": "0.45.0",
     "@cardano-sdk/dapp-connector": "^0.13.3",
     "@cardano-sdk/util": "^0.15.5",
     "@emurgo/cardano-message-signing-nodejs": "^1.1.0"

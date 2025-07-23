@@ -58,7 +58,7 @@
     },
     "lib": {
       "name": "@sundaeswap/wallet-lite",
-      "version": "0.0.87",
+      "version": "0.0.89",
       "dependencies": {
         "@babel/cli": "^7.24.7",
         "@blockfrost/blockfrost-js": "^6.0.0",
@@ -93,7 +93,7 @@
         "typescript": "^5.4.5",
       },
       "peerDependencies": {
-        "@cardano-sdk/core": "^0.45.0",
+        "@cardano-sdk/core": "0.45.0",
         "@cardano-sdk/dapp-connector": "^0.13.3",
         "@cardano-sdk/util": "^0.15.5",
         "@emurgo/cardano-message-signing-nodejs": "^1.1.0",

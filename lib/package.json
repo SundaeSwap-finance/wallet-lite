@@ -39,8 +39,6 @@
     "@blockfrost/blockfrost-js": "^6.0.0",
     "@fabianbormann/cardano-peer-connect": "^1.2.17",
     "@koralabs/adahandle-sdk": "^1.5.5",
-    "@sundaeswap/asset": "^1.0.7",
-    "@sundaeswap/fraction": "1.0.5",
     "rxjs": "^7.8.1"
   },
   "peerDependencies": {
@@ -51,7 +49,9 @@
     "@cardano-sdk/core": "0.45.0",
     "@cardano-sdk/dapp-connector": "^0.13.3",
     "@cardano-sdk/util": "^0.15.5",
-    "@emurgo/cardano-message-signing-nodejs": "^1.1.0"
+    "@emurgo/cardano-message-signing-nodejs": "^1.1.0",
+    "@sundaeswap/fraction": "1.0.8",
+    "@sundaeswap/asset": "^1.0.11"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

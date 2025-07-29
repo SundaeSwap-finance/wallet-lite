@@ -44,10 +44,7 @@ export class WalletBalanceMap<
   getFungibleTokens = (): TAssetAmountMap<AssetMetadata> => {
     const map: TAssetAmountMap<AssetMetadata> = new WalletAssetMap();
     [...this.entries()].forEach(([key, asset]) => {
-      if (
-        asset.metadata.decimals > 0 ||
-        (asset.metadata.decimals === 0 && asset.amount > 1n)
-      ) {
+      if (asset.decimals > 0 || (asset.decimals === 0 && asset.amount > 1n)) {
         map.set(key, asset);
       }
     });

@@ -3,6 +3,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
 import { IWalletObserverSync } from "src/@types/observer.js";
+import { ReadOnlyApi } from "src/classes/ReadOnlyApi.class.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { ADA_ASSET_ID } from "../../../constants.js";
@@ -26,6 +27,7 @@ export const useWalletObserverState = <
   const [balance, setBalance] = useState<WalletBalanceMap<AssetMetadata>>(
     new WalletBalanceMap<AssetMetadata>(observer),
   );
+  const [isReadOnlyMode, setIsReadOnlyMode] = useState<boolean>(false);
   const [network, setNetwork] = useState<number | undefined>();
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
   const [unusedAddresses, setUnusedAddresses] = useState<string[]>([]);
@@ -68,11 +70,12 @@ export const useWalletObserverState = <
       }
 
       const data = await observer.connectWallet(wallet);
+      setIsReadOnlyMode(observer.api instanceof ReadOnlyApi);
       await syncWallet(data instanceof Error ? undefined : data);
       setSwitching(() => false);
       return observer.api;
     },
-    [observer, setSwitching],
+    [observer, setSwitching, setIsReadOnlyMode],
   );
 
   const syncWallet = useCallback(
@@ -91,6 +94,7 @@ export const useWalletObserverState = <
       setActiveWallet((prevWallet) =>
         newWallet === prevWallet ? prevWallet : newWallet,
       );
+      setIsReadOnlyMode(observer.api instanceof ReadOnlyApi);
 
       try {
         const freshData = importedData || (await observer.sync());
@@ -206,6 +210,7 @@ export const useWalletObserverState = <
     feeAddress,
     isCip45,
     isPending,
+    isReadOnlyMode,
     network,
     setActiveWallet,
     setAdaBalance,
@@ -213,6 +218,7 @@ export const useWalletObserverState = <
     setCollateral,
     setFeeAddress,
     setIsCip45,
+    setIsReadOnlyMode,
     setNetwork,
     setSwitching,
     setUnusedAddresses,

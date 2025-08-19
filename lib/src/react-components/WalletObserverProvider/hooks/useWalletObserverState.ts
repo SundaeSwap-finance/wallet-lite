@@ -2,8 +2,8 @@ import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serial
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
-import { IWalletObserverSync } from "src/@types/observer.js";
-import { ReadOnlyApi } from "src/classes/ReadOnlyApi.class.js";
+import { IWalletObserverSync } from "../../../@types/observer.js";
+import { ReadOnlyApi } from "../../../classes/ReadOnlyApi.class.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { ADA_ASSET_ID } from "../../../constants.js";

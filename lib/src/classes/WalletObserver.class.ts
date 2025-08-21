@@ -150,6 +150,7 @@ export class WalletObserver<
         newOutputs,
         newCollateral,
         newFeeAddress,
+        newChangeAddress,
       ] = await Promise.all([
         this.getNetwork(),
         this.getUsedAddresses(),
@@ -157,6 +158,7 @@ export class WalletObserver<
         this.getUtxos(),
         this.getCollateral(),
         this.getFeeAddress(),
+        this.getChangeAddress(),
       ]);
 
       const result: IWalletObserverSync<AssetMetadata> = {
@@ -167,6 +169,7 @@ export class WalletObserver<
         collateral: newCollateral,
         network: newNetwork,
         feeAddress: newFeeAddress,
+        changeAddress: newChangeAddress,
       };
 
       const end = performance.now();
@@ -412,6 +415,41 @@ export class WalletObserver<
     this.api = undefined;
     window.localStorage.removeItem(WalletObserver.PERSISTENCE_CACHE_KEY);
     this.dispatch(EWalletObserverEvents.DISCONNECT);
+  };
+
+  /**
+   * Gets a the change address.
+   *
+   * @returns {Promise<string | Error>} The change address, or an error.
+   */
+  getChangeAddress = async (): Promise<string | Error> => {
+    if (!this.api) {
+      throw new Error(
+        "Attempted to query change address without an API instance.",
+      );
+    }
+
+    const start = performance.now();
+
+    const [{ Cardano }, typedHex] = await Promise.all([
+      getCardanoCore(),
+      getCardanoUtil(),
+    ]);
+
+    let cbor: string;
+    try {
+      cbor = await this.api.getChangeAddress();
+    } catch (e) {
+      return e as Error;
+    }
+
+    const data = Cardano.Address.fromBytes(typedHex(cbor)).toBech32();
+
+    const end = performance.now();
+    if (this._options.debug) {
+      console.log(`getChangeAddress: ${end - start}ms`);
+    }
+    return data;
   };
 
   /**

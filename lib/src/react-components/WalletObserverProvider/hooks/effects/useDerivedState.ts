@@ -7,32 +7,30 @@ export const useDerivedState = (
   observer: WalletObserver,
   state: Pick<
     ReturnType<typeof useWalletObserverState>,
-    "usedAddresses" | "unusedAddresses"
+    "usedAddresses" | "unusedAddresses" | "changeAddress"
   >,
 ) => {
   const [stakeAddress, setStakeAddress] = useState<string>();
+  const address =
+    state.changeAddress || state.usedAddresses[0] || state.unusedAddresses[0];
 
   useEffect(() => {
-    if (!state.usedAddresses[0] && !state.unusedAddresses[0]) {
+    if (!address) {
       return;
     }
 
     observer.getUtils().then((utils) => {
-      setStakeAddress(
-        utils.getBech32StakingAddress(
-          state.usedAddresses[0] || state.unusedAddresses[0],
-        ),
-      );
+      setStakeAddress(utils.getBech32StakingAddress(address));
     });
-  }, [state.usedAddresses[0] || state.unusedAddresses[0]]);
+  }, [address]);
 
   const memoizedDerivedState = useMemo(() => {
-    let mainAddress = state.usedAddresses[0] || state.unusedAddresses[0];
     const persistentCache = window.localStorage.getItem(
       WalletObserver.PERSISTENCE_CACHE_KEY,
     );
     const usePersistence = observer.getOptions().persistence;
 
+    let mainAddress = address;
     if (usePersistence && persistentCache && !mainAddress) {
       const cache = JSON.parse(persistentCache) as IWalletObserverSeed;
       mainAddress = cache.mainAddress;
@@ -42,12 +40,7 @@ export const useDerivedState = (
       stakeAddress,
       mainAddress,
     };
-  }, [
-    observer,
-    state.usedAddresses[0],
-    state.unusedAddresses[0],
-    stakeAddress,
-  ]);
+  }, [observer, address, stakeAddress]);
 
   return memoizedDerivedState;
 };

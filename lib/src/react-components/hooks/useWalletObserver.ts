@@ -36,6 +36,7 @@ export const useWalletObserver = <
       isPending: state.isPending,
       isReadOnlyMode: state.isReadOnlyMode,
       mainAddress: state.mainAddress,
+      changeAddress: state.changeAddress,
       network: state.network,
       observer: state.observer,
       stakeAddress: state.stakeAddress,
@@ -47,6 +48,7 @@ export const useWalletObserver = <
       willAutoConnect: state.willAutoConnect,
     }),
     [
+      state.changeAddress,
       state.activeWallet,
       state.adaBalance.amount,
       state.balance.size,

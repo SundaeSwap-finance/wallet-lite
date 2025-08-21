@@ -102,4 +102,5 @@ export interface IWalletObserverSync<
   collateral?: Error | TransactionUnspentOutput[];
   network: Error | number;
   feeAddress?: Error | string;
+  changeAddress?: Error | string;
 }

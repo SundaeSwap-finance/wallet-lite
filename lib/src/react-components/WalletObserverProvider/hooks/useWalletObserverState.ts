@@ -31,6 +31,7 @@ export const useWalletObserverState = <
   const [network, setNetwork] = useState<number | undefined>();
   const [usedAddresses, setUsedAddresses] = useState<string[]>([]);
   const [unusedAddresses, setUnusedAddresses] = useState<string[]>([]);
+  const [changeAddress, setChangeAddress] = useState<string | undefined>();
   const [feeAddress, setFeeAddress] = useState<string | undefined>();
   const [utxos, setUtxos] = useState<TransactionUnspentOutput[]>();
   const [collateral, setCollateral] = useState<TransactionUnspentOutput[]>();
@@ -54,6 +55,7 @@ export const useWalletObserverState = <
     setBalance(new WalletBalanceMap(observer));
     setUsedAddresses([]);
     setUnusedAddresses([]);
+    setChangeAddress(undefined);
     setActiveWallet(undefined);
     setNetwork(undefined);
     setUtxos(undefined);
@@ -176,6 +178,13 @@ export const useWalletObserverState = <
               prevValue === newFeeAddress ? prevValue : newFeeAddress,
             );
           }
+
+          const newChangeAddress = freshData.changeAddress;
+          if (!(newChangeAddress instanceof Error)) {
+            setChangeAddress((prevValue) =>
+              prevValue === newChangeAddress ? prevValue : newChangeAddress,
+            );
+          }
         });
       } catch (e) {
         setErrorSyncing(true);
@@ -212,6 +221,7 @@ export const useWalletObserverState = <
     isPending,
     isReadOnlyMode,
     network,
+    changeAddress,
     setActiveWallet,
     setAdaBalance,
     setBalance,
@@ -224,6 +234,7 @@ export const useWalletObserverState = <
     setUnusedAddresses,
     setUsedAddresses,
     setUtxos,
+    setChangeAddress,
     switching,
     syncWallet,
     unusedAddresses,

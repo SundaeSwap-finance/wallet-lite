@@ -95,4 +95,5 @@ export type TUseWalletObserverState<
   | "setCollateral"
   | "setFeeAddress"
   | "setIsReadOnlyMode"
+  | "setChangeAddress"
 >;

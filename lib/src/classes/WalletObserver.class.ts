@@ -673,7 +673,8 @@ export class WalletObserver<
 
     const start = performance.now();
     try {
-      const address = this.api.experimental?.feeAddress;
+      const address =
+        window.cardano?.[this.activeWallet!]?.experimental?.feeAddress;
       const end = performance.now();
 
       if (this._options.debug) {

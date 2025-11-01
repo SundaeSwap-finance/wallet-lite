@@ -18,6 +18,9 @@ export interface IWindowCip30Extension {
   icon: string;
   isEnabled: () => Promise<boolean>;
   name: string;
+  experimental?: {
+    feeAddress?: string;
+  };
 }
 
 /**

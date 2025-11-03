@@ -4,8 +4,8 @@
     "": {
       "name": "my-monorepo",
       "devDependencies": {
-        "@sundaeswap/babel-preset": "^2.0.12",
-        "@sundaeswap/eslint-config": "^2.0.14",
+        "@sundaeswap/babel-preset": "^2.0.15",
+        "@sundaeswap/eslint-config": "^2.0.15",
         "@types/bun": "^1.3.1",
         "fake-indexeddb": "^6.2.4",
         "globals": "^15.8.0",
@@ -611,9 +611,9 @@
 
     "@sundaeswap/asset": ["@sundaeswap/asset@1.0.11", "", { "dependencies": { "@sundaeswap/fraction": "1.0.8" } }, "sha512-xbubSh7cm/0yb/8sHCw6ad03fS6L8/1tMiT9q7LeM9y8mn+xQ64ylJkCWWob1tVQDf6BaaWsKquhXlKhsn+70Q=="],
 
-    "@sundaeswap/babel-preset": ["@sundaeswap/babel-preset@2.0.12", "", { "dependencies": { "@babel/cli": "^7.24.7", "@babel/core": "^7.24.7", "@babel/plugin-proposal-class-properties": "^7.18.6", "@babel/plugin-transform-react-jsx": "^7.24.7", "@babel/preset-env": "^7.24.7", "@babel/preset-typescript": "^7.24.7", "cross-env": "^7.0.3" } }, "sha512-u7uRZYCQhjqlSaAyjXHmIxEyXC6OVWPWjXsseaoZ3MsKzwuGACdL9oRTgWS8Nv9K1jb4IxJo4O2I5uUHe9ZZWA=="],
+    "@sundaeswap/babel-preset": ["@sundaeswap/babel-preset@2.0.15", "", { "dependencies": { "@babel/cli": "^7.24.7", "@babel/core": "^7.24.7", "@babel/plugin-proposal-class-properties": "^7.18.6", "@babel/plugin-transform-react-jsx": "^7.24.7", "@babel/preset-env": "^7.24.7", "@babel/preset-typescript": "^7.24.7", "cross-env": "^7.0.3" } }, "sha512-GPtR2jFI7FnpenEf2F6tQbBOVMwTIPSzhu0uYBixS97sF0xY/kVtNhGEdwFvqU1G0IQUHvqhRnxc+g+QkcJ3xg=="],
 
-    "@sundaeswap/eslint-config": ["@sundaeswap/eslint-config@2.0.14", "", { "dependencies": { "eslint": "^9.4.0", "eslint-config-prettier": "^9.1.0", "eslint-plugin-import": "^2.29.1", "eslint-plugin-jest": "^28.6.0", "eslint-plugin-jsx-a11y": "^6.8.0", "eslint-plugin-prettier": "^5.1.3", "eslint-plugin-react": "^7.34.2", "eslint-plugin-react-hooks": "^4.6.2", "globals": "^15.6.0", "typescript-eslint": "^7.13.0" }, "peerDependencies": { "prettier": "^3.0.0" } }, "sha512-5KjXcshE7bFoDUocq6SJH/AWRGihPp4MaWImdyi8iafsc91W+X3QLqFpnu/krBOj1MYdHU4xoQhMsPyPA1qD2g=="],
+    "@sundaeswap/eslint-config": ["@sundaeswap/eslint-config@2.0.15", "", { "dependencies": { "eslint": "^9.4.0", "eslint-config-prettier": "^9.1.0", "eslint-plugin-import": "^2.29.1", "eslint-plugin-jest": "^28.6.0", "eslint-plugin-jsx-a11y": "^6.8.0", "eslint-plugin-prettier": "^5.1.3", "eslint-plugin-react": "^7.34.2", "eslint-plugin-react-hooks": "^4.6.2", "globals": "^15.6.0", "typescript-eslint": "^7.13.0" }, "peerDependencies": { "prettier": "^3.0.0" } }, "sha512-vW+Ulw655EKyZvr/H9UxFvzVM1H1sQWyiXgL+TS8d9PP2pa7rsIimV8Y1yzkMcEniPYs1wBRr+/CHK58mbXPpw=="],
 
     "@sundaeswap/fraction": ["@sundaeswap/fraction@1.0.8", "", {}, "sha512-vTDao3tzT/cbWt+uTy5dPWUwe7FVkNoPWG6x+pXP4go7kSCy2tzLaNaFP79pOfJENPMYoLd7OXiClQ98pCeY6Q=="],
 
@@ -2662,8 +2662,6 @@
     "@npmcli/promise-spawn/which": ["which@3.0.1", "", { "dependencies": { "isexe": "^2.0.0" }, "bin": { "node-which": "bin/which.js" } }, "sha512-XA1b62dzQzLfaEOSQFTCOd5KFf/1VSzZo7/7TUjnya6u0vGGKzU96UQBZTAThCb2j4/xjBAyii1OhRLJEivHvg=="],
 
     "@npmcli/run-script/which": ["which@3.0.1", "", { "dependencies": { "isexe": "^2.0.0" }, "bin": { "node-which": "bin/which.js" } }, "sha512-XA1b62dzQzLfaEOSQFTCOd5KFf/1VSzZo7/7TUjnya6u0vGGKzU96UQBZTAThCb2j4/xjBAyii1OhRLJEivHvg=="],
-
-    "@sundaeswap/wallet-lite/@sundaeswap/babel-preset": ["@sundaeswap/babel-preset@2.0.15", "", { "dependencies": { "@babel/cli": "^7.24.7", "@babel/core": "^7.24.7", "@babel/plugin-proposal-class-properties": "^7.18.6", "@babel/plugin-transform-react-jsx": "^7.24.7", "@babel/preset-env": "^7.24.7", "@babel/preset-typescript": "^7.24.7", "cross-env": "^7.0.3" } }, "sha512-GPtR2jFI7FnpenEf2F6tQbBOVMwTIPSzhu0uYBixS97sF0xY/kVtNhGEdwFvqU1G0IQUHvqhRnxc+g+QkcJ3xg=="],
 
     "@testing-library/dom/chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
 

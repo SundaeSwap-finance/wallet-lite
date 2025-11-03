@@ -22,8 +22,8 @@
     "./lib"
   ],
   "devDependencies": {
-    "@sundaeswap/babel-preset": "^2.0.12",
-    "@sundaeswap/eslint-config": "^2.0.14",
+    "@sundaeswap/babel-preset": "^2.0.15",
+    "@sundaeswap/eslint-config": "^2.0.15",
     "@types/bun": "^1.3.1",
     "fake-indexeddb": "^6.2.4",
     "globals": "^15.8.0",

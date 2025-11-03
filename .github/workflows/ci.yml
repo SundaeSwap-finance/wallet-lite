@@ -18,7 +18,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 20
 
       # Git Identity
       - name: Git Identity

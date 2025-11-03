@@ -3,7 +3,7 @@ import { act } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
 
-import { mockedEternlWallet } from "../../../../setup-tests.js";
+import { mockedEternlWallet } from "../../../../../setup-tests.js";
 import {
   IWalletObserverProviderProps,
   useAvailableExtensions,

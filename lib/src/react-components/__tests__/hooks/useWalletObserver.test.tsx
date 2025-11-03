@@ -1,11 +1,12 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
 
-import { assetIds } from "../../../__data__/assets.js";
+import { Cardano } from "@cardano-sdk/core";
+import { mockWalletAssetIds } from "../../../__data__/assets.js";
 import {
-  network,
-  unusedAddresses,
-  usedAddresses,
+  mockNetwork,
+  mockUnusedAddresses,
+  mockUsedAddresses,
 } from "../../../__data__/eternl.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import {
@@ -52,11 +53,21 @@ describe("useWalletObserver", () => {
 
     expect(result.current.activeWallet).toEqual("eternl");
     expect(result.current.adaBalance.amount.toString()).not.toEqual("0");
-    expect(result.current.balance.size).toEqual(assetIds.length);
+    expect(result.current.balance.size).toEqual(mockWalletAssetIds.length);
     expect(result.current.isCip45).toBeFalse();
-    expect(result.current.mainAddress).toEqual(usedAddresses[0]);
-    expect(result.current.network).toEqual(network);
-    expect(result.current.unusedAddresses).toEqual(unusedAddresses);
-    expect(result.current.usedAddresses).toEqual(usedAddresses);
+    expect(result.current.mainAddress).toEqual(
+      Cardano.Address.fromString(mockUsedAddresses[0])!.toBech32(),
+    );
+    expect(result.current.network).toEqual(mockNetwork);
+    expect(result.current.unusedAddresses).toEqual(
+      mockUnusedAddresses.map((cbor) =>
+        Cardano.Address.fromString(cbor)!.toBech32(),
+      ),
+    );
+    expect(result.current.usedAddresses).toEqual(
+      mockUsedAddresses.map((cbor) =>
+        Cardano.Address.fromString(cbor)!.toBech32(),
+      ),
+    );
   });
 });

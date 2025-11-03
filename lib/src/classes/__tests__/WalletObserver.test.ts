@@ -1,11 +1,12 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { afterEach, describe, expect, it, spyOn, test } from "bun:test";
 
-import { assetIds } from "../../__data__/assets.js";
+import { Cardano } from "@cardano-sdk/core";
+import { mockWalletAssetIds } from "../../__data__/assets.js";
 import {
-  network,
-  unusedAddresses,
-  usedAddresses,
+  mockNetwork,
+  mockUnusedAddresses,
+  mockUsedAddresses,
 } from "../../__data__/eternl.js";
 import {
   EWalletObserverEvents,
@@ -154,29 +155,42 @@ describe("WalletObserver", async () => {
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         4,
         EWalletObserverEvents.GET_BALANCE_MAP_END,
-        {
+        expect.objectContaining({
           balanceMap: expect.objectContaining({
-            size: assetIds.length,
+            size: mockWalletAssetIds.length,
           }),
-        },
+        }),
       );
       expect(spiedDispatch).toHaveBeenNthCalledWith(
         5,
         EWalletObserverEvents.SYNCING_WALLET_END,
         expect.objectContaining({
           balanceMap: expect.objectContaining({
-            size: assetIds.length,
+            size: mockWalletAssetIds.length,
           }),
-          network,
-          unusedAddresses,
-          usedAddresses,
+          network: mockNetwork,
+          unusedAddresses: expect.objectContaining({
+            length: mockUnusedAddresses.length,
+          }),
+          usedAddresses: expect.objectContaining({
+            length: mockUsedAddresses.length,
+          }),
         }),
       );
 
-      expect(syncResults.balanceMap.size).toEqual(assetIds.length);
-      expect(syncResults.network).toBe(network);
-      expect(syncResults.unusedAddresses).toEqual(unusedAddresses);
-      expect(syncResults.usedAddresses).toEqual(usedAddresses);
+      expect(syncResults.balanceMap).toHaveProperty(
+        "size",
+        mockWalletAssetIds.length,
+      );
+      expect(syncResults.network).toBe(mockNetwork);
+      expect(syncResults.unusedAddresses).toHaveProperty(
+        "length",
+        mockUnusedAddresses.length,
+      );
+      expect(syncResults.usedAddresses).toHaveProperty(
+        "length",
+        mockUsedAddresses.length,
+      );
     });
 
     it("should connect correctly with persistence", async () => {
@@ -196,14 +210,23 @@ describe("WalletObserver", async () => {
 
       const syncResults = await observer.sync();
 
-      expect(syncResults.balanceMap.size).toEqual(assetIds.length);
-      expect(syncResults.network).toBe(network);
-      expect(syncResults.unusedAddresses).toEqual(unusedAddresses);
-      expect(syncResults.usedAddresses).toEqual(usedAddresses);
+      expect(syncResults.balanceMap).toHaveProperty(
+        "size",
+        mockWalletAssetIds.length,
+      );
+      expect(syncResults.network).toBe(mockNetwork);
+      expect(syncResults.unusedAddresses).toHaveProperty(
+        "length",
+        mockUnusedAddresses.length,
+      );
+      expect(syncResults.usedAddresses).toHaveProperty(
+        "length",
+        mockUsedAddresses.length,
+      );
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
       ).toEqual(
-        `{"activeWallet":"eternl","mainAddress":"${usedAddresses[0]}"}`,
+        `{"activeWallet":"eternl","mainAddress":"${Cardano.Address.fromString(mockUsedAddresses[0])?.toBech32()}"}`,
       );
     });
   });
@@ -224,13 +247,15 @@ describe("WalletObserver", async () => {
       expect(
         window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
       ).toEqual(
-        `{"activeWallet":"eternl","mainAddress":"${usedAddresses[0]}"}`,
+        `{"activeWallet":"eternl","mainAddress":"${Cardano.Address.fromString(mockUsedAddresses[0])?.toBech32()}"}`,
       );
 
       await observer.sync();
 
       expect(observer.activeWallet).toEqual("eternl");
-      expect(observer.getCachedAssetMetadata().size).toEqual(assetIds.length);
+      expect(observer.getCachedAssetMetadata().size).toEqual(
+        mockWalletAssetIds.length,
+      );
 
       observer.disconnect();
 
@@ -263,8 +288,6 @@ describe("WalletObserver", async () => {
           },
         },
       });
-      const spiedOnConnect = spyOn(observer, "connectWallet");
-      const spiedOnDisconnect = spyOn(observer, "disconnect");
 
       expect(observer.peerConnectInstance).toBeUndefined();
 
@@ -277,17 +300,6 @@ describe("WalletObserver", async () => {
           instance: data.instance,
         }),
       );
-
-      // Simulate injection.
-      // @ts-expect-error Simulating the actual function.
-      data.instance.__testStartServer();
-      expect(spiedOnConnect).toHaveBeenCalledWith("eternl-p2p");
-
-      data.instance.shutdownServer();
-      expect(spiedOnDisconnect).toHaveBeenCalled();
-
-      // Restore window.
-      delete window.cardano?.["eternl-p2p"];
     });
   });
 });

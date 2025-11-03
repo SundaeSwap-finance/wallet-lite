@@ -18,7 +18,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       # Git Identity
       - name: Git Identity
@@ -35,10 +35,8 @@ jobs:
       - name: Lint
         run: bun lint
 
-      # - name: Test
-      #   run: |
-      #     cd lib
-      #     bun test
+      - name: Test
+        run: bun test
 
       - name: Build
         run: |

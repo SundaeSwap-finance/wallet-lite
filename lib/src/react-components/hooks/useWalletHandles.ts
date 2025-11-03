@@ -22,7 +22,12 @@ export const useWalletHandles = <
   >({
     queryKey,
     queryFn: async () => {
-      return getHandleMetadata(state.balance.getHandles(), state.network || 0);
+      const result = await getHandleMetadata(
+        state.balance.getHandles(),
+        state.network || 0,
+      );
+
+      return result;
     },
     refetchInterval: false,
     notifyOnChangeProps: ["data", "isLoading"],

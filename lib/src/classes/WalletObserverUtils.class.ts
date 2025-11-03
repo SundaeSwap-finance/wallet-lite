@@ -48,6 +48,8 @@ export class WalletObserverUtils {
       this.network,
       stakingCredential,
     );
-    return stakingAddress.toAddress().toBech32();
+
+    const bech32 = stakingAddress.toAddress().toBech32();
+    return bech32;
   }
 }

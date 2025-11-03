@@ -1,16 +1,6 @@
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  mock,
-  spyOn,
-} from "bun:test";
-import { merge } from "lodash";
+import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { coreModuleMock } from "../../../setup-tests.js";
+// import { coreModuleMock } from "../../../setup-tests.js";
 import * as getLibModules from "../../utils/getLibs.js";
 import { WalletObserverUtils } from "../WalletObserverUtils.class.js";
 
@@ -19,43 +9,7 @@ const testAddress =
 const stakeAddress =
   "stake_test1uqfpl53wpdt6cgr0alrk879l5pm3jx04yx95q6g7afz3f5quuwrwt";
 
-const fromBech32Mock = mock();
-const getStakeCredentialMock = mock(() => ({
-  hash: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
-  type: 1,
-}));
-const fromAddressMock = mock(() => ({
-  getPaymentCredential: mock(() => ({
-    hash: "c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a",
-    type: 0,
-  })),
-  getStakeCredential: getStakeCredentialMock,
-}));
-const isValidMock = mock();
 const spiedOnGetCardanoCore = spyOn(getLibModules, "getCardanoCore");
-
-beforeAll(() => {
-  mock.module("@cardano-sdk/core", () =>
-    merge(coreModuleMock, {
-      Cardano: {
-        Address: {
-          isValidBech32: isValidMock,
-          fromBech32: fromBech32Mock,
-        },
-        BaseAddress: {
-          fromAddress: fromAddressMock,
-        },
-        RewardAddress: {
-          fromCredentials: mock(() => ({
-            toAddress: mock(() => ({
-              toBech32: mock(() => stakeAddress),
-            })),
-          })),
-        },
-      },
-    }),
-  );
-});
 
 afterAll(() => {
   mock.restore();
@@ -63,10 +17,8 @@ afterAll(() => {
 
 describe("WalletObserverUtils", async () => {
   const instance = await WalletObserverUtils.new(0);
-
-  beforeEach(() => {
-    isValidMock.mockImplementation(() => true);
-  });
+  const isValidMock = spyOn(instance.Cardano.Address, "isValidBech32");
+  const fromBech32Mock = spyOn(instance.Cardano.Address, "fromBech32");
 
   it("should instantiate with expected defaults", () => {
     expect(instance).toBeInstanceOf(WalletObserverUtils);
@@ -89,7 +41,7 @@ describe("WalletObserverUtils", async () => {
     });
 
     it("should throw an error if the address is malformed", () => {
-      isValidMock.mockImplementation(() => false);
+      isValidMock.mockImplementationOnce(() => false);
       expect(() => instance.getAddressDetails("invalid")).toThrowError(
         "Expected a Bech32 encoded address.",
       );
@@ -103,14 +55,12 @@ describe("WalletObserverUtils", async () => {
         stakeAddress,
       );
 
-      isValidMock.mockImplementation(() => false);
+      isValidMock.mockImplementationOnce(() => false);
       expect(() => instance.getBech32StakingAddress("invalid")).toThrowError(
         "Expected a Bech32 encoded address.",
       );
       expect(isValidMock).toHaveBeenCalled();
 
-      // @ts-expect-error It can be undefined.
-      getStakeCredentialMock.mockImplementation(() => undefined);
       expect(() => instance.getBech32StakingAddress("invalid")).toThrowError(
         "Expected a Bech32 encoded address.",
       );

@@ -35,10 +35,8 @@ jobs:
       - name: Lint
         run: bun lint
 
-      # - name: Test
-      #   run: |
-      #     cd lib
-      #     bun test
+      - name: Test
+        run: bun test
 
       - name: Build
         run: |

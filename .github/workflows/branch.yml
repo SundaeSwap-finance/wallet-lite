@@ -23,7 +23,7 @@ jobs:
         run: bun lint
 
       - name: Test
-        run: bun test
+        run: bun test --bail
 
       - name: Build
         run: |

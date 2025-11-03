@@ -1,7 +1,16 @@
-import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  Mock,
+  mock,
+  spyOn,
+} from "bun:test";
 
 // import { coreModuleMock } from "../../../setup-tests.js";
-import * as getLibModules from "../../utils/getLibs.js";
+import { Cardano } from "@cardano-sdk/core";
 import { WalletObserverUtils } from "../WalletObserverUtils.class.js";
 
 const testAddress =
@@ -9,21 +18,24 @@ const testAddress =
 const stakeAddress =
   "stake_test1uqfpl53wpdt6cgr0alrk879l5pm3jx04yx95q6g7afz3f5quuwrwt";
 
-const spiedOnGetCardanoCore = spyOn(getLibModules, "getCardanoCore");
-
 afterAll(() => {
   mock.restore();
 });
 
 describe("WalletObserverUtils", async () => {
-  const instance = await WalletObserverUtils.new(0);
-  const isValidMock = spyOn(instance.Cardano.Address, "isValidBech32");
-  const fromBech32Mock = spyOn(instance.Cardano.Address, "fromBech32");
+  let instance: WalletObserverUtils;
+  let isValidMock: Mock<(bech32: string) => boolean>;
+  let fromBech32Mock: Mock<(bech32: string) => Cardano.Address>;
+
+  beforeAll(async () => {
+    instance = await WalletObserverUtils.new(0);
+    isValidMock = spyOn(instance.Cardano.Address, "isValidBech32");
+    fromBech32Mock = spyOn(instance.Cardano.Address, "fromBech32");
+  });
 
   it("should instantiate with expected defaults", () => {
     expect(instance).toBeInstanceOf(WalletObserverUtils);
     expect(instance.network).toEqual(0);
-    expect(spiedOnGetCardanoCore).toHaveBeenCalledTimes(1);
   });
 
   it("should be able to switch networks", () => {

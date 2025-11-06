@@ -14,7 +14,7 @@ export const useSyncWalletWithInterval = (
 ) => {
   useQuery({
     queryKey: [refreshInterval, syncWalletFn],
-    queryFn: syncWalletFn,
+    queryFn: () => syncWalletFn(),
     refetchInterval: refreshInterval,
     enabled: refreshInterval ? refreshInterval > 0 : false,
     refetchOnWindowFocus: true,

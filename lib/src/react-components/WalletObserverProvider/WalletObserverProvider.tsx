@@ -7,7 +7,7 @@ import {
   WalletObserverContext,
 } from "../contexts/observer/index.js";
 import { useDerivedState } from "./hooks/effects/useDerivedState.js";
-import { useProviderRefreshInterval } from "./hooks/effects/useProviderRefreshInterval.js";
+import { useSyncWalletWithInterval } from "./hooks/effects/useSyncWalletWithInterval.js";
 import { useProviderWalletObserverRef } from "./hooks/useProviderWalletObserverRef.js";
 import { useWalletObserverState } from "./hooks/useWalletObserverState.js";
 
@@ -30,11 +30,8 @@ const WalletObserverProvider: FC<
   } = useProviderWalletObserverRef(options?.observerOptions, options?.hooks);
   const state = useWalletObserverState(observerRef.current);
 
-  useProviderRefreshInterval(
-    observerRef.current,
-    state.syncWallet,
-    options?.refreshInterval,
-  );
+  // Enable syncing.
+  useSyncWalletWithInterval(state.syncWallet, options?.refreshInterval);
 
   const derivedState = useDerivedState(observerRef.current, {
     usedAddresses: state.usedAddresses,

@@ -13,8 +13,11 @@ export const useSyncWalletWithInterval = (
   refreshInterval?: number,
 ) => {
   useQuery({
-    queryKey: [refreshInterval, syncWalletFn],
-    queryFn: () => syncWalletFn(),
+    queryKey: ["useSyncWalletWithInterval"],
+    queryFn: () => {
+      syncWalletFn();
+      return true;
+    },
     refetchInterval: refreshInterval,
     enabled: refreshInterval ? refreshInterval > 0 : false,
     refetchOnWindowFocus: true,

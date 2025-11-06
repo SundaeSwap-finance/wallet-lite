@@ -3,6 +3,8 @@ import { act } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { FC, PropsWithChildren } from "react";
 import { mockedEternlWallet } from "../../../../../setup-tests.js";
 import {
   IWalletObserverProviderProps,
@@ -12,13 +14,22 @@ import {
 
 const INTERVAL_AMOUNT = 10;
 
+const client = new QueryClient();
+const QueryProvider: FC<PropsWithChildren> = ({ children }) => (
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+);
+
 describe("useAvailableExtensions", () => {
   it("should correctly retrieve the instance", async () => {
     const { result } = renderHook<
       IWalletObserverProviderProps,
       ReturnType<typeof useAvailableExtensions>
     >(() => useAvailableExtensions(INTERVAL_AMOUNT), {
-      wrapper: (props) => <WalletObserverProvider {...props} />,
+      wrapper: (props) => (
+        <QueryProvider>
+          <WalletObserverProvider {...props} />
+        </QueryProvider>
+      ),
     });
 
     act(() => {

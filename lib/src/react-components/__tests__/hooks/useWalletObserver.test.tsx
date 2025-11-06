@@ -1,7 +1,9 @@
+import { Cardano } from "@cardano-sdk/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { describe, expect, it } from "bun:test";
+import { FC, PropsWithChildren } from "react";
 
-import { Cardano } from "@cardano-sdk/core";
 import { mockWalletAssetIds } from "../../../__data__/assets.js";
 import {
   mockNetwork,
@@ -15,6 +17,11 @@ import {
   useWalletObserver,
 } from "../../../index.js";
 
+const client = new QueryClient();
+const QueryProvider: FC<PropsWithChildren> = ({ children }) => (
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+);
+
 describe("useWalletObserver", () => {
   it("should correctly retrieve the context", async () => {
     const { result } = renderHook<
@@ -22,16 +29,18 @@ describe("useWalletObserver", () => {
       ReturnType<typeof useWalletObserver>
     >(() => useWalletObserver(), {
       wrapper: (props) => (
-        <WalletObserverProvider
-          {...{
-            ...props,
-            observerOptions: {
-              ...props.options?.observerOptions,
-              // Quick resolve time for tests.
-              connectTimeout: 10,
-            },
-          }}
-        />
+        <QueryProvider>
+          <WalletObserverProvider
+            {...{
+              ...props,
+              observerOptions: {
+                ...props.options?.observerOptions,
+                // Quick resolve time for tests.
+                connectTimeout: 10,
+              },
+            }}
+          />
+        </QueryProvider>
       ),
     });
 

@@ -1,13 +1,20 @@
+import { IAssetAmountMetadata } from "@sundaeswap/asset";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { describe, expect, it } from "bun:test";
+import { FC, PropsWithChildren } from "react";
 
-import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   RenderWallet,
   TUseWalletObserverState,
   WalletObserverProvider,
 } from "../../index.js";
+
+const client = new QueryClient();
+const QueryProvider: FC<PropsWithChildren> = ({ children }) => (
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+);
 
 const TestComponent = (
   state: Omit<
@@ -40,7 +47,11 @@ describe("RenderWallet", () => {
       <RenderWallet render={TestComponent} />,
       {
         wrapper(props) {
-          return <WalletObserverProvider {...props} />;
+          return (
+            <QueryProvider>
+              <WalletObserverProvider {...props} />
+            </QueryProvider>
+          );
         },
       },
     );

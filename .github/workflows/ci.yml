@@ -56,7 +56,7 @@ jobs:
           git push --follow-tags --no-verify origin main
 
       - name: Configure npm authentication
-        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.PUBLISH_NPM_TOKEN }}
 
       # Create Release
       - name: Publish

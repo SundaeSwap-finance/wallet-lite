@@ -1,3 +1,4 @@
+import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   IWalletObserverEventValues,
   TWalletObserverEventFunction,
@@ -7,8 +8,12 @@ import { getEventKey } from "../utils/hashing.js";
 /**
  * The base class for the WalletObserver class. This handles
  * the event-based tracking for all internal hooks.
+ *
+ * @template AssetMetadata - Type extending IAssetAmountMetadata.
  */
-export class WalletObserverEvent {
+export class WalletObserverEvent<
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
+> {
   private _eventTarget: EventTarget;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _handlers: Map<string, (...params: any) => void> = new Map();
@@ -22,11 +27,11 @@ export class WalletObserverEvent {
    *
    * @template E - The event type.
    * @param {E} event - The event to dispatch.
-   * @param {IWalletObserverEventValues[E]} [data] - The data to pass with the event.
+   * @param {IWalletObserverEventValues<AssetMetadata>[E]} [data] - The data to pass with the event.
    */
-  dispatch = <E extends keyof IWalletObserverEventValues>(
+  dispatch = <E extends keyof IWalletObserverEventValues<AssetMetadata>>(
     event: E,
-    data?: IWalletObserverEventValues[E],
+    data?: IWalletObserverEventValues<AssetMetadata>[E],
   ) => {
     this._eventTarget.dispatchEvent(
       new CustomEvent(event as string, { detail: data }),
@@ -41,7 +46,9 @@ export class WalletObserverEvent {
    * @param {TWalletObserverEventFunction<E>} callback - The callback function to execute when the event is triggered.
    * @returns {void}
    */
-  addEventListener = <E extends keyof IWalletObserverEventValues>(
+  addEventListener = <
+    E extends keyof IWalletObserverEventValues<AssetMetadata>,
+  >(
     event: E,
     callback: TWalletObserverEventFunction<E>,
   ): void => {
@@ -71,7 +78,9 @@ export class WalletObserverEvent {
    * @param {TWalletObserverEventFunction<E>} callback - The callback function to remove.
    * @param {boolean | EventListenerOptions} [options] - Additional options for removing the listener.
    */
-  removeEventListener = <E extends keyof IWalletObserverEventValues>(
+  removeEventListener = <
+    E extends keyof IWalletObserverEventValues<AssetMetadata>,
+  >(
     event: E,
     callback: TWalletObserverEventFunction<E>,
     options?: boolean | EventListenerOptions,

@@ -42,6 +42,15 @@ export const useProviderWalletObserverRef = (
   }, [observerRef, observerRef.current.api, observerRef.current.activeWallet]);
 
   /**
+   * Update the observer options when they change.
+   */
+  useEffect(() => {
+    if (observerRef.current && options) {
+      observerRef.current.updateOptions(options);
+    }
+  }, [options]);
+
+  /**
    * Add user-defined hooks into the event stream.
    */
   useEffect(() => {

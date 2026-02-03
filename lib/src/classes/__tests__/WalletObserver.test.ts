@@ -124,6 +124,114 @@ describe("WalletObserver", async () => {
     });
   });
 
+  describe("updateOptions()", () => {
+    test("should update options after initialization", () => {
+      const initialHandler: TMetadataResolverFunc<
+        IAssetAmountMetadata
+      > = async ({ assetIds, normalizeAssetId }) => {
+        const metadata = assetIds.map((id) => ({ decimals: 6, assetId: id }));
+        const map = new Map<string, IAssetAmountMetadata>();
+        metadata.forEach((m) => map.set(normalizeAssetId(m.assetId), m));
+        return map;
+      };
+
+      const observer = new WalletObserver({
+        connectTimeout: 5000,
+        metadataResolver: initialHandler,
+        debug: false,
+      });
+
+      // Verify initial options
+      expect(observer.getOptions()).toMatchObject({
+        connectTimeout: 5000,
+        metadataResolver: initialHandler,
+        debug: false,
+      } as TWalletObserverOptions);
+
+      const newHandler: TMetadataResolverFunc<IAssetAmountMetadata> = async ({
+        assetIds,
+        normalizeAssetId,
+      }) => {
+        const metadata = assetIds.map((id) => ({ decimals: 8, assetId: id }));
+        const map = new Map<string, IAssetAmountMetadata>();
+        metadata.forEach((m) => map.set(normalizeAssetId(m.assetId), m));
+        return map;
+      };
+
+      // Update options
+      observer.updateOptions({
+        connectTimeout: 3000,
+        metadataResolver: newHandler,
+        debug: true,
+      });
+
+      // Verify updated options
+      expect(observer.getOptions()).toMatchObject({
+        connectTimeout: 3000,
+        metadataResolver: newHandler,
+        debug: true,
+      } as TWalletObserverOptions);
+    });
+
+    test("should partially update options", () => {
+      const observer = new WalletObserver({
+        connectTimeout: 5000,
+        debug: false,
+        persistence: false,
+      });
+
+      // Verify initial options
+      const initialOptions = observer.getOptions();
+      expect(initialOptions.connectTimeout).toEqual(5000);
+      expect(initialOptions.debug).toBeFalse();
+      expect(initialOptions.persistence).toBeFalse();
+
+      // Update only debug option
+      observer.updateOptions({
+        debug: true,
+      });
+
+      // Verify only debug was updated, other options remain the same
+      const updatedOptions = observer.getOptions();
+      expect(updatedOptions.connectTimeout).toEqual(5000); // unchanged
+      expect(updatedOptions.debug).toBeTrue(); // updated
+      expect(updatedOptions.persistence).toBeFalse(); // unchanged
+    });
+
+    test("should merge peerConnectArgs correctly", () => {
+      const observer = new WalletObserver({
+        peerConnectArgs: {
+          dAppInfo: {
+            name: "Initial dApp Name",
+            url: "http://initial.com",
+          },
+        },
+      });
+
+      // Verify initial peerConnectArgs
+      expect(observer.getOptions().peerConnectArgs?.dAppInfo).toMatchObject({
+        name: "Initial dApp Name",
+        url: "http://initial.com",
+      });
+
+      // Update peerConnectArgs
+      observer.updateOptions({
+        peerConnectArgs: {
+          dAppInfo: {
+            name: "Updated dApp Name",
+            url: "http://updated.com",
+          },
+        },
+      });
+
+      // Verify updated peerConnectArgs
+      expect(observer.getOptions().peerConnectArgs?.dAppInfo).toMatchObject({
+        name: "Updated dApp Name",
+        url: "http://updated.com",
+      });
+    });
+  });
+
   describe("connectWallet()", () => {
     it("should connect correctly", async () => {
       const observer = new WalletObserver();

@@ -40,11 +40,11 @@ import { WalletObserverUtils } from "./WalletObserverUtils.class.js";
  * syncing, and disconnecting.
  *
  * @template AssetMetadata - Type extending IAssetAmountMetadata.
- * @extends {WalletObserverEvent}
+ * @extends {WalletObserverEvent<AssetMetadata>}
  */
 export class WalletObserver<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
-> extends WalletObserverEvent {
+> extends WalletObserverEvent<AssetMetadata> {
   static PERSISTENCE_CACHE_KEY = "walletObserver";
   public network: number = 0;
   public api?: Cip30WalletApi;
@@ -292,6 +292,20 @@ export class WalletObserver<
    */
   getOptions = (): TWalletObserverOptions => {
     return this._options;
+  };
+
+  /**
+   * Updates the wallet observer options. Merges the new options with the existing ones.
+   *
+   * @param {Partial<TWalletObserverOptions<AssetMetadata>>} options - The new options to merge.
+   */
+  updateOptions = (
+    options: Partial<TWalletObserverOptions<AssetMetadata>>,
+  ): void => {
+    this._options = merge<
+      IResolvedWalletObserverOptions<AssetMetadata>,
+      typeof options
+    >(this._options, options);
   };
 
   /**

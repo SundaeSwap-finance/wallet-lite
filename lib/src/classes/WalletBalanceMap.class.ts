@@ -31,7 +31,7 @@ export class WalletBalanceMap<
    * Creates an instance of WalletBalanceMap.
    * @param {WalletObserver} _observer - An instance of the associated WalletObserver.
    */
-  constructor(private _observer: WalletObserver) {
+  constructor(private _observer: WalletObserver<AssetMetadata>) {
     super();
   }
 

@@ -45,6 +45,12 @@ export interface IWalletObserverProviderProps<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 > {
   options?: Partial<IWalletObserverProviderState<AssetMetadata>>;
+  /**
+   * When provided, the provider will only sync the wallet when this value is `true`.
+   * Useful for gating syncs until external dependencies (e.g. a metadata resolver) are ready.
+   * Defaults to `true` if not provided.
+   */
+  loading?: boolean;
 }
 
 /**

@@ -20,7 +20,7 @@ import { useWalletObserverState } from "./hooks/useWalletObserverState.js";
  */
 const WalletObserverProvider: FC<
   PropsWithChildren<IWalletObserverProviderProps>
-> = ({ children, options }) => {
+> = ({ children, options, loading = false }) => {
   const {
     observerRef,
     connectingWallet,
@@ -30,8 +30,11 @@ const WalletObserverProvider: FC<
   } = useProviderWalletObserverRef(options?.observerOptions, options?.hooks);
   const state = useWalletObserverState(observerRef.current);
 
-  // Enable syncing.
-  useSyncWalletWithInterval(state.syncWallet, options?.refreshInterval);
+  // Enable syncing only when not loading.
+  useSyncWalletWithInterval(
+    state.syncWallet,
+    loading ? undefined : options?.refreshInterval,
+  );
 
   const derivedState = useDerivedState(observerRef.current, {
     usedAddresses: state.usedAddresses,
@@ -65,7 +68,7 @@ const WalletObserverProvider: FC<
   );
 
   useEffect(() => {
-    if (!eventListenersAttached) {
+    if (!eventListenersAttached || loading) {
       return;
     }
 
@@ -76,7 +79,7 @@ const WalletObserverProvider: FC<
     if (wallet && observerRef.current?.getOptions()?.persistence) {
       state.connectWallet(JSON.parse(wallet).activeWallet);
     }
-  }, [eventListenersAttached]);
+  }, [eventListenersAttached, loading]);
 
   return (
     <WalletObserverContext.Provider value={contextValue}>

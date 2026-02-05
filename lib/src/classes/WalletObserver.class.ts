@@ -58,6 +58,9 @@ export class WalletObserver<
   // Caching
   private _cachedMetadata: Map<string, AssetMetadata> = new Map();
 
+  // AbortController for cancelling in-flight metadata fetches when metadataResolver changes
+  private _metadataAbortController: AbortController | null = null;
+
   /**
    * Creates an instance of WalletObserver.
    *
@@ -296,16 +299,33 @@ export class WalletObserver<
 
   /**
    * Updates the wallet observer options. Merges the new options with the existing ones.
+   * If metadataResolver changes, cancels any in-flight metadata fetch, clears the cache,
+   * and triggers a new sync if there is an active connection.
    *
    * @param {Partial<TWalletObserverOptions<AssetMetadata>>} options - The new options to merge.
    */
   updateOptions = (
     options: Partial<TWalletObserverOptions<AssetMetadata>>,
   ): void => {
+    const metadataResolverChanged =
+      options.metadataResolver &&
+      options.metadataResolver !== this._options.metadataResolver;
+
     this._options = merge<
       IResolvedWalletObserverOptions<AssetMetadata>,
       typeof options
     >(this._options, options);
+
+    // If metadataResolver changed, abort in-flight fetch, clear cache, and re-sync
+    if (metadataResolverChanged) {
+      this._metadataAbortController?.abort();
+      this._cachedMetadata = new Map();
+
+      // Trigger a new sync if there's an active connection
+      if (this.hasActiveConnection() && !this._performingSync) {
+        this.sync();
+      }
+    }
   };
 
   /**
@@ -754,6 +774,7 @@ export class WalletObserver<
 
   /**
    * Resolves metadata for the given asset IDs, using a cached version if available.
+   * Aborts any in-flight fetch when called, ensuring only the latest request completes.
    *
    * @private
    * @param {string[]} assetIds - The IDs of the assets to resolve metadata for.
@@ -780,6 +801,11 @@ export class WalletObserver<
       }
     }
 
+    // Abort any in-flight metadata fetch
+    this._metadataAbortController?.abort();
+    this._metadataAbortController = new AbortController();
+    const currentController = this._metadataAbortController;
+
     let attempts = 0;
     let newMetadata: Map<string, AssetMetadata> | undefined;
     while (attempts <= 3 && !newMetadata) {
@@ -794,12 +820,22 @@ export class WalletObserver<
       }
     }
 
+    // If this request was aborted while in-flight, return current cache (a new fetch is in progress)
+    if (currentController.signal.aborted) {
+      return this._cachedMetadata;
+    }
+
     if (!newMetadata) {
       newMetadata = await this.fallbackMetadataResolver({
         assetIds: assetIds.map(normalizeAssetIdWithDot),
         normalizeAssetId: normalizeAssetIdWithDot,
         isAdaAsset,
       });
+    }
+
+    // Double-check abort status after fallback resolver
+    if (currentController.signal.aborted) {
+      return this._cachedMetadata;
     }
 
     this._cachedMetadata = newMetadata;

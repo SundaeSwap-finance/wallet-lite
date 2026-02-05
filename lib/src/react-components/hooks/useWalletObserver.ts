@@ -52,7 +52,7 @@ export const useWalletObserver = <
       state.changeAddress,
       state.activeWallet,
       state.adaBalance.amount,
-      state.balance.size,
+      state.balance,
       state.collateral,
       state.connectWallet,
       state.disconnect,

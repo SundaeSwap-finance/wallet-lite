@@ -23,17 +23,39 @@ export const areAssetMapsEqual = (
         return false;
       }
 
-      if (typeof map2.get(key) === "object") {
-        if (map2.get(key)?.amount !== val?.amount) {
+      const other = map2.get(key);
+
+      if (typeof other !== typeof val) {
+        return false;
+      }
+
+      if (typeof other === "object") {
+        if (other?.amount !== val?.amount) {
+          return false;
+        }
+
+        // Compare metadata by shallow key comparison
+        if (other?.metadata && val?.metadata) {
+          const otherMeta = other.metadata;
+          const valMeta = val.metadata;
+          const otherKeys = Object.keys(otherMeta);
+          const valKeys = Object.keys(valMeta);
+
+          if (otherKeys.length !== valKeys.length) {
+            return false;
+          }
+
+          for (const k of otherKeys) {
+            if (otherMeta[k] !== valMeta[k]) {
+              return false;
+            }
+          }
+        } else if (other?.metadata !== val?.metadata) {
           return false;
         }
       }
 
-      if (typeof map2.get(key) !== typeof val) {
-        return false;
-      }
-
-      if (map2.get(key).toString() !== val.toString()) {
+      if (other?.toString() !== val?.toString()) {
         return false;
       }
     }

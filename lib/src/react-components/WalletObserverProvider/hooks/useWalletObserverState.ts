@@ -80,6 +80,10 @@ export const useWalletObserverState = <
     [observer, setSwitching, setIsReadOnlyMode],
   );
 
+  const resyncMetadata = useCallback(async () => {
+    await observer.resyncMetadata();
+  }, [observer]);
+
   const syncWallet = useCallback(
     async (importedData?: IWalletObserverSync<AssetMetadata> | undefined) => {
       if (observer.isSyncing() || !observer.hasActiveConnection()) {
@@ -222,6 +226,7 @@ export const useWalletObserverState = <
     isReadOnlyMode,
     network,
     changeAddress,
+    resyncMetadata,
     setActiveWallet,
     setAdaBalance,
     setBalance,

@@ -440,6 +440,24 @@ export class WalletObserver<
     this._cachedMetadata;
 
   /**
+   * Clears the cached metadata and triggers a fresh sync to re-fetch metadata.
+   * Useful when the client wants to manually refresh metadata without changing the resolver.
+   *
+   * @returns {Promise<void>}
+   */
+  resyncMetadata = async (): Promise<void> => {
+    // Abort any in-flight fetch
+    this._metadataAbortController?.abort();
+    // Clear the cache
+    this._cachedMetadata = new Map();
+
+    // Trigger a new sync if there's an active connection
+    if (this.hasActiveConnection()) {
+      await this.sync();
+    }
+  };
+
+  /**
    * Helper function to restore the class instance to its initial state.
    *
    * @returns {void}

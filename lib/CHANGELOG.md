@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.103 (2026-02-05)
+
+
+### Bug Fixes
+
+* abort in-flight metadataresolver if new one supplied ([6163509](https://github.com/SundaeSwap-finance/wallet-lite/commit/6163509a8328615ab69d2417e4b58c6cb5dee0d4))
+
 ### 0.0.102 (2026-02-03)
 
 ### 0.0.101 (2026-01-27)

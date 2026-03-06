@@ -53,6 +53,8 @@ export class WalletObserver<
   public peerConnectInstance?: import("@fabianbormann/cardano-peer-connect").DAppPeerConnect;
 
   private _performingSync: boolean = false;
+  private _syncQueue: Promise<IWalletObserverSync<AssetMetadata> | void> =
+    Promise.resolve();
   private _options: IResolvedWalletObserverOptions<AssetMetadata>;
 
   // Caching
@@ -128,7 +130,15 @@ export class WalletObserver<
    *
    * @returns {Promise<IWalletObserverSync<AssetMetadata>>} - A promise that resolves to the wallet sync data.
    */
-  sync = async (): Promise<IWalletObserverSync<AssetMetadata>> => {
+  sync = (): Promise<IWalletObserverSync<AssetMetadata>> => {
+    const pending = this._syncQueue.then(() => this._doSync());
+    // Chain onto queue but swallow rejections in the queue itself
+    // so a failed sync doesn't block subsequent syncs.
+    this._syncQueue = pending.catch(() => {});
+    return pending;
+  };
+
+  private _doSync = async (): Promise<IWalletObserverSync<AssetMetadata>> => {
     if (!this.api) {
       throw new Error(
         "Attempted to perform a sync operation without a connected wallet.",

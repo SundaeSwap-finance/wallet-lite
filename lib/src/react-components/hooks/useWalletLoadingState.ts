@@ -1,21 +1,23 @@
-import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useMemo } from "react";
 
-import { useWalletObserverContext } from "../contexts/observer/context.js";
+import { useWalletConnectionContext } from "../contexts/observer/context.js";
 
-export const useWalletLoadingState = <
-  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
->() => {
-  const { state } = useWalletObserverContext<AssetMetadata>();
+export const useWalletLoadingState = () => {
+  const connection = useWalletConnectionContext();
 
   const result = useMemo(
     () => ({
-      connectingWallet: state.connectingWallet,
-      syncingWallet: state.syncingWallet,
-      switchingWallet: state.switching,
-      ready: state.ready,
+      connectingWallet: connection.connectingWallet,
+      syncingWallet: connection.syncingWallet,
+      switchingWallet: connection.switching,
+      ready: connection.ready,
     }),
-    [state.ready, state.syncingWallet, state.connectingWallet, state.switching],
+    [
+      connection.ready,
+      connection.syncingWallet,
+      connection.connectingWallet,
+      connection.switching,
+    ],
   );
 
   return result;

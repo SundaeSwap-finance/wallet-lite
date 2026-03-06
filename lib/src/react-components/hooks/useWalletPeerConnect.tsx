@@ -9,12 +9,12 @@ import {
 } from "react";
 
 import { TGetPeerConnectInstance } from "../../@types/observer.js";
-import { useWalletObserver } from "./useWalletObserver.js";
+import { useWalletActionsContext } from "../contexts/observer/context.js";
 
 export const useWalletPeerConnect = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
-  const state = useWalletObserver<AssetMetadata>();
+  const { observer } = useWalletActionsContext<AssetMetadata>();
   const [isPending, startTransition] = useTransition();
   const [peerConnect, setPeerConnect] =
     useState<ReturnType<TGetPeerConnectInstance>>();
@@ -22,11 +22,11 @@ export const useWalletPeerConnect = <
   const qrCode = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!state.observer) {
+    if (!observer) {
       return;
     }
 
-    state.observer.getCip45Instance().then((res) => {
+    observer.getCip45Instance().then((res) => {
       startTransition(() => {
         try {
           setPeerConnect(res);
@@ -35,7 +35,7 @@ export const useWalletPeerConnect = <
         }
       });
     });
-  }, [state.observer]);
+  }, [observer]);
 
   useEffect(() => {
     if (peerConnect && qrCode.current) {

@@ -14,37 +14,51 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
   }
 
   async getBalance(address: string, network: 0 | 1) {
-    const result: Responses["address_content"] = await fetch(
+    const response = await fetch(
       `https://cardano-${network ? "mainnet" : "preview"}.blockfrost.io/api/v0/addresses/${address}`,
       {
         headers: {
           project_id: this.blockfrostProjectId,
         },
       },
-    ).then((res) => res.json());
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || "error" in result) {
+      throw new Error(
+        `Blockfrost getBalance failed: ${result.message || result.error || response.statusText}`,
+      );
+    }
 
     // Build our value.
-    const value = this.__getValueFromAmount(result.amount);
+    const value = this.__getValueFromAmount(
+      (result as Responses["address_content"]).amount,
+    );
 
     // Return the cbor.
     return value.toCbor();
   }
 
   async getUtxos(address: string, network: 0 | 1) {
-    const result: Responses["address_utxo_content"] = await fetch(
+    const response = await fetch(
       `https://cardano-${network ? "mainnet" : "preview"}.blockfrost.io/api/v0/addresses/${address}/utxos`,
       {
         headers: {
           project_id: this.blockfrostProjectId,
         },
       },
-    ).then((res) => res.json());
+    );
 
-    if ("error" in result) {
-      return [];
+    const result = await response.json();
+
+    if (!response.ok || "error" in result) {
+      throw new Error(
+        `Blockfrost getUtxos failed: ${result.message || result.error || response.statusText}`,
+      );
     }
 
-    const formatted = result.map((r) => {
+    const formatted = (result as Responses["address_utxo_content"]).map((r) => {
       return Serialization.TransactionUnspentOutput.fromCore([
         Serialization.TransactionInput.fromCore({
           index: r.output_index,

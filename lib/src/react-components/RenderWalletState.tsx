@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { ReactElement, ReactNode, Suspense } from "react";
+import { memo, ReactElement, ReactNode, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
 import { useWalletLoadingState } from "./hooks/useWalletLoadingState.js";
@@ -28,7 +28,7 @@ export interface IRenderWalletStateProps<
  * a sync or connection operation. Useful for displaying
  * internal operation states of the wallet.
  */
-export const RenderWalletState = <
+const RenderWalletStateInner = <
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 >({
   render,
@@ -56,3 +56,7 @@ export const RenderWalletState = <
     </ErrorBoundary>
   );
 };
+
+export const RenderWalletState = memo(
+  RenderWalletStateInner,
+) as typeof RenderWalletStateInner;

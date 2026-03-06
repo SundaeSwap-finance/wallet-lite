@@ -2,6 +2,7 @@ import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   MutableRefObject,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition,
@@ -34,7 +35,7 @@ export const useWalletPeerConnect = <
         }
       });
     });
-  }, [state.observer, setPeerConnect, setError]);
+  }, [state.observer]);
 
   useEffect(() => {
     if (peerConnect && qrCode.current) {
@@ -42,10 +43,18 @@ export const useWalletPeerConnect = <
     }
   }, [peerConnect, qrCode]);
 
-  return {
-    peerConnect,
-    QRCodeElement: <div ref={qrCode as MutableRefObject<HTMLDivElement>} />,
-    error,
-    isLoading: isPending,
-  };
+  const qrCodeElement = useMemo(
+    () => <div ref={qrCode as MutableRefObject<HTMLDivElement>} />,
+    [],
+  );
+
+  return useMemo(
+    () => ({
+      peerConnect,
+      QRCodeElement: qrCodeElement,
+      error,
+      isLoading: isPending,
+    }),
+    [peerConnect, qrCodeElement, error, isPending],
+  );
 };

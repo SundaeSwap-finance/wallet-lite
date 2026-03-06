@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { ReactElement, ReactNode, Suspense } from "react";
+import { memo, ReactElement, ReactNode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
@@ -27,7 +27,7 @@ export interface IRenderWalletPeerConnectProps<
  * and exposing them to the render function, including a QR Code
  * element that can be placed in the consuming app.
  */
-export const RenderWalletPeerConnect = <
+const RenderWalletPeerConnectInner = <
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 >({
   render,
@@ -56,3 +56,7 @@ export const RenderWalletPeerConnect = <
     </ErrorBoundary>
   );
 };
+
+export const RenderWalletPeerConnect = memo(
+  RenderWalletPeerConnectInner,
+) as typeof RenderWalletPeerConnectInner;

@@ -57,13 +57,12 @@ const WalletObserverProvider: FC<
       },
     }),
     [
-      options,
+      options?.refreshInterval,
       state,
       derivedState,
       connectingWallet,
       syncingWallet,
       ready,
-      observerRef.current,
     ],
   );
 

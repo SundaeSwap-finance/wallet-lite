@@ -2,28 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.0.106](https://github.com/SundaeSwap-finance/wallet-lite/compare/v0.0.105...v0.0.106) (2026-03-06)
-
+### [0.0.107](https://github.com/SundaeSwap-finance/wallet-lite/compare/v0.0.106...v0.0.107) (2026-03-06)
 
 ### Bug Fixes
 
-* event listener leak and unmemoized query key ([fe84b41](https://github.com/SundaeSwap-finance/wallet-lite/commit/fe84b4115413a53ec872a4d762779f20cdf3cda8))
+- event listener leak and unmemoized query key ([fe84b41](https://github.com/SundaeSwap-finance/wallet-lite/commit/fe84b4115413a53ec872a4d762779f20cdf3cda8))
+
+### 0.0.106 (2026-02-05)
 
 ### 0.0.105 (2026-02-05)
 
-
 ### Bug Fixes
 
-* balance state changes not getting picked up ([126c0f3](https://github.com/SundaeSwap-finance/wallet-lite/commit/126c0f32fb4d878e45d8a3e49661240d8587b768))
+- balance state changes not getting picked up ([126c0f3](https://github.com/SundaeSwap-finance/wallet-lite/commit/126c0f32fb4d878e45d8a3e49661240d8587b768))
 
 ### 0.0.104 (2026-02-05)
 
 ### 0.0.103 (2026-02-05)
 
-
 ### Bug Fixes
 
-* abort in-flight metadataresolver if new one supplied ([6163509](https://github.com/SundaeSwap-finance/wallet-lite/commit/6163509a8328615ab69d2417e4b58c6cb5dee0d4))
+- abort in-flight metadataresolver if new one supplied ([6163509](https://github.com/SundaeSwap-finance/wallet-lite/commit/6163509a8328615ab69d2417e4b58c6cb5dee0d4))
 
 ### 0.0.102 (2026-02-03)
 
@@ -35,51 +34,45 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 0.0.98 (2025-11-06)
 
-
 ### Bug Fixes
 
-* tests ([b4eda24](https://github.com/SundaeSwap-finance/wallet-lite/commit/b4eda24e21dd01135abc10616632f28df1118527))
+- tests ([b4eda24](https://github.com/SundaeSwap-finance/wallet-lite/commit/b4eda24e21dd01135abc10616632f28df1118527))
 
 ### 0.0.97 (2025-11-03)
 
 ### 0.0.96 (2025-11-01)
 
-
 ### Bug Fixes
 
-* packages ([c66b3d1](https://github.com/SundaeSwap-finance/wallet-lite/commit/c66b3d145531401f70b67c6c169ffee5dd34c4c7))
+- packages ([c66b3d1](https://github.com/SundaeSwap-finance/wallet-lite/commit/c66b3d145531401f70b67c6c169ffee5dd34c4c7))
 
 ### 0.0.95 (2025-08-21)
 
-
 ### Bug Fixes
 
-* build ([51331a7](https://github.com/SundaeSwap-finance/wallet-lite/commit/51331a7767dc2a44acf026b181fc339d8089a4b9))
+- build ([51331a7](https://github.com/SundaeSwap-finance/wallet-lite/commit/51331a7767dc2a44acf026b181fc339d8089a4b9))
 
 ### 0.0.94 (2025-08-19)
 
-
 ### Bug Fixes
 
-* non-relative imports ([daa688b](https://github.com/SundaeSwap-finance/wallet-lite/commit/daa688b2580f6c30a91f7125e1f051a7d0de4c60))
+- non-relative imports ([daa688b](https://github.com/SundaeSwap-finance/wallet-lite/commit/daa688b2580f6c30a91f7125e1f051a7d0de4c60))
 
 ### 0.0.93 (2025-08-19)
 
 ### 0.0.92 (2025-07-29)
 
-
 ### Bug Fixes
 
-* build error ([0c7b027](https://github.com/SundaeSwap-finance/wallet-lite/commit/0c7b02759d5db9e42de347381e63b6423a6e2523))
+- build error ([0c7b027](https://github.com/SundaeSwap-finance/wallet-lite/commit/0c7b02759d5db9e42de347381e63b6423a6e2523))
 
 ### 0.0.91 (2025-07-23)
 
 ### 0.0.90 (2025-07-17)
 
-
 ### Bug Fixes
 
-* empty address results from blockfrost ([9214959](https://github.com/SundaeSwap-finance/wallet-lite/commit/921495999070dcfef08255bad4bdcf51169143c7))
+- empty address results from blockfrost ([9214959](https://github.com/SundaeSwap-finance/wallet-lite/commit/921495999070dcfef08255bad4bdcf51169143c7))
 
 ### 0.0.89 (2025-07-08)
 
@@ -87,17 +80,15 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 0.0.87 (2025-06-13)
 
-
 ### Bug Fixes
 
-* account changes ([dd5fd21](https://github.com/SundaeSwap-finance/wallet-lite/commit/dd5fd2151fb6dcf2ab89d12d5d94be3a2e581188))
+- account changes ([dd5fd21](https://github.com/SundaeSwap-finance/wallet-lite/commit/dd5fd2151fb6dcf2ab89d12d5d94be3a2e581188))
 
 ### 0.0.86 (2025-05-27)
 
-
 ### Bug Fixes
 
-* data signature ([ccf5cab](https://github.com/SundaeSwap-finance/wallet-lite/commit/ccf5cabecc8bf003712a1025026583aead1549d5))
+- data signature ([ccf5cab](https://github.com/SundaeSwap-finance/wallet-lite/commit/ccf5cabecc8bf003712a1025026583aead1549d5))
 
 ### 0.0.85 (2025-04-18)
 
@@ -107,19 +98,17 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 0.0.82 (2025-04-18)
 
-
 ### Bug Fixes
 
-* missing type signature on hook function declaration ([ed9580d](https://github.com/SundaeSwap-finance/wallet-lite/commit/ed9580d30a0b217279e26ac5002c2a9c7aa1366b))
+- missing type signature on hook function declaration ([ed9580d](https://github.com/SundaeSwap-finance/wallet-lite/commit/ed9580d30a0b217279e26ac5002c2a9c7aa1366b))
 
 ### 0.0.81 (2025-04-18)
 
 ### 0.0.80 (2025-04-09)
 
-
 ### Bug Fixes
 
-* relative import ([b3206b5](https://github.com/SundaeSwap-finance/wallet-lite/commit/b3206b5bf0774e13ab61d19f74085422f30c47ac))
+- relative import ([b3206b5](https://github.com/SundaeSwap-finance/wallet-lite/commit/b3206b5bf0774e13ab61d19f74085422f30c47ac))
 
 ### 0.0.79 (2025-04-09)
 
@@ -135,19 +124,17 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 0.0.73 (2025-02-18)
 
-
 ### Bug Fixes
 
-* gracefully fail NFT search ([59d2c0f](https://github.com/SundaeSwap-finance/wallet-lite/commit/59d2c0ff926cea70a16eeb00c21f492f94ed5fc0))
+- gracefully fail NFT search ([59d2c0f](https://github.com/SundaeSwap-finance/wallet-lite/commit/59d2c0ff926cea70a16eeb00c21f492f94ed5fc0))
 
 ### 0.0.72 (2025-01-27)
 
 ### 0.0.71 (2025-01-17)
 
-
 ### Bug Fixes
 
-* derived state bug ([1c3447c](https://github.com/SundaeSwap-finance/wallet-lite/commit/1c3447cbd8187e905fd97c3eed6eef104d2ec051))
+- derived state bug ([1c3447c](https://github.com/SundaeSwap-finance/wallet-lite/commit/1c3447cbd8187e905fd97c3eed6eef104d2ec051))
 
 ### 0.0.70 (2025-01-17)
 
@@ -157,17 +144,15 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 0.0.67 (2024-10-01)
 
-
 ### Bug Fixes
 
-* keep the dot in asset ids even with no asset name ([bf5c115](https://github.com/SundaeSwap-finance/wallet-lite/commit/bf5c115b321cd60eaa016433138880f1d03190eb))
+- keep the dot in asset ids even with no asset name ([bf5c115](https://github.com/SundaeSwap-finance/wallet-lite/commit/bf5c115b321cd60eaa016433138880f1d03190eb))
 
 ### 0.0.66 (2024-09-19)
 
-
 ### Bug Fixes
 
-* overwrite order for handle metadata ([cb89192](https://github.com/SundaeSwap-finance/wallet-lite/commit/cb89192788ffe98829aff0a99821ba59abf6ba65))
+- overwrite order for handle metadata ([cb89192](https://github.com/SundaeSwap-finance/wallet-lite/commit/cb89192788ffe98829aff0a99821ba59abf6ba65))
 
 ### 0.0.65 (2024-09-18)
 
@@ -177,28 +162,25 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 0.0.62 (2024-09-18)
 
-
 ### Bug Fixes
 
-* types ([0c5a3f8](https://github.com/SundaeSwap-finance/wallet-lite/commit/0c5a3f81e10c12127b474613d04daadb7e26eb7c))
+- types ([0c5a3f8](https://github.com/SundaeSwap-finance/wallet-lite/commit/0c5a3f81e10c12127b474613d04daadb7e26eb7c))
 
 ### 0.0.61 (2024-09-18)
 
 ### 0.0.60 (2024-09-17)
 
-
 ### Bug Fixes
 
-* wrong return type for handles ([5d8dc1b](https://github.com/SundaeSwap-finance/wallet-lite/commit/5d8dc1bd6af0f43def62f58c3597fb796e43e5d9))
+- wrong return type for handles ([5d8dc1b](https://github.com/SundaeSwap-finance/wallet-lite/commit/5d8dc1bd6af0f43def62f58c3597fb796e43e5d9))
 
 ### 0.0.59 (2024-09-17)
 
 ### 0.0.58 (2024-08-02)
 
-
 ### Bug Fixes
 
-* adahandle export ([ae57a02](https://github.com/SundaeSwap-finance/wallet-lite/commit/ae57a0267c22518f5c2b1957ab4bec5851f141e5))
+- adahandle export ([ae57a02](https://github.com/SundaeSwap-finance/wallet-lite/commit/ae57a0267c22518f5c2b1957ab4bec5851f141e5))
 
 ### 0.0.57 (2024-08-02)
 
@@ -206,10 +188,9 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 0.0.55 (2024-08-01)
 
-
 ### Bug Fixes
 
-* tests ([ccbcf33](https://github.com/SundaeSwap-finance/wallet-lite/commit/ccbcf3355a93ea392a51328d80e9f6eef72e6485))
+- tests ([ccbcf33](https://github.com/SundaeSwap-finance/wallet-lite/commit/ccbcf3355a93ea392a51328d80e9f6eef72e6485))
 
 ### 0.0.54 (2024-07-25)
 

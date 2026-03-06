@@ -208,7 +208,7 @@ export const useWalletObserverState = <
     window.addEventListener("focus", func);
 
     return () => {
-      window.addEventListener("focus", func);
+      window.removeEventListener("focus", func);
     };
   }, [syncWallet]);
 

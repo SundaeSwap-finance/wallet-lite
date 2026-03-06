@@ -16,7 +16,10 @@ export const useWalletHandles = <
     [state.balance],
   );
 
-  const queryKey = [memoizedHandleDep, state.mainAddress, state.network];
+  const queryKey = useMemo(
+    () => [memoizedHandleDep, state.mainAddress, state.network],
+    [memoizedHandleDep, state.mainAddress, state.network],
+  );
   const { data: handles, isLoading } = useQuery<
     WalletAssetMap<THandleMetadata<AssetMetadata>> | undefined
   >({

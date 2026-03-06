@@ -2,19 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.0.107](https://github.com/SundaeSwap-finance/wallet-lite/compare/v0.0.106...v0.0.107) (2026-03-06)
-
-
-### Bug Fixes
-
-* event listener leak and unmemoized query key ([fe84b41](https://github.com/SundaeSwap-finance/wallet-lite/commit/fe84b4115413a53ec872a4d762779f20cdf3cda8))
-
-### [0.0.107](https://github.com/SundaeSwap-finance/wallet-lite/compare/v0.0.106...v0.0.107) (2026-03-06)
-
-### Bug Fixes
-
-- event listener leak and unmemoized query key ([fe84b41](https://github.com/SundaeSwap-finance/wallet-lite/commit/fe84b4115413a53ec872a4d762779f20cdf3cda8))
-
 ### 0.0.106 (2026-02-05)
 
 ### 0.0.105 (2026-02-05)

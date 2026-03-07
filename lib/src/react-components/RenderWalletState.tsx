@@ -8,7 +8,7 @@ import { useWalletObserver } from "./hooks/useWalletObserver.js";
 export type TRenderWalletStateFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = ReturnType<typeof useWalletObserver<T>> &
-  ReturnType<typeof useWalletLoadingState<T>>;
+  ReturnType<typeof useWalletLoadingState>;
 
 export type TRenderWalletStateFunction<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
@@ -36,7 +36,7 @@ const RenderWalletStateInner = <
   fallback,
 }: IRenderWalletStateProps<T>) => {
   const state = useWalletObserver<T>();
-  const loadingState = useWalletLoadingState<T>();
+  const loadingState = useWalletLoadingState();
 
   return (
     <ErrorBoundary

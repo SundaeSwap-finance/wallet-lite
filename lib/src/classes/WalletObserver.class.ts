@@ -53,10 +53,20 @@ export class WalletObserver<
   public peerConnectInstance?: import("@fabianbormann/cardano-peer-connect").DAppPeerConnect;
 
   private _performingSync: boolean = false;
+  private _syncQueue: Promise<IWalletObserverSync<AssetMetadata> | void> =
+    Promise.resolve();
   private _options: IResolvedWalletObserverOptions<AssetMetadata>;
 
   // Caching
   private _cachedMetadata: Map<string, AssetMetadata> = new Map();
+  private _lastBalanceCbor: string | null = null;
+  private _lastBalanceMap: WalletBalanceMap<AssetMetadata> | null = null;
+  private _lastUsedAddressesCbor: string[] | null = null;
+  private _lastUsedAddresses: string[] | null = null;
+  private _lastUnusedAddressesCbor: string[] | null = null;
+  private _lastUnusedAddresses: string[] | null = null;
+  private _lastChangeAddressCbor: string | null = null;
+  private _lastChangeAddress: string | null = null;
 
   // AbortController for cancelling in-flight metadata fetches when metadataResolver changes
   private _metadataAbortController: AbortController | null = null;
@@ -120,7 +130,15 @@ export class WalletObserver<
    *
    * @returns {Promise<IWalletObserverSync<AssetMetadata>>} - A promise that resolves to the wallet sync data.
    */
-  sync = async (): Promise<IWalletObserverSync<AssetMetadata>> => {
+  sync = (): Promise<IWalletObserverSync<AssetMetadata>> => {
+    const pending = this._syncQueue.then(() => this._doSync());
+    // Chain onto queue but swallow rejections in the queue itself
+    // so a failed sync doesn't block subsequent syncs.
+    this._syncQueue = pending.catch(() => {});
+    return pending;
+  };
+
+  private _doSync = async (): Promise<IWalletObserverSync<AssetMetadata>> => {
     if (!this.api) {
       throw new Error(
         "Attempted to perform a sync operation without a connected wallet.",
@@ -320,6 +338,8 @@ export class WalletObserver<
     if (metadataResolverChanged) {
       this._metadataAbortController?.abort();
       this._cachedMetadata = new Map();
+      this._lastBalanceCbor = null;
+      this._lastBalanceMap = null;
 
       // Trigger a new sync if there's an active connection
       if (this.hasActiveConnection() && !this._performingSync) {
@@ -450,6 +470,8 @@ export class WalletObserver<
     this._metadataAbortController?.abort();
     // Clear the cache
     this._cachedMetadata = new Map();
+    this._lastBalanceCbor = null;
+    this._lastBalanceMap = null;
 
     // Trigger a new sync if there's an active connection
     if (this.hasActiveConnection()) {
@@ -462,9 +484,21 @@ export class WalletObserver<
    *
    * @returns {void}
    */
+  private _clearSyncCaches = (): void => {
+    this._lastBalanceCbor = null;
+    this._lastBalanceMap = null;
+    this._lastUsedAddressesCbor = null;
+    this._lastUsedAddresses = null;
+    this._lastUnusedAddressesCbor = null;
+    this._lastUnusedAddresses = null;
+    this._lastChangeAddressCbor = null;
+    this._lastChangeAddress = null;
+  };
+
   disconnect = (): void => {
     this.activeWallet = undefined;
     this.api = undefined;
+    this._clearSyncCaches();
     window.localStorage.removeItem(WalletObserver.PERSISTENCE_CACHE_KEY);
     this.dispatch(EWalletObserverEvents.DISCONNECT);
   };
@@ -495,7 +529,19 @@ export class WalletObserver<
       return e as Error;
     }
 
+    // Return cached if CBOR hasn't changed
+    if (cbor === this._lastChangeAddressCbor && this._lastChangeAddress) {
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`getChangeAddress (cached): ${end - start}ms`);
+      }
+      return this._lastChangeAddress;
+    }
+
     const data = Cardano.Address.fromBytes(typedHex(cbor)).toBech32();
+
+    this._lastChangeAddressCbor = cbor;
+    this._lastChangeAddress = data;
 
     const end = performance.now();
     if (this._options.debug) {
@@ -530,6 +576,19 @@ export class WalletObserver<
     } catch (e) {
       return e as Error;
     }
+
+    // Return cached map if CBOR hasn't changed
+    if (cbor === this._lastBalanceCbor && this._lastBalanceMap) {
+      this.dispatch(EWalletObserverEvents.GET_BALANCE_MAP_END, {
+        balanceMap: this._lastBalanceMap,
+      });
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`getBalanceMap (cached): ${end - start}ms`);
+      }
+      return this._lastBalanceMap;
+    }
+
     const data = Serialization.Value.fromCbor(typedHex(cbor));
     const multiassetKeys = data.multiasset()?.keys() ?? [];
 
@@ -553,6 +612,9 @@ export class WalletObserver<
         );
       }
     }
+
+    this._lastBalanceCbor = cbor;
+    this._lastBalanceMap = balanceMap;
 
     this.dispatch(EWalletObserverEvents.GET_BALANCE_MAP_END, {
       balanceMap,
@@ -619,9 +681,26 @@ export class WalletObserver<
       return e as Error;
     }
 
+    // Return cached if CBOR hasn't changed
+    if (
+      this._lastUsedAddressesCbor &&
+      this._lastUsedAddresses &&
+      cbor.length === this._lastUsedAddressesCbor.length &&
+      cbor.every((v, i) => v === this._lastUsedAddressesCbor![i])
+    ) {
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`getUsedAddresses (cached): ${end - start}ms`);
+      }
+      return this._lastUsedAddresses;
+    }
+
     const data = cbor.map((val) =>
       Cardano.Address.fromBytes(typedHex(val)).toBech32(),
     );
+
+    this._lastUsedAddressesCbor = cbor;
+    this._lastUsedAddresses = data;
 
     const end = performance.now();
     if (this._options.debug) {
@@ -656,9 +735,26 @@ export class WalletObserver<
       return e as Error;
     }
 
+    // Return cached if CBOR hasn't changed
+    if (
+      this._lastUnusedAddressesCbor &&
+      this._lastUnusedAddresses &&
+      cbor.length === this._lastUnusedAddressesCbor.length &&
+      cbor.every((v, i) => v === this._lastUnusedAddressesCbor![i])
+    ) {
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`getUnusedAddresses (cached): ${end - start}ms`);
+      }
+      return this._lastUnusedAddresses;
+    }
+
     const data = cbor.map((val) =>
       Cardano.Address.fromBytes(typedHex(val)).toBech32(),
     );
+
+    this._lastUnusedAddressesCbor = cbor;
+    this._lastUnusedAddresses = data;
 
     const end = performance.now();
     if (this._options.debug) {

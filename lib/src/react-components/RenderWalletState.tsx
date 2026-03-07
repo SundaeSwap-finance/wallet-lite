@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { ReactElement, ReactNode, Suspense } from "react";
+import { memo, ReactElement, ReactNode, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
 import { useWalletLoadingState } from "./hooks/useWalletLoadingState.js";
@@ -8,7 +8,7 @@ import { useWalletObserver } from "./hooks/useWalletObserver.js";
 export type TRenderWalletStateFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = ReturnType<typeof useWalletObserver<T>> &
-  ReturnType<typeof useWalletLoadingState<T>>;
+  ReturnType<typeof useWalletLoadingState>;
 
 export type TRenderWalletStateFunction<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
@@ -28,7 +28,7 @@ export interface IRenderWalletStateProps<
  * a sync or connection operation. Useful for displaying
  * internal operation states of the wallet.
  */
-export const RenderWalletState = <
+const RenderWalletStateInner = <
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 >({
   render,
@@ -36,7 +36,7 @@ export const RenderWalletState = <
   fallback,
 }: IRenderWalletStateProps<T>) => {
   const state = useWalletObserver<T>();
-  const loadingState = useWalletLoadingState<T>();
+  const loadingState = useWalletLoadingState();
 
   return (
     <ErrorBoundary
@@ -56,3 +56,7 @@ export const RenderWalletState = <
     </ErrorBoundary>
   );
 };
+
+export const RenderWalletState = memo(
+  RenderWalletStateInner,
+) as typeof RenderWalletStateInner;

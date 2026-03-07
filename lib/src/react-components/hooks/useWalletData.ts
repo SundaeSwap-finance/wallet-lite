@@ -2,7 +2,7 @@ import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { useCallback, useMemo, useState } from "react";
 
 import { DataSignError } from "@cardano-sdk/dapp-connector";
-import { useWalletObserver } from "./useWalletObserver";
+import { useWalletActionsContext } from "../contexts/observer/context.js";
 
 export interface ISignedData {
   payload: string;
@@ -22,14 +22,14 @@ export interface ISignDataParams<T = object | string> {
 export const useWalletData = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
-  const state = useWalletObserver<AssetMetadata>();
+  const { observer } = useWalletActionsContext<AssetMetadata>();
   const [signedData, setSignedData] = useState<ISignedData>();
   const [isSigningData, setIsSigningData] = useState(false);
   const [error, setError] = useState<DataSignError>();
 
   const signData = useCallback(
     async (params: ISignDataParams) => {
-      if (!state.observer.api) {
+      if (!observer.api) {
         return;
       }
 
@@ -46,7 +46,7 @@ export const useWalletData = <
       setIsSigningData(true);
 
       try {
-        const response = await state.observer.api.signData(
+        const response = await observer.api.signData(
           Cardano.Address.fromBech32(params.signingAddress).toBytes(),
           Buffer.from(
             typeof params.payload === "string"
@@ -83,7 +83,7 @@ export const useWalletData = <
         setError(e as DataSignError);
       }
     },
-    [state.observer.api],
+    [observer.api],
   );
 
   return useMemo(

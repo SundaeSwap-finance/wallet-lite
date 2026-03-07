@@ -5,20 +5,25 @@ import { useMemo } from "react";
 import { WalletAssetMap } from "../../classes/WalletAssetMap.class.js";
 import { getHandleMetadata } from "../../utils/handles.js";
 import { THandleMetadata } from "../contexts/observer/types.js";
-import { useWalletObserver } from "./useWalletObserver.js";
+import {
+  useWalletConnectionContext,
+  useWalletDataContext,
+} from "../contexts/observer/context.js";
 
 export const useWalletHandles = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >() => {
-  const state = useWalletObserver<AssetMetadata>();
+  const { balance } = useWalletDataContext<AssetMetadata>();
+  const { mainAddress, network } = useWalletConnectionContext();
+
   const memoizedHandleDep = useMemo(
-    () => [...state.balance.getHandles().keys()],
-    [state.balance],
+    () => [...balance.getHandles().keys()],
+    [balance],
   );
 
   const queryKey = useMemo(
-    () => [memoizedHandleDep, state.mainAddress, state.network],
-    [memoizedHandleDep, state.mainAddress, state.network],
+    () => [memoizedHandleDep, mainAddress, network],
+    [memoizedHandleDep, mainAddress, network],
   );
   const { data: handles, isLoading } = useQuery<
     WalletAssetMap<THandleMetadata<AssetMetadata>> | undefined
@@ -26,8 +31,8 @@ export const useWalletHandles = <
     queryKey,
     queryFn: async () => {
       const result = await getHandleMetadata(
-        state.balance.getHandles(),
-        state.network || 0,
+        balance.getHandles(),
+        network || 0,
       );
 
       return result;

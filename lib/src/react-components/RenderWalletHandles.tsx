@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { ReactElement, ReactNode, Suspense } from "react";
+import { memo, ReactElement, ReactNode, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
 import { useWalletHandles } from "./hooks/useWalletHandles.js";
@@ -27,7 +27,7 @@ export interface IRenderWalletHandlesProps<
  * fetching and updating wallet Handles with their extra
  * metadata.
  */
-export const RenderWalletHandles = <
+const RenderWalletHandlesInner = <
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 >({
   render,
@@ -52,3 +52,7 @@ export const RenderWalletHandles = <
     </ErrorBoundary>
   );
 };
+
+export const RenderWalletHandles = memo(
+  RenderWalletHandlesInner,
+) as typeof RenderWalletHandlesInner;

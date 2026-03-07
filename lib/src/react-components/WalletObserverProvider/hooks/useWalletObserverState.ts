@@ -1,6 +1,12 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/TransactionUnspentOutput.js";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 
 import { IWalletObserverSync } from "../../../@types/observer.js";
 import { ReadOnlyApi } from "../../../classes/ReadOnlyApi.class.js";
@@ -77,7 +83,7 @@ export const useWalletObserverState = <
       setSwitching(() => false);
       return observer.api;
     },
-    [observer, setSwitching, setIsReadOnlyMode],
+    [observer],
   );
 
   const resyncMetadata = useCallback(async () => {
@@ -212,39 +218,63 @@ export const useWalletObserverState = <
     };
   }, [syncWallet]);
 
-  return {
-    activeWallet,
-    adaBalance,
-    balance,
-    collateral,
-    connectWallet,
-    disconnect,
-    errorSyncing,
-    feeAddress,
-    isCip45,
-    isPending,
-    isReadOnlyMode,
-    network,
-    changeAddress,
-    resyncMetadata,
-    setActiveWallet,
-    setAdaBalance,
-    setBalance,
-    setCollateral,
-    setFeeAddress,
-    setIsCip45,
-    setIsReadOnlyMode,
-    setNetwork,
-    setSwitching,
-    setUnusedAddresses,
-    setUsedAddresses,
-    setUtxos,
-    setChangeAddress,
-    switching,
-    syncWallet,
-    unusedAddresses,
-    usedAddresses,
-    utxos,
-    willAutoConnect,
-  };
+  return useMemo(
+    () => ({
+      activeWallet,
+      adaBalance,
+      balance,
+      collateral,
+      connectWallet,
+      disconnect,
+      errorSyncing,
+      feeAddress,
+      isCip45,
+      isPending,
+      isReadOnlyMode,
+      network,
+      changeAddress,
+      resyncMetadata,
+      setActiveWallet,
+      setAdaBalance,
+      setBalance,
+      setCollateral,
+      setFeeAddress,
+      setIsCip45,
+      setIsReadOnlyMode,
+      setNetwork,
+      setSwitching,
+      setUnusedAddresses,
+      setUsedAddresses,
+      setUtxos,
+      setChangeAddress,
+      switching,
+      syncWallet,
+      unusedAddresses,
+      usedAddresses,
+      utxos,
+      willAutoConnect,
+    }),
+    [
+      activeWallet,
+      adaBalance,
+      balance,
+      collateral,
+      connectWallet,
+      disconnect,
+      errorSyncing,
+      feeAddress,
+      isCip45,
+      isPending,
+      isReadOnlyMode,
+      network,
+      changeAddress,
+      resyncMetadata,
+      switching,
+      syncWallet,
+      unusedAddresses,
+      usedAddresses,
+      utxos,
+      willAutoConnect,
+    ],
+  );
 };

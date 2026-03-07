@@ -1,12 +1,14 @@
 import type { IHandle } from "@koralabs/adahandle-sdk";
-import type { IAssetAmountMetadata } from "@sundaeswap/asset";
+import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { MutableRefObject } from "react";
 
 import type {
   IWalletObserverSync,
   TWalletObserverOptions,
 } from "../../../@types/observer.js";
+import type { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import type { WalletObserver } from "../../../classes/WalletObserver.class.js";
+import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/TransactionUnspentOutput.js";
 import { useDerivedState } from "../../WalletObserverProvider/hooks/effects/useDerivedState.js";
 import { useWalletObserverState } from "../../WalletObserverProvider/hooks/useWalletObserverState.js";
 
@@ -69,6 +71,60 @@ export interface IWalletObserverState<
       syncingWallet: boolean;
       ready: boolean;
     };
+}
+
+/**
+ * Focused context: stable callbacks and observer reference.
+ * Rarely changes — only if the observer instance is recreated.
+ */
+export interface IWalletObserverActionsContext<
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
+> {
+  observer: WalletObserver<AssetMetadata>;
+  observerRef: MutableRefObject<WalletObserver<AssetMetadata>>;
+  connectWallet: (wallet: string) => Promise<unknown>;
+  disconnect: () => void;
+  syncWallet: (
+    importedData?: IWalletObserverSync<AssetMetadata>,
+  ) => Promise<void>;
+  resyncMetadata: () => Promise<void>;
+}
+
+/**
+ * Focused context: connection and loading state.
+ * Changes on connect/disconnect and sync start/end.
+ */
+export interface IWalletObserverConnectionContext {
+  activeWallet: string | undefined;
+  ready: boolean;
+  connectingWallet: boolean;
+  syncingWallet: boolean;
+  network: number | undefined;
+  isCip45: boolean;
+  switching: boolean;
+  isReadOnlyMode: boolean;
+  willAutoConnect: boolean;
+  errorSyncing: boolean;
+  mainAddress: string | undefined;
+  stakeAddress: string | undefined;
+}
+
+/**
+ * Focused context: wallet data that changes every sync cycle.
+ */
+export interface IWalletObserverWalletDataContext<
+  AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
+> {
+  balance: WalletBalanceMap<AssetMetadata>;
+  adaBalance: AssetAmount<AssetMetadata>;
+  usedAddresses: string[];
+  unusedAddresses: string[];
+  changeAddress: string | undefined;
+  feeAddress: string | undefined;
+  utxos: TransactionUnspentOutput[] | undefined;
+  collateral: TransactionUnspentOutput[] | undefined;
+  isPending: boolean;
+  refreshInterval: number | false;
 }
 
 /**

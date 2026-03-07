@@ -4,6 +4,9 @@ import { WalletObserver } from "../../classes/WalletObserver.class.js";
 import {
   IWalletObserverProviderProps,
   IWalletObserverState,
+  WalletActionsContext,
+  WalletConnectionContext,
+  WalletDataContext,
   WalletObserverContext,
 } from "../contexts/observer/index.js";
 import { useDerivedState } from "./hooks/effects/useDerivedState.js";
@@ -42,7 +45,87 @@ const WalletObserverProvider: FC<
     changeAddress: state.changeAddress,
   });
 
-  // Memoize the context value
+  // Focused context: stable callbacks and observer ref.
+  // Only changes when observer instance is recreated.
+  const actionsValue = useMemo(
+    () => ({
+      observer: observerRef.current,
+      observerRef: observerRef,
+      connectWallet: state.connectWallet,
+      disconnect: state.disconnect,
+      syncWallet: state.syncWallet,
+      resyncMetadata: state.resyncMetadata,
+    }),
+    [
+      state.connectWallet,
+      state.disconnect,
+      state.syncWallet,
+      state.resyncMetadata,
+    ],
+  );
+
+  // Focused context: connection and loading state.
+  // Changes on connect/disconnect and sync start/end.
+  const connectionValue = useMemo(
+    () => ({
+      activeWallet: state.activeWallet,
+      ready,
+      connectingWallet,
+      syncingWallet,
+      network: state.network,
+      isCip45: state.isCip45,
+      switching: state.switching,
+      isReadOnlyMode: state.isReadOnlyMode,
+      willAutoConnect: state.willAutoConnect,
+      errorSyncing: state.errorSyncing,
+      mainAddress: derivedState.mainAddress,
+      stakeAddress: derivedState.stakeAddress,
+    }),
+    [
+      state.activeWallet,
+      ready,
+      connectingWallet,
+      syncingWallet,
+      state.network,
+      state.isCip45,
+      state.switching,
+      state.isReadOnlyMode,
+      state.willAutoConnect,
+      state.errorSyncing,
+      derivedState.mainAddress,
+      derivedState.stakeAddress,
+    ],
+  );
+
+  // Focused context: wallet data that changes every sync cycle.
+  const dataValue = useMemo(
+    () => ({
+      balance: state.balance,
+      adaBalance: state.adaBalance,
+      usedAddresses: state.usedAddresses,
+      unusedAddresses: state.unusedAddresses,
+      changeAddress: state.changeAddress,
+      feeAddress: state.feeAddress,
+      utxos: state.utxos,
+      collateral: state.collateral,
+      isPending: state.isPending,
+      refreshInterval: options?.refreshInterval || 30000,
+    }),
+    [
+      state.balance,
+      state.adaBalance,
+      state.usedAddresses,
+      state.unusedAddresses,
+      state.changeAddress,
+      state.feeAddress,
+      state.utxos,
+      state.collateral,
+      state.isPending,
+      options?.refreshInterval,
+    ],
+  );
+
+  // Backward-compatible full context value
   const contextValue: IWalletObserverState = useMemo(
     () => ({
       observerRef: observerRef,
@@ -57,13 +140,12 @@ const WalletObserverProvider: FC<
       },
     }),
     [
-      options,
+      options?.refreshInterval,
       state,
       derivedState,
       connectingWallet,
       syncingWallet,
       ready,
-      observerRef.current,
     ],
   );
 
@@ -83,7 +165,13 @@ const WalletObserverProvider: FC<
 
   return (
     <WalletObserverContext.Provider value={contextValue}>
-      {children}
+      <WalletActionsContext.Provider value={actionsValue}>
+        <WalletConnectionContext.Provider value={connectionValue}>
+          <WalletDataContext.Provider value={dataValue}>
+            {children}
+          </WalletDataContext.Provider>
+        </WalletConnectionContext.Provider>
+      </WalletActionsContext.Provider>
     </WalletObserverContext.Provider>
   );
 };

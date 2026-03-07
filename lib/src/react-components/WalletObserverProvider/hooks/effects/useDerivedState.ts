@@ -11,8 +11,11 @@ export const useDerivedState = (
   >,
 ) => {
   const [stakeAddress, setStakeAddress] = useState<string>();
-  const address =
-    state.changeAddress || state.usedAddresses[0] || state.unusedAddresses[0];
+  const address = useMemo(
+    () =>
+      state.changeAddress || state.usedAddresses[0] || state.unusedAddresses[0],
+    [state.changeAddress, state.usedAddresses, state.unusedAddresses],
+  );
 
   useEffect(() => {
     if (!address) {

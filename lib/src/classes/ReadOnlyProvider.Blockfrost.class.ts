@@ -13,9 +13,15 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
     this.blockfrostProjectId = blockfrostProjectId;
   }
 
+  private __networkName(network: 0 | 1): string {
+    if (network === 1) return "mainnet";
+    if (this.blockfrostProjectId.startsWith("preprod")) return "preprod";
+    return "preview";
+  }
+
   async getBalance(address: string, network: 0 | 1) {
     const response = await fetch(
-      `https://cardano-${network ? "mainnet" : "preview"}.blockfrost.io/api/v0/addresses/${address}`,
+      `https://cardano-${this.__networkName(network)}.blockfrost.io/api/v0/addresses/${address}`,
       {
         headers: {
           project_id: this.blockfrostProjectId,
@@ -41,24 +47,34 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
   }
 
   async getUtxos(address: string, network: 0 | 1) {
-    const response = await fetch(
-      `https://cardano-${network ? "mainnet" : "preview"}.blockfrost.io/api/v0/addresses/${address}/utxos`,
-      {
-        headers: {
-          project_id: this.blockfrostProjectId,
+    const allResults: Responses["address_utxo_content"] = [];
+    let page = 1;
+
+    while (true) {
+      const response = await fetch(
+        `https://cardano-${this.__networkName(network)}.blockfrost.io/api/v0/addresses/${address}/utxos?page=${page}`,
+        {
+          headers: {
+            project_id: this.blockfrostProjectId,
+          },
         },
-      },
-    );
-
-    const result = await response.json();
-
-    if (!response.ok || "error" in result) {
-      throw new Error(
-        `Blockfrost getUtxos failed: ${result.message || result.error || response.statusText}`,
       );
+
+      const result = await response.json();
+
+      if (!response.ok || "error" in result) {
+        throw new Error(
+          `Blockfrost getUtxos failed: ${result.message || result.error || response.statusText}`,
+        );
+      }
+
+      const items = result as Responses["address_utxo_content"];
+      if (items.length === 0) break;
+      allResults.push(...items);
+      page++;
     }
 
-    const formatted = (result as Responses["address_utxo_content"]).map((r) => {
+    const formatted = allResults.map((r) => {
       return Serialization.TransactionUnspentOutput.fromCore([
         Serialization.TransactionInput.fromCore({
           index: r.output_index,

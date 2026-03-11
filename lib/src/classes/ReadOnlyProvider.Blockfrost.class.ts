@@ -63,6 +63,7 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
       const result = await response.json();
 
       if (!response.ok || "error" in result) {
+        if (page > 1) break;
         throw new Error(
           `Blockfrost getUtxos failed: ${result.message || result.error || response.statusText}`,
         );

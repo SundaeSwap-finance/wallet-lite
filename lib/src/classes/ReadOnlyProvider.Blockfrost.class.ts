@@ -13,9 +13,15 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
     this.blockfrostProjectId = blockfrostProjectId;
   }
 
+  private __networkName(network: 0 | 1): string {
+    if (network === 1) return "mainnet";
+    if (this.blockfrostProjectId.startsWith("preprod")) return "preprod";
+    return "preview";
+  }
+
   async getBalance(address: string, network: 0 | 1) {
     const response = await fetch(
-      `https://cardano-${network ? "mainnet" : "preview"}.blockfrost.io/api/v0/addresses/${address}`,
+      `https://cardano-${this.__networkName(network)}.blockfrost.io/api/v0/addresses/${address}`,
       {
         headers: {
           project_id: this.blockfrostProjectId,
@@ -40,9 +46,13 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
     return value.toCbor();
   }
 
-  async getUtxos(address: string, network: 0 | 1) {
+  private async __fetchUtxoPage(
+    address: string,
+    network: 0 | 1,
+    page: number,
+  ): Promise<Responses["address_utxo_content"] | null> {
     const response = await fetch(
-      `https://cardano-${network ? "mainnet" : "preview"}.blockfrost.io/api/v0/addresses/${address}/utxos`,
+      `https://cardano-${this.__networkName(network)}.blockfrost.io/api/v0/addresses/${address}/utxos?count=100&page=${page}`,
       {
         headers: {
           project_id: this.blockfrostProjectId,
@@ -53,12 +63,53 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
     const result = await response.json();
 
     if (!response.ok || "error" in result) {
+      if (page > 1) return null;
       throw new Error(
         `Blockfrost getUtxos failed: ${result.message || result.error || response.statusText}`,
       );
     }
 
-    const formatted = (result as Responses["address_utxo_content"]).map((r) => {
+    return result as Responses["address_utxo_content"];
+  }
+
+  async getUtxos(address: string, network: 0 | 1) {
+    const PAGE_SIZE = 100;
+    const BATCH_SIZE = 5;
+
+    const firstPage = await this.__fetchUtxoPage(address, network, 1);
+    if (!firstPage || firstPage.length === 0) return [];
+
+    const allResults: Responses["address_utxo_content"] = [...firstPage];
+
+    if (firstPage.length === PAGE_SIZE) {
+      let batchStart = 2;
+      while (true) {
+        const pageNums = Array.from(
+          { length: BATCH_SIZE },
+          (_, i) => batchStart + i,
+        );
+        const pages = await Promise.all(
+          pageNums.map((p) => this.__fetchUtxoPage(address, network, p)),
+        );
+
+        let done = false;
+        for (const page of pages) {
+          if (!page || page.length === 0) {
+            done = true;
+            break;
+          }
+          allResults.push(...page);
+          if (page.length < PAGE_SIZE) {
+            done = true;
+            break;
+          }
+        }
+        if (done) break;
+        batchStart += BATCH_SIZE;
+      }
+    }
+
+    const formatted = allResults.map((r) => {
       return Serialization.TransactionUnspentOutput.fromCore([
         Serialization.TransactionInput.fromCore({
           index: r.output_index,

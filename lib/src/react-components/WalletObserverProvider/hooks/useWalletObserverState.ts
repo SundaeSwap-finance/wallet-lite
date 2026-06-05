@@ -117,18 +117,23 @@ export const useWalletObserverState = <
         startTransition(() => {
           const newBalanceMap = freshData.balanceMap;
           if (newBalanceMap instanceof WalletBalanceMap) {
+            // Commit the balance map unconditionally — the token list must
+            // surface even when ADA is momentarily absent or zero. Previously
+            // both updates were gated on a truthy ADA AssetAmount, so any sync
+            // that failed to resolve ADA stranded the entire balance (and the
+            // token UI that derives from it).
+            setBalance((prevBalance) =>
+              areAssetMapsEqual(prevBalance, newBalanceMap)
+                ? prevBalance
+                : newBalanceMap,
+            );
+
             const newAdaBalance = newBalanceMap.get(ADA_ASSET_ID);
             if (newAdaBalance) {
               setAdaBalance((prevBalance) =>
                 prevBalance.amount === newAdaBalance.amount
                   ? prevBalance
                   : newAdaBalance,
-              );
-
-              setBalance((prevBalance) =>
-                areAssetMapsEqual(prevBalance, newBalanceMap)
-                  ? prevBalance
-                  : newBalanceMap,
               );
             }
           }

@@ -414,9 +414,11 @@ describe("WalletObserver", async () => {
     it("hits the cache for a repeated multi-asset set (does not refetch)", async () => {
       const { batches, resolver } = makeCountingResolver();
       const observer = new WalletObserver({ metadataResolver: resolver });
-      const resolve = (observer as unknown as {
-        __metadataResolverWithCache: (ids: string[]) => Promise<unknown>;
-      }).__metadataResolverWithCache;
+      const resolve = (
+        observer as unknown as {
+          __metadataResolverWithCache: (ids: string[]) => Promise<unknown>;
+        }
+      ).__metadataResolverWithCache;
 
       await resolve(["ada.lovelace", dotlessA]);
       // Same set again: with dotless-vs-dotted key mismatch this used to miss
@@ -429,11 +431,13 @@ describe("WalletObserver", async () => {
     it("only resolves ids it does not already hold, merging into the cache", async () => {
       const { batches, resolver } = makeCountingResolver();
       const observer = new WalletObserver({ metadataResolver: resolver });
-      const resolve = (observer as unknown as {
-        __metadataResolverWithCache: (
-          ids: string[],
-        ) => Promise<Map<string, IAssetAmountMetadata>>;
-      }).__metadataResolverWithCache;
+      const resolve = (
+        observer as unknown as {
+          __metadataResolverWithCache: (
+            ids: string[],
+          ) => Promise<Map<string, IAssetAmountMetadata>>;
+        }
+      ).__metadataResolverWithCache;
 
       await resolve(["ada.lovelace", dotlessA]);
       const merged = await resolve(["ada.lovelace", dotlessA, dotlessB]);

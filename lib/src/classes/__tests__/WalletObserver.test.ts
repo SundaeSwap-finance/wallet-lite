@@ -13,6 +13,7 @@ import {
   TMetadataResolverFunc,
   TWalletObserverOptions,
 } from "../../index.js";
+import { normalizeAssetIdWithDot } from "../../utils/assets.js";
 import * as getLibModules from "../../utils/getLibs.js";
 import { WalletObserver } from "../WalletObserver.class.js";
 
@@ -381,6 +382,69 @@ describe("WalletObserver", async () => {
         EWalletObserverEvents.DISCONNECT,
       );
       expect(spiedOnGetPeerConnect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("__metadataResolverWithCache()", () => {
+    // A policyId+assetName pair as it arrives from `data.multiasset().keys()`:
+    // dotless. The resolver stores its results under the dotted (normalized)
+    // form, so the cache must normalize before comparing or it never hits.
+    const dotlessA = `${"a".repeat(56)}414243`;
+    const dotlessB = `${"b".repeat(56)}444546`;
+
+    const makeCountingResolver = () => {
+      const batches: string[][] = [];
+      const resolver: TMetadataResolverFunc<IAssetAmountMetadata> = async ({
+        assetIds,
+        normalizeAssetId,
+      }) => {
+        batches.push(assetIds);
+        const map = new Map<string, IAssetAmountMetadata>();
+        assetIds.forEach((id) =>
+          map.set(normalizeAssetId(id), {
+            decimals: 6,
+            assetId: normalizeAssetId(id),
+          }),
+        );
+        return map;
+      };
+      return { batches, resolver };
+    };
+
+    it("hits the cache for a repeated multi-asset set (does not refetch)", async () => {
+      const { batches, resolver } = makeCountingResolver();
+      const observer = new WalletObserver({ metadataResolver: resolver });
+      const resolve = (observer as unknown as {
+        __metadataResolverWithCache: (ids: string[]) => Promise<unknown>;
+      }).__metadataResolverWithCache;
+
+      await resolve(["ada.lovelace", dotlessA]);
+      // Same set again: with dotless-vs-dotted key mismatch this used to miss
+      // every time. It must now short-circuit without calling the resolver.
+      await resolve(["ada.lovelace", dotlessA]);
+
+      expect(batches.length).toEqual(1);
+    });
+
+    it("only resolves ids it does not already hold, merging into the cache", async () => {
+      const { batches, resolver } = makeCountingResolver();
+      const observer = new WalletObserver({ metadataResolver: resolver });
+      const resolve = (observer as unknown as {
+        __metadataResolverWithCache: (
+          ids: string[],
+        ) => Promise<Map<string, IAssetAmountMetadata>>;
+      }).__metadataResolverWithCache;
+
+      await resolve(["ada.lovelace", dotlessA]);
+      const merged = await resolve(["ada.lovelace", dotlessA, dotlessB]);
+
+      // Second call fetches ONLY the newly-seen asset, not the whole set.
+      expect(batches.length).toEqual(2);
+      expect(batches[1]).toEqual([normalizeAssetIdWithDot(dotlessB)]);
+      // ...but the returned map still carries every requested asset.
+      expect(merged.has(normalizeAssetIdWithDot(dotlessA))).toBeTrue();
+      expect(merged.has(normalizeAssetIdWithDot(dotlessB))).toBeTrue();
+      expect(merged.has("ada.lovelace")).toBeTrue();
     });
   });
 

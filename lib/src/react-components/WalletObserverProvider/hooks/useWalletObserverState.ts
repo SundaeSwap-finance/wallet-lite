@@ -13,7 +13,10 @@ import { ReadOnlyApi } from "../../../classes/ReadOnlyApi.class.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { ADA_ASSET_ID } from "../../../constants.js";
-import { areAssetMapsEqual } from "../../../utils/comparisons.js";
+import {
+  areAssetMapsEqual,
+  areUtxoListsEqual,
+} from "../../../utils/comparisons.js";
 
 /**
  * Internal use only. The main action that sync WalletObserver api responses with
@@ -158,28 +161,22 @@ export const useWalletObserverState = <
 
           const newUtxos = freshData.utxos;
           if (newUtxos instanceof Array) {
-            setUtxos((prevValue) => {
-              const prevValueRep = prevValue?.map((v) => v.toCbor());
-              const newValueRep = newUtxos?.map((v) => v.toCbor());
-              if (prevValueRep !== newValueRep) {
-                return newUtxos;
-              }
-
-              return prevValue;
-            });
+            // Compare element-wise by CBOR. The previous check mapped both
+            // lists to fresh arrays and compared them by reference, which is
+            // ALWAYS unequal — so utxos state (and the memoized context value)
+            // was replaced on every sync, re-rendering every consumer.
+            setUtxos((prevValue) =>
+              areUtxoListsEqual(prevValue, newUtxos) ? prevValue : newUtxos,
+            );
           }
 
           const newCollateral = freshData.collateral;
           if (newCollateral instanceof Array) {
-            setCollateral((prevValue) => {
-              const prevValueRep = prevValue?.map((v) => v.toCbor());
-              const newValueRep = newCollateral?.map((v) => v.toCbor());
-              if (prevValueRep !== newValueRep) {
-                return newCollateral;
-              }
-
-              return prevValue;
-            });
+            setCollateral((prevValue) =>
+              areUtxoListsEqual(prevValue, newCollateral)
+                ? prevValue
+                : newCollateral,
+            );
           }
 
           const newFeeAddress = freshData.feeAddress;

@@ -452,6 +452,21 @@ describe("WalletObserver", async () => {
     });
   });
 
+  describe("getUtxos()", () => {
+    it("returns the same parsed array reference when the CBOR is unchanged", async () => {
+      const observer = new WalletObserver();
+      await observer.connectWallet("eternl");
+
+      const first = await observer.getUtxos();
+      const second = await observer.getUtxos();
+
+      expect(first).toBeInstanceOf(Array);
+      // Referential equality is preserved across calls so unchanged UTxOs do
+      // not churn downstream React state / re-renders.
+      expect(first).toBe(second);
+    });
+  });
+
   describe("getCip45Instance()", () => {
     it("should properly get the instance", async () => {
       const observer = new WalletObserver({

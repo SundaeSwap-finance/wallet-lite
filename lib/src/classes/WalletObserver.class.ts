@@ -67,6 +67,10 @@ export class WalletObserver<
   private _lastUnusedAddresses: string[] | null = null;
   private _lastChangeAddressCbor: string | null = null;
   private _lastChangeAddress: string | null = null;
+  private _lastUtxosCbor: string[] | null = null;
+  private _lastUtxos: TransactionUnspentOutput[] | undefined = undefined;
+  private _lastCollateralCbor: string[] | null = null;
+  private _lastCollateral: TransactionUnspentOutput[] | undefined = undefined;
 
   // AbortController for cancelling in-flight metadata fetches when metadataResolver changes
   private _metadataAbortController: AbortController | null = null;
@@ -493,6 +497,10 @@ export class WalletObserver<
     this._lastUnusedAddresses = null;
     this._lastChangeAddressCbor = null;
     this._lastChangeAddress = null;
+    this._lastUtxosCbor = null;
+    this._lastUtxos = undefined;
+    this._lastCollateralCbor = null;
+    this._lastCollateral = undefined;
   };
 
   disconnect = (): void => {
@@ -789,6 +797,22 @@ export class WalletObserver<
       return e as Error;
     }
 
+    // Return the cached, already-parsed array when the raw CBOR is unchanged.
+    // This preserves referential equality across syncs (so unchanged UTxOs
+    // don't churn consumer re-renders) and skips redundant deserialization.
+    if (
+      cbor &&
+      this._lastUtxosCbor &&
+      this._lastUtxos &&
+      cbor.length === this._lastUtxosCbor.length &&
+      cbor.every((v, i) => v === this._lastUtxosCbor![i])
+    ) {
+      if (this._options.debug) {
+        console.log(`getUtxos (cached): ${performance.now() - start}ms`);
+      }
+      return this._lastUtxos;
+    }
+
     const data = cbor?.map((val) => {
       const txOutput = Serialization.TransactionUnspentOutput.fromCbor(
         typedHex(val),
@@ -799,6 +823,9 @@ export class WalletObserver<
       txOutput.output = txOutput.output.bind(txOutput);
       return txOutput;
     });
+
+    this._lastUtxosCbor = cbor;
+    this._lastUtxos = data;
 
     const end = performance.now();
     if (this._options.debug) {
@@ -868,6 +895,21 @@ export class WalletObserver<
       return e as Error;
     }
 
+    // Return the cached, already-parsed array when the raw CBOR is unchanged
+    // (mirrors getUtxos — preserves referential equality, skips re-parsing).
+    if (
+      cbor &&
+      this._lastCollateralCbor &&
+      this._lastCollateral &&
+      cbor.length === this._lastCollateralCbor.length &&
+      cbor.every((v, i) => v === this._lastCollateralCbor![i])
+    ) {
+      if (this._options.debug) {
+        console.log(`getCollateral (cached): ${performance.now() - start}ms`);
+      }
+      return this._lastCollateral;
+    }
+
     const data = cbor?.map((val) => {
       const txOutput = Serialization.TransactionUnspentOutput.fromCbor(
         typedHex(val),
@@ -878,6 +920,9 @@ export class WalletObserver<
       txOutput.output = txOutput.output.bind(txOutput);
       return txOutput;
     });
+
+    this._lastCollateralCbor = cbor;
+    this._lastCollateral = data;
 
     const end = performance.now();
     if (this._options.debug) {

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.1.5 (2026-08-11)
+
+
+### Bug Fixes
+
+* **observer:** metadata cache, utxo re-render churn, and balance-commit hardening ([#9](https://github.com/SundaeSwap-finance/wallet-lite/issues/9)) ([2aad16f](https://github.com/SundaeSwap-finance/wallet-lite/commit/2aad16f25fd5c186b5647c95b65cb1feebf9eeb0))
+
 ### 0.1.4 (2026-03-11)
 
 ### 0.1.3 (2026-03-07)

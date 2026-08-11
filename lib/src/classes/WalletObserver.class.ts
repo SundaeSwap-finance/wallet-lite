@@ -67,6 +67,10 @@ export class WalletObserver<
   private _lastUnusedAddresses: string[] | null = null;
   private _lastChangeAddressCbor: string | null = null;
   private _lastChangeAddress: string | null = null;
+  private _lastUtxosCbor: string[] | null = null;
+  private _lastUtxos: TransactionUnspentOutput[] | undefined = undefined;
+  private _lastCollateralCbor: string[] | null = null;
+  private _lastCollateral: TransactionUnspentOutput[] | undefined = undefined;
 
   // AbortController for cancelling in-flight metadata fetches when metadataResolver changes
   private _metadataAbortController: AbortController | null = null;
@@ -493,6 +497,10 @@ export class WalletObserver<
     this._lastUnusedAddresses = null;
     this._lastChangeAddressCbor = null;
     this._lastChangeAddress = null;
+    this._lastUtxosCbor = null;
+    this._lastUtxos = undefined;
+    this._lastCollateralCbor = null;
+    this._lastCollateral = undefined;
   };
 
   disconnect = (): void => {
@@ -789,6 +797,22 @@ export class WalletObserver<
       return e as Error;
     }
 
+    // Return the cached, already-parsed array when the raw CBOR is unchanged.
+    // This preserves referential equality across syncs (so unchanged UTxOs
+    // don't churn consumer re-renders) and skips redundant deserialization.
+    if (
+      cbor &&
+      this._lastUtxosCbor &&
+      this._lastUtxos &&
+      cbor.length === this._lastUtxosCbor.length &&
+      cbor.every((v, i) => v === this._lastUtxosCbor![i])
+    ) {
+      if (this._options.debug) {
+        console.log(`getUtxos (cached): ${performance.now() - start}ms`);
+      }
+      return this._lastUtxos;
+    }
+
     const data = cbor?.map((val) => {
       const txOutput = Serialization.TransactionUnspentOutput.fromCbor(
         typedHex(val),
@@ -799,6 +823,9 @@ export class WalletObserver<
       txOutput.output = txOutput.output.bind(txOutput);
       return txOutput;
     });
+
+    this._lastUtxosCbor = cbor;
+    this._lastUtxos = data;
 
     const end = performance.now();
     if (this._options.debug) {
@@ -868,6 +895,21 @@ export class WalletObserver<
       return e as Error;
     }
 
+    // Return the cached, already-parsed array when the raw CBOR is unchanged
+    // (mirrors getUtxos — preserves referential equality, skips re-parsing).
+    if (
+      cbor &&
+      this._lastCollateralCbor &&
+      this._lastCollateral &&
+      cbor.length === this._lastCollateralCbor.length &&
+      cbor.every((v, i) => v === this._lastCollateralCbor![i])
+    ) {
+      if (this._options.debug) {
+        console.log(`getCollateral (cached): ${performance.now() - start}ms`);
+      }
+      return this._lastCollateral;
+    }
+
     const data = cbor?.map((val) => {
       const txOutput = Serialization.TransactionUnspentOutput.fromCbor(
         typedHex(val),
@@ -878,6 +920,9 @@ export class WalletObserver<
       txOutput.output = txOutput.output.bind(txOutput);
       return txOutput;
     });
+
+    this._lastCollateralCbor = cbor;
+    this._lastCollateral = data;
 
     const end = performance.now();
     if (this._options.debug) {
@@ -899,20 +944,27 @@ export class WalletObserver<
   ): Promise<Map<string, AssetMetadata>> => {
     const start = performance.now();
 
-    if (this._cachedMetadata) {
-      const cachedKeys = new Set(this._cachedMetadata.keys());
-      const inputKeys = new Set(assetIds);
+    // Normalize once so the cache lookup and the resolver call share the same
+    // (dotted) key format. Asset ids arrive here straight from
+    // `data.multiasset().keys()`, which are dotless (`policyId + assetName`),
+    // while the resolver stores its results under dotted keys. Comparing the
+    // two formats directly meant the cache never hit for any wallet holding a
+    // native asset, so the full metadata set was refetched on every balance
+    // change.
+    const normalizedIds = assetIds.map(normalizeAssetIdWithDot);
 
-      if (
-        cachedKeys.size === inputKeys.size &&
-        [...cachedKeys].every((key) => inputKeys.has(key))
-      ) {
-        const end = performance.now();
-        if (this._options.debug) {
-          console.log(`metadataResolver (cached): ${end - start}ms`);
-        }
-        return this._cachedMetadata;
+    // Asset metadata (decimals, name, ...) is immutable per id, so any entry we
+    // already hold is reusable forever. Only resolve the ids we're missing.
+    const missingIds = normalizedIds.filter(
+      (id) => !this._cachedMetadata.has(id),
+    );
+
+    if (missingIds.length === 0) {
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`metadataResolver (cached): ${end - start}ms`);
       }
+      return this._cachedMetadata;
     }
 
     // Abort any in-flight metadata fetch
@@ -921,11 +973,11 @@ export class WalletObserver<
     const currentController = this._metadataAbortController;
 
     let attempts = 0;
-    let newMetadata: Map<string, AssetMetadata> | undefined;
-    while (attempts <= 3 && !newMetadata) {
+    let resolved: Map<string, AssetMetadata> | undefined;
+    while (attempts <= 3 && !resolved) {
       try {
-        newMetadata = await this._options.metadataResolver({
-          assetIds: assetIds.map(normalizeAssetIdWithDot),
+        resolved = await this._options.metadataResolver({
+          assetIds: missingIds,
           normalizeAssetId: normalizeAssetIdWithDot,
           isAdaAsset,
         });
@@ -934,14 +986,15 @@ export class WalletObserver<
       }
     }
 
-    // If this request was aborted while in-flight, return current cache (a new fetch is in progress)
+    // If this request was aborted while in-flight, a newer fetch is in progress;
+    // return the current cache and let that one win.
     if (currentController.signal.aborted) {
       return this._cachedMetadata;
     }
 
-    if (!newMetadata) {
-      newMetadata = await this.fallbackMetadataResolver({
-        assetIds: assetIds.map(normalizeAssetIdWithDot),
+    if (!resolved) {
+      resolved = await this.fallbackMetadataResolver({
+        assetIds: missingIds,
         normalizeAssetId: normalizeAssetIdWithDot,
         isAdaAsset,
       });
@@ -952,13 +1005,17 @@ export class WalletObserver<
       return this._cachedMetadata;
     }
 
-    this._cachedMetadata = newMetadata;
+    // Merge freshly-resolved entries into the cache (don't replace it) so
+    // previously-resolved assets are preserved across balance changes.
+    for (const [id, metadata] of resolved) {
+      this._cachedMetadata.set(id, metadata);
+    }
 
     const end = performance.now();
     if (this._options.debug) {
       console.log(`metadataResolver: ${end - start}ms`);
     }
-    return newMetadata;
+    return this._cachedMetadata;
   };
 
   /**

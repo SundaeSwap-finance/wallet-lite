@@ -1,3 +1,5 @@
+import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
+
 import { WalletBalanceMap } from "../classes/WalletBalanceMap.class.js";
 
 /**
@@ -62,4 +64,29 @@ export const areAssetMapsEqual = (
   }
 
   return true;
+};
+
+/**
+ * Compares two lists of UTxOs by their serialized CBOR. Returns true when both
+ * lists hold the same outputs in the same order (or are the same reference).
+ * Used to preserve referential equality of utxos/collateral state across syncs
+ * so unchanged data does not trigger downstream re-renders.
+ *
+ * @param {TransactionUnspentOutput[]} [a] - The first list of UTxOs.
+ * @param {TransactionUnspentOutput[]} [b] - The second list of UTxOs.
+ * @returns {boolean}
+ */
+export const areUtxoListsEqual = (
+  a?: TransactionUnspentOutput[],
+  b?: TransactionUnspentOutput[],
+): boolean => {
+  if (a === b) {
+    return true;
+  }
+
+  if (!a || !b || a.length !== b.length) {
+    return false;
+  }
+
+  return a.every((output, i) => output.toCbor() === b[i].toCbor());
 };

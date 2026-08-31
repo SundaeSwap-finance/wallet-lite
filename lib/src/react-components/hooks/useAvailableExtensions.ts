@@ -60,8 +60,10 @@ export const useAvailableExtensions = (intervalAmount?: number) => {
       const namespace = window?.cardano || window?.parent?.cardano;
       entries = Object.entries(namespace || {});
     } catch {
-      // window.parent is cross-origin when the dapp is embedded in a frame;
-      // reading properties on it throws a SecurityError.
+      // The parent fallback (for dapp browsers that embed us in an iframe)
+      // only runs when window.cardano is absent, because || short-circuits.
+      // When that parent is cross-origin, reading .cardano on it throws a
+      // SecurityError; treat that the same as having no extensions.
     }
 
     const list: IWalletExtension[] = [];

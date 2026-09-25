@@ -1,4 +1,3 @@
-import { Cardano } from "@cardano-sdk/core";
 import { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 
 import { ReadOnlyProvider } from "./ReadOnlyProvider.Abstract.class.js";
@@ -19,6 +18,10 @@ export class ReadOnlyApi implements Cip30WalletApi {
   };
 
   getChangeAddress = async () => {
+    // Imported here, not at module scope. @cardano-sdk/core is large and only
+    // these two address helpers need it, so a consumer that never builds a
+    // read-only wallet does not pay for it in the bundle.
+    const { Cardano } = await import("@cardano-sdk/core");
     return Cardano.Address.fromBech32(this.address).toBytes();
   };
 
@@ -43,6 +46,7 @@ export class ReadOnlyApi implements Cip30WalletApi {
   };
 
   getUsedAddresses = async () => {
+    const { Cardano } = await import("@cardano-sdk/core");
     const address = Cardano.Address.fromBech32(this.address);
     return [address.toBytes()];
   };

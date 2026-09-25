@@ -366,72 +366,88 @@ export class WalletObserver<
     const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
 
-    let attempts = 0;
-    let extensionObject = window.cardano?.[extension];
+    // Hold the success payload so the `finally` block dispatches
+    // CONNECT_WALLET_END exactly once: with data when the connection
+    // succeeded, with nothing when it did not. Every early exit used to need
+    // its own dispatch, and the ones that threw - a rejected enable(), a user
+    // closing the wallet popup, a failed sync() - had none. Consumers that
+    // set a "connecting" flag on START and clear it on END stayed stuck.
+    let connectEndData:
+      | (IWalletObserverSync<AssetMetadata> & { activeWallet: string })
+      | undefined;
 
-    // Disconnect any CIP45 connections.
-    if (!extension?.includes("p2p")) {
-      this.peerConnectInstance?.shutdownServer();
-    }
+    try {
+      let attempts = 0;
+      let extensionObject = window.cardano?.[extension];
 
-    while (
-      typeof extensionObject === "undefined" &&
-      !extension.startsWith("addr")
-    ) {
-      if (this._options.debug) {
-        console.warn(`Could not find extension: ${extension}. Trying again...`);
+      // Disconnect any CIP45 connections.
+      if (!extension?.includes("p2p")) {
+        this.peerConnectInstance?.shutdownServer();
       }
 
-      if (attempts === 40) {
-        break;
+      while (
+        typeof extensionObject === "undefined" &&
+        !extension.startsWith("addr")
+      ) {
+        if (this._options.debug) {
+          console.warn(
+            `Could not find extension: ${extension}. Trying again...`,
+          );
+        }
+
+        if (attempts === 40) {
+          break;
+        }
+
+        await new Promise((res) =>
+          setTimeout(res, (this._options.connectTimeout as number) / 40),
+        );
+        extensionObject = window.cardano?.[extension];
+        attempts++;
       }
 
-      await new Promise((res) =>
-        setTimeout(res, (this._options.connectTimeout as number) / 40),
-      );
-      extensionObject = window.cardano?.[extension];
-      attempts++;
-    }
-
-    if (!extensionObject && !extension.startsWith("addr")) {
-      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END);
-      throw new Error(
-        `Could not find extension (${extension}) in the global context.`,
-      );
-    }
-
-    this.activeWallet = extension;
-    await this.syncApi(extension);
-    const data = await this.sync();
-
-    if (this._options.persistence) {
-      if (data.usedAddresses instanceof Error) {
-        data.usedAddresses.cause =
-          "Could not get a list of used addresses from the wallet when trying to save the connection.";
-        throw data.usedAddresses;
+      if (!extensionObject && !extension.startsWith("addr")) {
+        throw new Error(
+          `Could not find extension (${extension}) in the global context.`,
+        );
       }
 
-      const seed: IWalletObserverSeed = {
+      this.activeWallet = extension;
+      await this.syncApi(extension);
+      const data = await this.sync();
+
+      if (this._options.persistence) {
+        if (data.usedAddresses instanceof Error) {
+          data.usedAddresses.cause =
+            "Could not get a list of used addresses from the wallet when trying to save the connection.";
+          throw data.usedAddresses;
+        }
+
+        const seed: IWalletObserverSeed = {
+          activeWallet: extension,
+          mainAddress: data.usedAddresses[0],
+        };
+
+        window.localStorage.setItem(
+          WalletObserver.PERSISTENCE_CACHE_KEY,
+          JSON.stringify(seed),
+        );
+      }
+
+      connectEndData = {
+        ...data,
         activeWallet: extension,
-        mainAddress: data.usedAddresses[0],
       };
 
-      window.localStorage.setItem(
-        WalletObserver.PERSISTENCE_CACHE_KEY,
-        JSON.stringify(seed),
-      );
-    }
+      const end = performance.now();
+      if (this._options.debug) {
+        console.log(`connectWallet: ${end - start}ms`);
+      }
 
-    this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, {
-      ...data,
-      activeWallet: extension,
-    });
-    const end = performance.now();
-    if (this._options.debug) {
-      console.log(`connectWallet: ${end - start}ms`);
+      return data;
+    } finally {
+      this.dispatch(EWalletObserverEvents.CONNECT_WALLET_END, connectEndData);
     }
-
-    return data;
   };
 
   getCip45Instance = async () => {

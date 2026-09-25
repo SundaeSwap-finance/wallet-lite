@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.1.6 (2026-09-25)
+
+
+### Bug Fixes
+
+* **hooks:** stop deep-comparing injected wallet extensions ([#11](https://github.com/SundaeSwap-finance/wallet-lite/issues/11)) ([79e4c41](https://github.com/SundaeSwap-finance/wallet-lite/commit/79e4c41dcffaf889a92e907da4c1f2f2104129fc))
+
 ### 0.1.5 (2026-08-11)
 
 

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.1.7 (2026-09-25)
+
+
+### Bug Fixes
+
+* **observer:** always end a connect, and load cardano-sdk lazily ([#12](https://github.com/SundaeSwap-finance/wallet-lite/issues/12)) ([3738677](https://github.com/SundaeSwap-finance/wallet-lite/commit/37386770d9614e9090368a8568be6d79f84b27e8)), closes [#9](https://github.com/SundaeSwap-finance/wallet-lite/issues/9)
+
 ### 0.1.6 (2026-09-25)
 
 

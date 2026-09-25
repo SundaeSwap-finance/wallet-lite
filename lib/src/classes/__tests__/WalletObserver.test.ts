@@ -1,5 +1,5 @@
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
-import { afterEach, describe, expect, it, spyOn, test } from "bun:test";
+import { afterEach, describe, expect, it, mock, spyOn, test } from "bun:test";
 
 import { Cardano } from "@cardano-sdk/core";
 import { mockWalletAssetIds } from "../../__data__/assets.js";
@@ -15,6 +15,7 @@ import {
 } from "../../index.js";
 import { normalizeAssetIdWithDot } from "../../utils/assets.js";
 import * as getLibModules from "../../utils/getLibs.js";
+import { mockedEternlApi } from "../../../../setup-tests.js";
 import { WalletObserver } from "../WalletObserver.class.js";
 
 const spiedOnGetCardano = spyOn(getLibModules, "getCardanoCore");
@@ -50,6 +51,37 @@ describe("WalletObserver", async () => {
           connectTimeout: 10,
         }).connectWallet("flint"),
       ).toThrowError("Could not find extension (flint) in the global context.");
+    });
+
+    it("should dispatch CONNECT_WALLET_END when the user refuses the connection", async () => {
+      // The wallet is present, but the user refuses the connection. syncApi()
+      // returns undefined for a refusal, and the sync() that follows throws.
+      // The missing-extension path dispatched CONNECT_WALLET_END on its way
+      // out; this one did not, so a consumer that shows a spinner on
+      // CONNECT_WALLET_START and clears it on CONNECT_WALLET_END stayed stuck
+      // in "connecting" until a reload.
+      const observer = new WalletObserver({ connectTimeout: 10 });
+      const handler = mock(() => {});
+      observer.addEventListener(
+        EWalletObserverEvents.CONNECT_WALLET_END,
+        handler,
+      );
+
+      // syncApi() recognises this message as a refusal and returns undefined
+      // rather than retrying, which then fails the sync() below. One rejection
+      // is enough because the refusal path does not retry.
+      mockedEternlApi.mockRejectedValueOnce(
+        new Error("user canceled connection"),
+      );
+
+      await expect(observer.connectWallet("eternl")).rejects.toThrow(
+        "Attempted to perform a sync operation without a connected wallet.",
+      );
+
+      expect(handler).toHaveBeenCalledTimes(1);
+      // No payload. CustomEvent turns a missing `detail` into null, so this
+      // is the same value a bare dispatch() has always produced.
+      expect(handler.mock.calls[0]?.[0]).toBeNull();
     });
   });
 

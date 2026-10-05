@@ -54,7 +54,7 @@
     "@cardano-sdk/dapp-connector": "^0.13.3",
     "@cardano-sdk/util": "^0.15.5",
     "@emurgo/cardano-message-signing-nodejs": "^1.1.0",
-    "@sundaeswap/fraction": "1.0.8",
+    "@sundaeswap/fraction": "^1.0.8",
     "@sundaeswap/asset": "^1.0.11"
   },
   "devDependencies": {

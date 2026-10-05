@@ -1,8 +1,6 @@
 import type { BlockFrostAPI, Responses } from "@blockfrost/blockfrost-js";
-import { Cardano, Serialization } from "@cardano-sdk/core";
-import { Hash32ByteBase16 } from "@cardano-sdk/crypto";
+import type { Cardano } from "@cardano-sdk/core";
 
-import { HexBlob } from "@cardano-sdk/util";
 import { ReadOnlyProvider } from "./ReadOnlyProvider.Abstract.class.js";
 
 export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
@@ -37,8 +35,16 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
       );
     }
 
+    // Imported here, not at module scope: the package root re-exports this
+    // class, and bundlers that keep every static import behind that barrel
+    // (esbuild, for one) would otherwise load @cardano-sdk/core, /crypto and
+    // /util, libsodium included, up front for consumers that never build a
+    // read-only wallet.
+    const core = await import("@cardano-sdk/core");
+
     // Build our value.
     const value = this.__getValueFromAmount(
+      core,
       (result as Responses["address_content"]).amount,
     );
 
@@ -109,6 +115,13 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
       }
     }
 
+    const [core, { Hash32ByteBase16 }, { HexBlob }] = await Promise.all([
+      import("@cardano-sdk/core"),
+      import("@cardano-sdk/crypto"),
+      import("@cardano-sdk/util"),
+    ]);
+    const { Cardano, Serialization } = core;
+
     const formatted = allResults.map((r) => {
       return Serialization.TransactionUnspentOutput.fromCore([
         Serialization.TransactionInput.fromCore({
@@ -117,7 +130,7 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
         }).toCore(),
         Serialization.TransactionOutput.fromCore({
           address: Cardano.PaymentAddress(r.address),
-          value: this.__getValueFromAmount(r.amount).toCore(),
+          value: this.__getValueFromAmount(core, r.amount).toCore(),
           datum: r.inline_datum
             ? Serialization.PlutusData.fromCbor(
                 HexBlob(r.inline_datum),
@@ -131,7 +144,10 @@ export class ReadOnlyBlockfrostProvider implements ReadOnlyProvider {
     return formatted;
   }
 
-  private __getValueFromAmount(amount?: { unit: string; quantity: string }[]) {
+  private __getValueFromAmount(
+    { Cardano, Serialization }: typeof import("@cardano-sdk/core"),
+    amount?: { unit: string; quantity: string }[],
+  ) {
     if (!amount) {
       amount = [
         {

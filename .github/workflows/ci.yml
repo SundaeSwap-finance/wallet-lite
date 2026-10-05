@@ -55,10 +55,13 @@ jobs:
           git pull --rebase --no-verify origin main
           git push --follow-tags --no-verify origin main
 
-      - name: Configure npm authentication
-        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.PUBLISH_NPM_TOKEN }}
+      # Trusted publishing needs npm 11.5.1+, and node 20 ships npm 10. (Node 24
+      # bundles it, but node-datachannel 0.9.1's install script fails there.)
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@^11.5.1
 
-      # Create Release
+      # Publishes via npm trusted publishing (OIDC, from `id-token: write`):
+      # npmjs.com must list this workflow as the package's Trusted Publisher.
       - name: Publish
         run: |
           cd lib

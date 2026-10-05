@@ -2,6 +2,11 @@
   "name": "@sundaeswap/wallet-lite",
   "version": "0.1.7",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SundaeSwap-finance/wallet-lite.git",
+    "directory": "lib"
+  },
   "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",

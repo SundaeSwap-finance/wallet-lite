@@ -2,6 +2,11 @@
   "name": "@sundaeswap/wallet-lite",
   "version": "0.1.7",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SundaeSwap-finance/wallet-lite.git",
+    "directory": "lib"
+  },
   "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -49,7 +54,7 @@
     "@cardano-sdk/dapp-connector": "^0.13.3",
     "@cardano-sdk/util": "^0.15.5",
     "@emurgo/cardano-message-signing-nodejs": "^1.1.0",
-    "@sundaeswap/fraction": "1.0.8",
+    "@sundaeswap/fraction": "^1.0.8",
     "@sundaeswap/asset": "^1.0.11"
   },
   "devDependencies": {

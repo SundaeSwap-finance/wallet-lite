@@ -8,7 +8,10 @@ import {
   useTransition,
 } from "react";
 
-import { IWalletObserverSync } from "../../../@types/observer.js";
+import {
+  IConnectWalletOptions,
+  IWalletObserverSync,
+} from "../../../@types/observer.js";
 import { ReadOnlyApi } from "../../../classes/ReadOnlyApi.class.js";
 import { WalletBalanceMap } from "../../../classes/WalletBalanceMap.class.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
@@ -75,16 +78,21 @@ export const useWalletObserverState = <
   }, [observer]);
 
   const connectWallet = useCallback(
-    async (wallet: string) => {
+    async (wallet: string, options?: IConnectWalletOptions) => {
       if (observer.hasActiveConnection() && wallet !== observer.activeWallet) {
         setSwitching(() => true);
       }
 
-      const data = await observer.connectWallet(wallet);
-      setIsReadOnlyMode(observer.api instanceof ReadOnlyApi);
-      await syncWallet(data instanceof Error ? undefined : data);
-      setSwitching(() => false);
-      return observer.api;
+      // A failed switch leaves the previous wallet connected, so it is no
+      // longer switching either.
+      try {
+        const data = await observer.connectWallet(wallet, options);
+        setIsReadOnlyMode(observer.api instanceof ReadOnlyApi);
+        await syncWallet(data instanceof Error ? undefined : data);
+        return observer.api;
+      } finally {
+        setSwitching(() => false);
+      }
     },
     [observer],
   );

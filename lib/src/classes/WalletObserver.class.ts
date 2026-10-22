@@ -10,6 +10,7 @@ import merge from "lodash/merge.js";
 
 import { EWalletObserverEvents } from "../@types/events.js";
 import type {
+  IConnectWalletOptions,
   IResolvedWalletObserverOptions,
   IWalletObserverSeed,
   IWalletObserverSync,
@@ -379,14 +380,16 @@ export class WalletObserver<
    * reference. If no reference is found, it will retry for
    * 10 seconds before throw an error.
    *
-   * A connect whose `enable()` fails leaves the previous connection as it
-   * was.
+   * A connect that fails before its first sync, in `enable()` or in
+   * `options.beforeSync`, leaves the previous connection as it was.
    *
    * @param {string} extension The name of the extension to enable.
+   * @param {IConnectWalletOptions} [options] Options for this connect.
    * @return {Promise<IWalletObserverSync<AssetMetadata> | Error>}
    */
   connectWallet = async (
     extension: string,
+    options?: IConnectWalletOptions,
   ): Promise<IWalletObserverSync<AssetMetadata> | Error> => {
     const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
@@ -444,7 +447,10 @@ export class WalletObserver<
       };
       this.activeWallet = extension;
       try {
-        await this.syncApi(extension);
+        const api = await this.syncApi(extension);
+        if (api) {
+          await options?.beforeSync?.({ api, network: this.network });
+        }
       } catch (error) {
         this.activeWallet = previous.activeWallet;
         this.api = previous.api;

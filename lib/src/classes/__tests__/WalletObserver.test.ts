@@ -15,7 +15,10 @@ import {
 } from "../../index.js";
 import { normalizeAssetIdWithDot } from "../../utils/assets.js";
 import * as getLibModules from "../../utils/getLibs.js";
-import { mockedEternlApi } from "../../../../setup-tests.js";
+import {
+  mockedEternlApi,
+  mockedEternlWallet,
+} from "../../../../setup-tests.js";
 import { WalletObserver } from "../WalletObserver.class.js";
 
 const spiedOnGetCardano = spyOn(getLibModules, "getCardanoCore");
@@ -411,6 +414,70 @@ describe("WalletObserver", async () => {
 
       expect(mockedEternlApi).toHaveBeenCalledTimes(10);
       expect((error as Error).cause).toBe(unreachable);
+    });
+
+    it("hands the enabled api and its network to beforeSync, before syncing", async () => {
+      const observer = new WalletObserver();
+      const spiedOnSync = spyOn(observer, "sync");
+      const beforeSync = mock(() => {
+        expect(spiedOnSync).not.toHaveBeenCalled();
+      });
+
+      await observer.connectWallet("eternl", { beforeSync });
+
+      expect(beforeSync).toHaveBeenCalledWith({
+        api: observer.api,
+        network: mockNetwork,
+      });
+      expect(spiedOnSync).toHaveBeenCalledTimes(1);
+    });
+
+    it("turns a wallet away in beforeSync without syncing or saving it", async () => {
+      const wrongNetwork = new Error("wrong network");
+      const observer = new WalletObserver({ persistence: true });
+      const spiedOnSync = spyOn(observer, "sync");
+
+      await expect(
+        observer.connectWallet("eternl", {
+          beforeSync: () => {
+            throw wrongNetwork;
+          },
+        }),
+      ).rejects.toBe(wrongNetwork);
+
+      expect(spiedOnSync).not.toHaveBeenCalled();
+      expect(observer.activeWallet).toBeUndefined();
+      expect(observer.api).toBeUndefined();
+      expect(
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
+      ).toBeNull();
+    });
+
+    it("keeps the connected wallet when beforeSync turns the next one away", async () => {
+      const observer = new WalletObserver();
+      await observer.connectWallet("eternl");
+      const { api, network } = observer;
+      window.cardano!.lace = {
+        ...mockedEternlWallet,
+        name: "lace",
+        enable: async () => ({ getNetworkId: async () => network + 1 }),
+      };
+
+      try {
+        await expect(
+          observer.connectWallet("lace", {
+            beforeSync: () => {
+              throw new Error("wrong network");
+            },
+          }),
+        ).rejects.toThrow("wrong network");
+      } finally {
+        delete window.cardano!.lace;
+      }
+
+      expect(observer.activeWallet).toEqual("eternl");
+      expect(observer.api).toBe(api);
+      expect(observer.network).toEqual(network);
     });
   });
 

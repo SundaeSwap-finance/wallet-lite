@@ -216,4 +216,47 @@ describe("useWalletObserver", () => {
       expect(asset.metadata?.decimals).toEqual(0);
     }
   });
+
+  it("stops switching when the next wallet is turned away before syncing", async () => {
+    const { result } = renderHook<
+      IWalletObserverProviderProps,
+      ReturnType<typeof useWalletObserver>
+    >(() => useWalletObserver(), {
+      wrapper: (props) => (
+        <QueryProvider>
+          <WalletObserverProvider
+            {...{
+              ...props,
+              observerOptions: {
+                ...props.options?.observerOptions,
+                connectTimeout: 10,
+              },
+            }}
+          />
+        </QueryProvider>
+      ),
+    });
+
+    await act(async () => {
+      await result.current.connectWallet("eternl");
+    });
+
+    window.cardano!.lace = { ...window.cardano!.eternl, name: "lace" };
+    try {
+      await act(async () => {
+        await expect(
+          result.current.connectWallet("lace", {
+            beforeSync: () => {
+              throw new Error("wrong network");
+            },
+          }),
+        ).rejects.toThrow("wrong network");
+      });
+    } finally {
+      delete window.cardano!.lace;
+    }
+
+    expect(result.current.switching).toBeFalse();
+    expect(result.current.activeWallet).toEqual("eternl");
+  });
 });

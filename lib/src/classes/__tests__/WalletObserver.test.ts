@@ -370,6 +370,48 @@ describe("WalletObserver", async () => {
         `{"activeWallet":"eternl","mainAddress":"${Cardano.Address.fromString(mockUsedAddresses[0])?.toBech32()}"}`,
       );
     });
+
+    it("rejects with the wallet's own enable() error without retrying", async () => {
+      // Eternl's answer while no account is selected. It holds each one for
+      // a second, so ten tries kept a wallet picker waiting ~12 s for it.
+      const noAccount = { code: -2, info: "no account set" };
+      mockedEternlApi.mockClear();
+      mockedEternlApi.mockRejectedValueOnce(noAccount);
+      const observer = new WalletObserver();
+
+      await expect(observer.connectWallet("eternl")).rejects.toBe(noAccount);
+      expect(mockedEternlApi).toHaveBeenCalledTimes(1);
+      expect(observer.activeWallet).toBeUndefined();
+    });
+
+    it("calls enable() again when the wallet reports an account change", async () => {
+      mockedEternlApi.mockClear();
+      mockedEternlApi.mockRejectedValueOnce({
+        code: -4,
+        info: "account changed",
+      });
+      const observer = new WalletObserver();
+
+      await observer.connectWallet("eternl");
+
+      expect(mockedEternlApi).toHaveBeenCalledTimes(2);
+      expect(observer.activeWallet).toEqual("eternl");
+      expect(observer.api).toBeDefined();
+    });
+
+    it("gives up after ten failed enable() calls, keeping the last failure as the cause", async () => {
+      const unreachable = new Error("Receiving end does not exist.");
+      mockedEternlApi.mockClear();
+      for (let i = 0; i < 10; i++) {
+        mockedEternlApi.mockRejectedValueOnce(unreachable);
+      }
+      const observer = new WalletObserver();
+
+      const error = await observer.connectWallet("eternl").catch((e) => e);
+
+      expect(mockedEternlApi).toHaveBeenCalledTimes(10);
+      expect((error as Error).cause).toBe(unreachable);
+    });
   });
 
   describe("disconnect()", () => {

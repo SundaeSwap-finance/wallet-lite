@@ -70,6 +70,23 @@ export type TWalletObserverOptions<
 > = Partial<IResolvedWalletObserverOptions<AssetMetadata>>;
 
 /**
+ * Options for one `WalletObserver.connectWallet` call.
+ */
+export interface IConnectWalletOptions {
+  /**
+   * Runs once the wallet has granted access, before the first sync. Throw to
+   * turn the wallet away: the observer keeps its previous connection, nothing
+   * is synced or saved, and `connectWallet` rejects with what was thrown.
+   * Rejecting a wallet on the wrong network here takes one call instead of a
+   * full sync.
+   */
+  beforeSync?: (wallet: {
+    api: Cip30WalletApi;
+    network: number;
+  }) => void | Promise<void>;
+}
+
+/**
  * Interface describing the Map type of an asset.
  */
 export type TAssetAmountMap<

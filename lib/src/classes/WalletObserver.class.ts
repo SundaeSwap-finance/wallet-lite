@@ -10,6 +10,7 @@ import merge from "lodash/merge.js";
 
 import { EWalletObserverEvents } from "../@types/events.js";
 import type {
+  IConnectWalletOptions,
   IResolvedWalletObserverOptions,
   IWalletObserverSeed,
   IWalletObserverSync,
@@ -27,6 +28,16 @@ import { ReadOnlyApi } from "./ReadOnlyApi.class.js";
 import { WalletBalanceMap } from "./WalletBalanceMap.class.js";
 import { WalletObserverEvent } from "./WalletObserverEvent.js";
 import { WalletObserverUtils } from "./WalletObserverUtils.class.js";
+
+/** `enable()` tries for a wallet that fails without a CIP-30 error code. */
+const ENABLE_ATTEMPTS = 10;
+const ENABLE_RETRY_DELAY_MS = 200;
+
+/**
+ * CIP-30 `AccountChange`: the wallet wants `enable()` again, for the new
+ * account. `APIErrorCode` from @cardano-sdk/dapp-connector has no member for it.
+ */
+const ACCOUNT_CHANGE_ERROR_CODE = -4;
 
 /**
  * Class representing the Wallet Observer. This is the main interface
@@ -239,6 +250,11 @@ export class WalletObserver<
    * Synchronizes the API with the wallet. This is useful if the account has changed,
    * but the underlying intent has not.
    *
+   * A refusal resolves `undefined`. Any other CIP-30 error from `enable()`
+   * rejects at once with that error, except `AccountChange`, which is retried
+   * like a failure without an error code: up to 10 attempts, after which it
+   * rejects with the last failure as `cause`.
+   *
    * @param {string} [activeWallet] - The wallet to sync with.
    * @returns {Promise<Cip30WalletApi | undefined>} - A promise that resolves to the API instance.
    */
@@ -252,9 +268,6 @@ export class WalletObserver<
     }
 
     const selectedWallet = (activeWallet || this.activeWallet) as string;
-
-    let attempts = 0;
-    let shouldContinue = true;
 
     if (selectedWallet.startsWith("addr")) {
       if (!this._options.readOnlyProvider) {
@@ -272,11 +285,10 @@ export class WalletObserver<
       return this.api;
     }
 
-    while (shouldContinue) {
-      if (attempts === 10) {
-        throw new Error(
-          "Could not reconnect to the selected wallet. Please check your extension.",
-        );
+    let lastFailure: unknown;
+    for (let attempt = 0; attempt < ENABLE_ATTEMPTS; attempt++) {
+      if (attempt > 0) {
+        await new Promise((res) => setTimeout(res, ENABLE_RETRY_DELAY_MS));
       }
 
       try {
@@ -284,12 +296,12 @@ export class WalletObserver<
         const api = await cardano?.[selectedWallet]?.enable();
 
         if (!api) {
-          throw Error;
+          throw new Error(`${selectedWallet} returned no API from enable().`);
         }
 
         this.api = api;
         this.network = await api.getNetworkId();
-        shouldContinue = false;
+        return this.api;
       } catch (e) {
         if (
           [
@@ -298,16 +310,27 @@ export class WalletObserver<
           ].includes((e as Error)?.message) ||
           (e as ApiError)?.code === APIErrorCode.Refused
         ) {
-          shouldContinue = false;
           return undefined;
         }
 
-        await new Promise((res) => setTimeout(res, 200));
-        attempts++;
+        // A CIP-30 error code is the wallet's answer, and asking again
+        // gets the same one: Eternl holds "no account set" for a second per
+        // call. Only AccountChange asks for another enable(). Typed `unknown`,
+        // not `APIErrorCode`: wallets also send codes that enum lacks.
+        const code: unknown = (e as { code?: unknown } | undefined)?.code;
+        if (typeof code === "number" && code !== ACCOUNT_CHANGE_ERROR_CODE) {
+          throw e;
+        }
+
+        lastFailure = e;
       }
     }
 
-    return this.api;
+    const error = new Error(
+      "Could not reconnect to the selected wallet. Please check your extension.",
+    );
+    error.cause = lastFailure;
+    throw error;
   };
 
   /**
@@ -357,11 +380,16 @@ export class WalletObserver<
    * reference. If no reference is found, it will retry for
    * 10 seconds before throw an error.
    *
+   * A connect that fails before its first sync, in `enable()` or in
+   * `options.beforeSync`, leaves the previous connection as it was.
+   *
    * @param {string} extension The name of the extension to enable.
+   * @param {IConnectWalletOptions} [options] Options for this connect.
    * @return {Promise<IWalletObserverSync<AssetMetadata> | Error>}
    */
   connectWallet = async (
     extension: string,
+    options?: IConnectWalletOptions,
   ): Promise<IWalletObserverSync<AssetMetadata> | Error> => {
     const start = performance.now();
     this.dispatch(EWalletObserverEvents.CONNECT_WALLET_START);
@@ -412,8 +440,23 @@ export class WalletObserver<
         );
       }
 
+      const previous = {
+        activeWallet: this.activeWallet,
+        api: this.api,
+        network: this.network,
+      };
       this.activeWallet = extension;
-      await this.syncApi(extension);
+      try {
+        const api = await this.syncApi(extension);
+        if (api) {
+          await options?.beforeSync?.({ api, network: this.network });
+        }
+      } catch (error) {
+        this.activeWallet = previous.activeWallet;
+        this.api = previous.api;
+        this.network = previous.network;
+        throw error;
+      }
       const data = await this.sync();
 
       if (this._options.persistence) {

@@ -3,6 +3,7 @@ import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { MutableRefObject } from "react";
 
 import type {
+  IConnectWalletOptions,
   IWalletObserverSync,
   TWalletObserverOptions,
 } from "../../../@types/observer.js";
@@ -82,7 +83,10 @@ export interface IWalletObserverActionsContext<
 > {
   observer: WalletObserver<AssetMetadata>;
   observerRef: MutableRefObject<WalletObserver<AssetMetadata>>;
-  connectWallet: (wallet: string) => Promise<unknown>;
+  connectWallet: (
+    wallet: string,
+    options?: IConnectWalletOptions,
+  ) => Promise<unknown>;
   disconnect: () => void;
   syncWallet: (
     importedData?: IWalletObserverSync<AssetMetadata>,

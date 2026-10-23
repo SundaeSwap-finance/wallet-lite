@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.1.9 (2026-10-23)
+
+
+### Features
+
+* **observer:** stop retrying a wallet's own enable() error, and add a beforeSync veto ([#14](https://github.com/SundaeSwap-finance/wallet-lite/issues/14)) ([6d6bd27](https://github.com/SundaeSwap-finance/wallet-lite/commit/6d6bd27d6f03dd2bd02b991aea69da995ca8dc65))
+
 ### 0.1.8 (2026-10-08)
 
 ### 0.1.7 (2026-09-25)

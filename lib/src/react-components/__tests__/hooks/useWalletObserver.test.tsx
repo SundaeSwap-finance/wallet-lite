@@ -2,7 +2,7 @@ import { Cardano } from "@cardano-sdk/core";
 import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react-hooks";
-import { describe, expect, it, jest } from "bun:test";
+import { describe, expect, it, jest, mock } from "bun:test";
 import { FC, PropsWithChildren } from "react";
 
 import { mockWalletAssetIds } from "../../../__data__/assets.js";
@@ -258,5 +258,69 @@ describe("useWalletObserver", () => {
 
     expect(result.current.switching).toBeFalse();
     expect(result.current.activeWallet).toEqual("eternl");
+  });
+
+  const renderWithSaved = (activeWallet: string) => {
+    window.localStorage.setItem(
+      WalletObserver.PERSISTENCE_CACHE_KEY,
+      JSON.stringify({ activeWallet }),
+    );
+    return renderHook<
+      IWalletObserverProviderProps,
+      ReturnType<typeof useWalletObserver>
+    >(() => useWalletObserver(), {
+      wrapper: (props) => (
+        <QueryProvider>
+          <WalletObserverProvider
+            {...props}
+            options={{
+              observerOptions: { connectTimeout: 10, persistence: true },
+            }}
+          />
+        </QueryProvider>
+      ),
+    });
+  };
+
+  it("clears a saved wallet that was disconnected inside the extension, without asking it", async () => {
+    const enable = mock(async () => {
+      throw new Error("enable() opens the approval window");
+    });
+    window.cardano!.lace = {
+      ...window.cardano!.eternl,
+      name: "lace",
+      isEnabled: async () => false,
+      enable,
+    };
+
+    try {
+      const { result } = renderWithSaved("lace");
+      expect(result.current.willAutoConnect).toBeTrue();
+      await act(() => new Promise((res) => setTimeout(res, 50)));
+
+      expect(enable).not.toHaveBeenCalled();
+      expect(result.current.willAutoConnect).toBeFalse();
+      expect(result.current.activeWallet).toBeUndefined();
+      expect(
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
+      ).toBeNull();
+    } finally {
+      delete window.cardano!.lace;
+      window.localStorage.clear();
+    }
+  });
+
+  it("connects a saved wallet that still grants access", async () => {
+    try {
+      const { result } = renderWithSaved("eternl");
+      await act(() => new Promise((res) => setTimeout(res, 50)));
+
+      expect(result.current.activeWallet).toEqual("eternl");
+      expect(
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
+      ).not.toBeNull();
+    } finally {
+      window.localStorage.clear();
+    }
   });
 });

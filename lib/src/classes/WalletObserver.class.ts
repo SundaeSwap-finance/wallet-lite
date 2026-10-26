@@ -1,7 +1,7 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/index.js";
 import {
   APIErrorCode,
-  type ApiError,
+  ApiError,
   type Cip30WalletApi,
   type GetCollateral,
 } from "@cardano-sdk/dapp-connector";
@@ -38,6 +38,10 @@ const ENABLE_RETRY_DELAY_MS = 200;
  * account. `APIErrorCode` from @cardano-sdk/dapp-connector has no member for it.
  */
 const ACCOUNT_CHANGE_ERROR_CODE = -4;
+
+/** A CIP-30 refusal. `ApiError` leaves `message` empty, so it repeats `info`. */
+const refusal = (info: string): ApiError =>
+  Object.assign(new ApiError(APIErrorCode.Refused, info), { message: info });
 
 /**
  * Class representing the Wallet Observer. This is the main interface
@@ -381,7 +385,8 @@ export class WalletObserver<
    * 10 seconds before throw an error.
    *
    * A connect that fails before its first sync, in `enable()` or in
-   * `options.beforeSync`, leaves the previous connection as it was.
+   * `options.beforeSync`, leaves the previous connection as it was. A
+   * refusal rejects with an `ApiError` whose code is `APIErrorCode.Refused`.
    *
    * @param {string} extension The name of the extension to enable.
    * @param {IConnectWalletOptions} [options] Options for this connect.
@@ -447,14 +452,20 @@ export class WalletObserver<
       };
       this.activeWallet = extension;
       try {
+        // syncApi() resolves a refusal; carrying on would sync the previous
+        // wallet's api under this wallet's name.
         const api = await this.syncApi(extension);
-        if (api) {
-          await options?.beforeSync?.({ api, network: this.network });
+        if (!api) {
+          throw refusal(`${extension} refused the connection.`);
         }
+        await options?.beforeSync?.({ api, network: this.network });
       } catch (error) {
-        this.activeWallet = previous.activeWallet;
-        this.api = previous.api;
-        this.network = previous.network;
+        // A connect that started meanwhile owns the observer now.
+        if (this.activeWallet === extension) {
+          this.activeWallet = previous.activeWallet;
+          this.api = previous.api;
+          this.network = previous.network;
+        }
         throw error;
       }
       const data = await this.sync();

@@ -2,6 +2,7 @@ import { IAssetAmountMetadata } from "@sundaeswap/asset";
 import { afterEach, describe, expect, it, mock, spyOn, test } from "bun:test";
 
 import { Cardano } from "@cardano-sdk/core";
+import { APIErrorCode } from "@cardano-sdk/dapp-connector";
 import { mockWalletAssetIds } from "../../__data__/assets.js";
 import {
   mockNetwork,
@@ -57,10 +58,9 @@ describe("WalletObserver", async () => {
     });
 
     it("should dispatch CONNECT_WALLET_END when the user refuses the connection", async () => {
-      // The wallet is present, but the user refuses the connection. syncApi()
-      // returns undefined for a refusal, and the sync() that follows throws.
-      // The missing-extension path dispatched CONNECT_WALLET_END on its way
-      // out; this one did not, so a consumer that shows a spinner on
+      // The wallet is present, but the user refuses the connection. The
+      // missing-extension path dispatched CONNECT_WALLET_END on its way out;
+      // this one did not, so a consumer that shows a spinner on
       // CONNECT_WALLET_START and clears it on CONNECT_WALLET_END stayed stuck
       // in "connecting" until a reload.
       const observer = new WalletObserver({ connectTimeout: 10 });
@@ -70,16 +70,15 @@ describe("WalletObserver", async () => {
         handler,
       );
 
-      // syncApi() recognises this message as a refusal and returns undefined
-      // rather than retrying, which then fails the sync() below. One rejection
-      // is enough because the refusal path does not retry.
+      // syncApi() recognises this message as a refusal. One rejection is
+      // enough because the refusal path does not retry.
       mockedEternlApi.mockRejectedValueOnce(
         new Error("user canceled connection"),
       );
 
-      await expect(observer.connectWallet("eternl")).rejects.toThrow(
-        "Attempted to perform a sync operation without a connected wallet.",
-      );
+      await expect(observer.connectWallet("eternl")).rejects.toMatchObject({
+        code: APIErrorCode.Refused,
+      });
 
       expect(handler).toHaveBeenCalledTimes(1);
       // No payload. CustomEvent turns a missing `detail` into null, so this
@@ -478,6 +477,68 @@ describe("WalletObserver", async () => {
       expect(observer.activeWallet).toEqual("eternl");
       expect(observer.api).toBe(api);
       expect(observer.network).toEqual(network);
+    });
+
+    it("keeps the connected wallet, and its saved seed, when the next one is refused", async () => {
+      // A refusal used to sync the previous wallet's api under the refused
+      // wallet's name, and save that name for the next load.
+      const observer = new WalletObserver({ persistence: true });
+      await observer.connectWallet("eternl");
+      const { api } = observer;
+      const seed = window.localStorage.getItem(
+        WalletObserver.PERSISTENCE_CACHE_KEY,
+      );
+      const spiedOnSync = spyOn(observer, "sync");
+      window.cardano!.lace = {
+        ...mockedEternlWallet,
+        name: "lace",
+        enable: () =>
+          Promise.reject({ code: APIErrorCode.Refused, info: "user declined" }),
+      };
+
+      try {
+        await expect(observer.connectWallet("lace")).rejects.toMatchObject({
+          code: APIErrorCode.Refused,
+        });
+      } finally {
+        delete window.cardano!.lace;
+      }
+
+      expect(spiedOnSync).not.toHaveBeenCalled();
+      expect(observer.activeWallet).toEqual("eternl");
+      expect(observer.api).toBe(api);
+      expect(
+        window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY),
+      ).toBe(seed);
+    });
+
+    it("leaves a wallet connected meanwhile alone when an earlier connect is refused", async () => {
+      let refuse!: () => void;
+      window.cardano!.lace = {
+        ...mockedEternlWallet,
+        name: "lace",
+        enable: () =>
+          new Promise((_, reject) => {
+            refuse = () => reject({ code: APIErrorCode.Refused });
+          }),
+      };
+      const observer = new WalletObserver();
+
+      try {
+        const lace = observer.connectWallet("lace");
+        await new Promise((res) => setTimeout(res, 0));
+        await observer.connectWallet("eternl");
+        const { api } = observer;
+        refuse();
+
+        await expect(lace).rejects.toMatchObject({
+          code: APIErrorCode.Refused,
+        });
+        expect(observer.activeWallet).toEqual("eternl");
+        expect(observer.api).toBe(api);
+      } finally {
+        delete window.cardano!.lace;
+      }
     });
   });
 

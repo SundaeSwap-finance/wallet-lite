@@ -159,7 +159,18 @@ const WalletObserverProvider: FC<
     );
 
     if (wallet && observerRef.current?.getOptions()?.persistence) {
-      state.connectWallet(JSON.parse(wallet).activeWallet);
+      const { activeWallet } = JSON.parse(wallet);
+      // Disconnected from this site inside the extension: clear the saved
+      // wallet so the user connects and approves again, rather than have
+      // enable() open the wallet's approval window on load.
+      const autoConnect = async () => {
+        if ((await window.cardano?.[activeWallet]?.isEnabled()) === false) {
+          state.disconnect();
+        } else {
+          await state.connectWallet(activeWallet);
+        }
+      };
+      autoConnect();
     }
   }, [eventListenersAttached, loading]);
 

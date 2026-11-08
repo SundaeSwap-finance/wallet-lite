@@ -8,6 +8,7 @@ import {
 } from "../../../@types/observer.js";
 import { WalletObserver } from "../../../classes/WalletObserver.class.js";
 import { TWalletProviderHooks } from "../../contexts/observer/index.js";
+import { WalletSyncingStore } from "../../contexts/observer/WalletSyncingStore.js";
 
 /**
  * Internal use only. This hook is responsible for initiating the
@@ -30,7 +31,8 @@ export const useProviderWalletObserverRef = (
   }
 
   const [connecting, setConnecting] = useState(false);
-  const [syncing, setSyncing] = useState(false);
+  // Outside React state: a sync must not re-render the provider.
+  const [syncingStore] = useState(() => new WalletSyncingStore());
   const [eventListenersAttached, setEventListenersAttached] = useState(false);
 
   const ready = useMemo(() => {
@@ -76,7 +78,7 @@ export const useProviderWalletObserverRef = (
     };
     const setSyncingStart = () => {
       (async () => {
-        setSyncing(() => true);
+        syncingStore.setSyncing(true);
         await hooks?.onSyncWalletStart?.();
       })().catch(console.error);
     };
@@ -86,8 +88,10 @@ export const useProviderWalletObserverRef = (
       },
     ) => {
       (async () => {
+        // Before the hook: the flag tracks the sync itself, so a slow or
+        // failing hook can't hold it, or clear it during the next sync.
+        syncingStore.setSyncing(false);
         await hooks?.onSyncWalletEnd?.(data);
-        setSyncing(() => false);
       })().catch(console.error);
     };
     const onDisconnect = () => {
@@ -145,12 +149,12 @@ export const useProviderWalletObserverRef = (
         onDisconnect,
       );
     };
-  }, [observerRef, hooks]);
+  }, [observerRef, hooks, syncingStore]);
 
   return {
     observerRef: observerRef as MutableRefObject<WalletObserver>,
     connectingWallet: connecting,
-    syncingWallet: syncing,
+    syncingStore,
     ready,
     eventListenersAttached,
   };

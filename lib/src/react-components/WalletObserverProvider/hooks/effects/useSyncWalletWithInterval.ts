@@ -22,5 +22,8 @@ export const useSyncWalletWithInterval = (
     enabled: refreshInterval ? refreshInterval > 0 : false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    // The result is never read: without this, every fetch status change
+    // would re-render the provider.
+    notifyOnChangeProps: [],
   });
 };

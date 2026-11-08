@@ -3,4 +3,5 @@ export * from "./useWalletData.js";
 export * from "./useWalletHandles.js";
 export * from "./useWalletLoadingState.js";
 export * from "./useWalletObserver.js";
+export * from "./useWalletSyncing.js";
 export * from "./useWalletPeerConnect.js";

@@ -19,7 +19,7 @@ const QueryProvider: FC<PropsWithChildren> = ({ children }) => (
 const TestComponent = (
   state: Omit<
     TUseWalletObserverState<IAssetAmountMetadata>,
-    "connectingWallet" | "syncingWallet" | "ready"
+    "connectingWallet" | "ready"
   >,
 ) => {
   return (

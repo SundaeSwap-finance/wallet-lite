@@ -1,11 +1,11 @@
 import type { TransactionUnspentOutput } from "@cardano-sdk/core/dist/cjs/Serialization/TransactionUnspentOutput.js";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
+  startTransition,
   useCallback,
   useEffect,
   useMemo,
   useState,
-  useTransition,
 } from "react";
 
 import {
@@ -50,7 +50,6 @@ export const useWalletObserverState = <
   const [isCip45, setIsCip45] = useState(false);
   const [switching, setSwitching] = useState(false);
   const [errorSyncing, setErrorSyncing] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const [willAutoConnect, setWillAutoConnect] = useState(
     Boolean(
       window.localStorage.getItem(WalletObserver.PERSISTENCE_CACHE_KEY) &&
@@ -122,6 +121,8 @@ export const useWalletObserverState = <
       try {
         const freshData = importedData || (await observer.sync());
 
+        // Non-urgent and without a pending flag, so a sync that returns the
+        // same data changes no context value.
         startTransition(() => {
           const newBalanceMap = freshData.balanceMap;
           if (newBalanceMap instanceof WalletBalanceMap) {
@@ -239,7 +240,6 @@ export const useWalletObserverState = <
       errorSyncing,
       feeAddress,
       isCip45,
-      isPending,
       isReadOnlyMode,
       network,
       changeAddress,
@@ -274,7 +274,6 @@ export const useWalletObserverState = <
       errorSyncing,
       feeAddress,
       isCip45,
-      isPending,
       isReadOnlyMode,
       network,
       changeAddress,

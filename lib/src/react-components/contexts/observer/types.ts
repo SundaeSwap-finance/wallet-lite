@@ -66,10 +66,8 @@ export interface IWalletObserverState<
   refreshInterval: number | false;
   state: ReturnType<typeof useWalletObserverState<AssetMetadata>> &
     ReturnType<typeof useDerivedState> & {
-      isPending: boolean;
       observer: WalletObserver<AssetMetadata>;
       connectingWallet: boolean;
-      syncingWallet: boolean;
       ready: boolean;
     };
 }
@@ -96,13 +94,13 @@ export interface IWalletObserverActionsContext<
 
 /**
  * Focused context: connection and loading state.
- * Changes on connect/disconnect and sync start/end.
+ * Changes on connect/disconnect and when a sync changes the connection.
+ * The syncing flag is not part of it: see `useWalletSyncing`.
  */
 export interface IWalletObserverConnectionContext {
   activeWallet: string | undefined;
   ready: boolean;
   connectingWallet: boolean;
-  syncingWallet: boolean;
   network: number | undefined;
   isCip45: boolean;
   switching: boolean;
@@ -114,7 +112,7 @@ export interface IWalletObserverConnectionContext {
 }
 
 /**
- * Focused context: wallet data that changes every sync cycle.
+ * Focused context: wallet data that changes when a sync returns new data.
  */
 export interface IWalletObserverWalletDataContext<
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
@@ -127,7 +125,6 @@ export interface IWalletObserverWalletDataContext<
   feeAddress: string | undefined;
   utxos: TransactionUnspentOutput[] | undefined;
   collateral: TransactionUnspentOutput[] | undefined;
-  isPending: boolean;
   refreshInterval: number | false;
 }
 

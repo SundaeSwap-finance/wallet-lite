@@ -4,11 +4,12 @@ import { memo, ReactElement, ReactNode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useWalletLoadingState } from "./hooks/useWalletLoadingState.js";
 import { useWalletObserver } from "./hooks/useWalletObserver.js";
+import { useWalletSyncing } from "./hooks/useWalletSyncing.js";
 
 export type TRenderWalletStateFunctionState<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
 > = ReturnType<typeof useWalletObserver<T>> &
-  ReturnType<typeof useWalletLoadingState>;
+  ReturnType<typeof useWalletLoadingState> & { syncingWallet: boolean };
 
 export type TRenderWalletStateFunction<
   T extends IAssetAmountMetadata = IAssetAmountMetadata,
@@ -37,6 +38,7 @@ const RenderWalletStateInner = <
 }: IRenderWalletStateProps<T>) => {
   const state = useWalletObserver<T>();
   const loadingState = useWalletLoadingState();
+  const syncingWallet = useWalletSyncing();
 
   return (
     <ErrorBoundary
@@ -51,6 +53,7 @@ const RenderWalletStateInner = <
         {render({
           ...state,
           ...loadingState,
+          syncingWallet,
         })}
       </Suspense>
     </ErrorBoundary>

@@ -7,21 +7,23 @@ import {
 } from "../contexts/observer/index.js";
 
 /**
- * Exposes the WalletObserver state.
+ * Exposes the WalletObserver state. It doesn't change when a sync starts or
+ * ends, or when a sync returns the same data: read the syncing flag with
+ * `useWalletSyncing`.
  *
- * @returns {Omit<TUseWalletObserverState<AssetMetadata>, "ready" | "connectingWallet" | "syncingWallet">}
+ * @returns {Omit<TUseWalletObserverState<AssetMetadata>, "ready" | "connectingWallet">}
  */
 export const useWalletObserver = <
   AssetMetadata extends IAssetAmountMetadata = IAssetAmountMetadata,
 >(): Omit<
   TUseWalletObserverState<AssetMetadata>,
-  "ready" | "connectingWallet" | "syncingWallet"
+  "ready" | "connectingWallet"
 > => {
   const { state } = useWalletObserverContext<AssetMetadata>();
 
   const result: Omit<
     TUseWalletObserverState<AssetMetadata>,
-    "ready" | "connectingWallet" | "syncingWallet"
+    "ready" | "connectingWallet"
   > = useMemo(
     () => ({
       activeWallet: state.activeWallet,
@@ -33,7 +35,6 @@ export const useWalletObserver = <
       errorSyncing: state.errorSyncing,
       feeAddress: state.feeAddress,
       isCip45: state.isCip45,
-      isPending: state.isPending,
       isReadOnlyMode: state.isReadOnlyMode,
       mainAddress: state.mainAddress,
       changeAddress: state.changeAddress,
@@ -59,7 +60,6 @@ export const useWalletObserver = <
       state.errorSyncing,
       state.feeAddress,
       state.isCip45,
-      state.isPending,
       state.isReadOnlyMode,
       state.mainAddress,
       state.network,

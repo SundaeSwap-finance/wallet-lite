@@ -7,6 +7,7 @@ import {
   IWalletObserverState,
   IWalletObserverWalletDataContext,
 } from "./types.js";
+import { WalletSyncingStore } from "./WalletSyncingStore.js";
 
 /**
  * Context instance.
@@ -50,10 +51,18 @@ export const WalletConnectionContext = createContext<
 >(undefined);
 
 /**
- * Focused context for wallet data that changes every sync.
+ * Focused context for wallet data that changes when a sync returns new data.
  */
 export const WalletDataContext = createContext<
   IWalletObserverWalletDataContext | undefined
+>(undefined);
+
+/**
+ * Focused context for the syncing flag. Its value, the store, never changes;
+ * `useWalletSyncing` subscribes to the store itself.
+ */
+export const WalletSyncingContext = createContext<
+  WalletSyncingStore | undefined
 >(undefined);
 
 export function useWalletActionsContext<

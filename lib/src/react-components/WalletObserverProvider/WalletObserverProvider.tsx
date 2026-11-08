@@ -8,6 +8,7 @@ import {
   WalletConnectionContext,
   WalletDataContext,
   WalletObserverContext,
+  WalletSyncingContext,
 } from "../contexts/observer/index.js";
 import { useDerivedState } from "./hooks/effects/useDerivedState.js";
 import { useSyncWalletWithInterval } from "./hooks/effects/useSyncWalletWithInterval.js";
@@ -27,7 +28,7 @@ const WalletObserverProvider: FC<
   const {
     observerRef,
     connectingWallet,
-    syncingWallet,
+    syncingStore,
     ready,
     eventListenersAttached,
   } = useProviderWalletObserverRef(options?.observerOptions, options?.hooks);
@@ -65,13 +66,12 @@ const WalletObserverProvider: FC<
   );
 
   // Focused context: connection and loading state.
-  // Changes on connect/disconnect and sync start/end.
+  // Changes on connect/disconnect and when a sync changes the connection.
   const connectionValue = useMemo(
     () => ({
       activeWallet: state.activeWallet,
       ready,
       connectingWallet,
-      syncingWallet,
       network: state.network,
       isCip45: state.isCip45,
       switching: state.switching,
@@ -85,7 +85,6 @@ const WalletObserverProvider: FC<
       state.activeWallet,
       ready,
       connectingWallet,
-      syncingWallet,
       state.network,
       state.isCip45,
       state.switching,
@@ -97,7 +96,7 @@ const WalletObserverProvider: FC<
     ],
   );
 
-  // Focused context: wallet data that changes every sync cycle.
+  // Focused context: wallet data that changes when a sync returns new data.
   const dataValue = useMemo(
     () => ({
       balance: state.balance,
@@ -108,7 +107,6 @@ const WalletObserverProvider: FC<
       feeAddress: state.feeAddress,
       utxos: state.utxos,
       collateral: state.collateral,
-      isPending: state.isPending,
       refreshInterval: options?.refreshInterval || 30000,
     }),
     [
@@ -120,7 +118,6 @@ const WalletObserverProvider: FC<
       state.feeAddress,
       state.utxos,
       state.collateral,
-      state.isPending,
       options?.refreshInterval,
     ],
   );
@@ -135,18 +132,10 @@ const WalletObserverProvider: FC<
         ...derivedState,
         observer: observerRef.current,
         connectingWallet,
-        syncingWallet,
         ready,
       },
     }),
-    [
-      options?.refreshInterval,
-      state,
-      derivedState,
-      connectingWallet,
-      syncingWallet,
-      ready,
-    ],
+    [options?.refreshInterval, state, derivedState, connectingWallet, ready],
   );
 
   useEffect(() => {
@@ -179,7 +168,9 @@ const WalletObserverProvider: FC<
       <WalletActionsContext.Provider value={actionsValue}>
         <WalletConnectionContext.Provider value={connectionValue}>
           <WalletDataContext.Provider value={dataValue}>
-            {children}
+            <WalletSyncingContext.Provider value={syncingStore}>
+              {children}
+            </WalletSyncingContext.Provider>
           </WalletDataContext.Provider>
         </WalletConnectionContext.Provider>
       </WalletActionsContext.Provider>

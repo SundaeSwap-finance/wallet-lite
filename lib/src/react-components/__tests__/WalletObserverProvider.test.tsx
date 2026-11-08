@@ -2,25 +2,37 @@ import type { Cip30WalletApi } from "@cardano-sdk/dapp-connector";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render } from "@testing-library/react";
 import { describe, expect, it } from "bun:test";
-import { FC } from "react";
+import { FC, Profiler } from "react";
 
 import { EWalletObserverEvents } from "../../@types/events.js";
+import { mockUtxos } from "../../__data__/eternl.js";
 import { WalletObserver } from "../../classes/WalletObserver.class.js";
 import {
   useWalletConnectionContext,
   useWalletDataContext,
 } from "../contexts/observer/context.js";
+import type {
+  IWalletObserverProviderProps,
+  IWalletObserverWalletDataContext,
+} from "../contexts/observer/types.js";
 import { useWalletLoadingState } from "../hooks/useWalletLoadingState.js";
 import { useWalletObserver } from "../hooks/useWalletObserver.js";
 import { useWalletSyncing } from "../hooks/useWalletSyncing.js";
+import { RenderWalletState } from "../RenderWalletState.js";
 import WalletObserverProvider from "../WalletObserverProvider/WalletObserverProvider.js";
 
 interface IHarness {
+  queryClient: QueryClient;
+  /** Commits that rendered the provider or anything under it. */
+  commits: number;
   renders: Record<
     "observer" | "loadingState" | "connection" | "data" | "syncing",
     number
   >;
   syncingHistory: boolean[];
+  /** Each `syncingWallet` that RenderWalletState passed to its render function. */
+  renderStateSyncingHistory: boolean[];
+  utxos?: IWalletObserverWalletDataContext["utxos"];
   observer?: WalletObserver;
   connectWallet?: (wallet: string) => Promise<unknown>;
   syncWallet?: () => Promise<void>;
@@ -30,8 +42,12 @@ interface IHarness {
  * Mounts one render-counting consumer per wallet hook under a real provider
  * (React 18 root), so tests can tell which consumers a sync re-renders.
  */
-const mountHarness = (): IHarness => {
+const mountHarness = (
+  options?: IWalletObserverProviderProps["options"],
+): IHarness => {
   const harness: IHarness = {
+    queryClient: new QueryClient(),
+    commits: 0,
     renders: {
       observer: 0,
       loadingState: 0,
@@ -40,6 +56,7 @@ const mountHarness = (): IHarness => {
       syncing: 0,
     },
     syncingHistory: [],
+    renderStateSyncingHistory: [],
   };
 
   const ObserverConsumer: FC = () => {
@@ -61,7 +78,7 @@ const mountHarness = (): IHarness => {
     return null;
   };
   const DataConsumer: FC = () => {
-    useWalletDataContext();
+    harness.utxos = useWalletDataContext().utxos;
     harness.renders.data++;
     return null;
   };
@@ -73,14 +90,27 @@ const mountHarness = (): IHarness => {
   };
 
   render(
-    <QueryClientProvider client={new QueryClient()}>
-      <WalletObserverProvider>
-        <ObserverConsumer />
-        <LoadingStateConsumer />
-        <ConnectionConsumer />
-        <DataConsumer />
-        <SyncingConsumer />
-      </WalletObserverProvider>
+    <QueryClientProvider client={harness.queryClient}>
+      <Profiler
+        id="provider"
+        onRender={() => {
+          harness.commits++;
+        }}
+      >
+        <WalletObserverProvider options={options}>
+          <ObserverConsumer />
+          <LoadingStateConsumer />
+          <ConnectionConsumer />
+          <DataConsumer />
+          <SyncingConsumer />
+          <RenderWalletState
+            render={({ syncingWallet }) => {
+              harness.renderStateSyncingHistory.push(syncingWallet);
+              return null;
+            }}
+          />
+        </WalletObserverProvider>
+      </Profiler>
     </QueryClientProvider>,
   );
 
@@ -156,15 +186,80 @@ describe("WalletObserverProvider", () => {
     expect(sharedRenders()).toEqual(before);
   });
 
-  it("reports syncing through useWalletSyncing while a sync is in flight", async () => {
+  it("reports syncing through useWalletSyncing and RenderWalletState while a sync is in flight", async () => {
     const harness = mountHarness();
     await connect(harness);
     expect(harness.syncingHistory.at(-1)).toBeFalse();
+    expect(harness.renderStateSyncingHistory.at(-1)).toBeFalse();
+
+    await syncInTwoSteps(harness, () => {
+      expect(harness.syncingHistory.at(-1)).toBeTrue();
+      expect(harness.renderStateSyncingHistory.at(-1)).toBeTrue();
+    });
+
+    expect(harness.syncingHistory.at(-1)).toBeFalse();
+    expect(harness.renderStateSyncingHistory.at(-1)).toBeFalse();
+  });
+
+  it("clears the syncing flag when a sync ends, while onSyncWalletEnd still runs", async () => {
+    // The hook never settles here. Waiting on it would leave the flag true
+    // for good if the hook rejects, or clear it late, during the next sync.
+    const endHook = Promise.withResolvers<void>();
+    const harness = mountHarness({
+      hooks: { onSyncWalletEnd: () => endHook.promise },
+    });
+    await connect(harness);
 
     await syncInTwoSteps(harness, () => {
       expect(harness.syncingHistory.at(-1)).toBeTrue();
     });
 
     expect(harness.syncingHistory.at(-1)).toBeFalse();
+    endHook.resolve();
+  });
+
+  it("re-renders the data consumers when a sync returns new UTXOs", async () => {
+    const harness = mountHarness();
+    await connect(harness);
+    expect(harness.utxos).toHaveLength(mockUtxos.length);
+
+    const api = harness.observer!.api as Cip30WalletApi;
+    const getUtxos = api.getUtxos;
+    api.getUtxos = async () => mockUtxos.slice(1);
+    try {
+      const before = { ...harness.renders };
+
+      await act(async () => {
+        await harness.syncWallet!();
+      });
+      await settle();
+
+      expect(harness.utxos).toHaveLength(mockUtxos.length - 1);
+      expect(harness.renders.connection).toEqual(before.connection);
+      expect(harness.renders.loadingState).toEqual(before.loadingState);
+    } finally {
+      api.getUtxos = getUtxos;
+    }
+  });
+
+  it("doesn't re-render the provider when the interval query fetches", async () => {
+    // No wallet is connected, so each fetch's sync returns at once: only the
+    // query's own fetch status could re-render anything.
+    const harness = mountHarness({ refreshInterval: 60_000 });
+    await settle();
+    // The provider's interval query is the client's only query.
+    const [query] = harness.queryClient.getQueryCache().getAll();
+    const before = {
+      commits: harness.commits,
+      fetches: query.state.dataUpdateCount,
+    };
+
+    await act(async () => {
+      await harness.queryClient.refetchQueries();
+    });
+    await settle();
+
+    expect(query.state.dataUpdateCount).toEqual(before.fetches + 1);
+    expect(harness.commits).toEqual(before.commits);
   });
 });

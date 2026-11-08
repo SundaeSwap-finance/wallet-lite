@@ -88,8 +88,10 @@ export const useProviderWalletObserverRef = (
       },
     ) => {
       (async () => {
-        await hooks?.onSyncWalletEnd?.(data);
+        // Before the hook: the flag tracks the sync itself, so a slow or
+        // failing hook can't hold it, or clear it during the next sync.
         syncingStore.setSyncing(false);
+        await hooks?.onSyncWalletEnd?.(data);
       })().catch(console.error);
     };
     const onDisconnect = () => {
